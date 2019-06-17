@@ -53,6 +53,8 @@ import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
+// add by zxh
+import LangSelect from '@/components/LangSelect'
 
 export default {
   components: {
@@ -61,6 +63,9 @@ export default {
     ErrorLog,
     Screenfull,
     SizeSelect,
+    // add by zxh
+    // eslint-disable-next-line vue/no-unused-components
+    LangSelect,
     Search
   },
   computed: {

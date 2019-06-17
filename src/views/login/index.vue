@@ -76,10 +76,13 @@
 <script>
 import { validUsername } from '@/utils/validate'
 import SocialSign from './components/SocialSignin'
+// add by zxh
+import LangSelect from '@/components/LangSelect'
 
 export default {
   name: 'Login',
-  components: { SocialSign },
+  // eslint-disable-next-line vue/no-unused-components
+  components: { /** add by zxh */LangSelect, SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {

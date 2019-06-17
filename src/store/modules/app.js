@@ -6,6 +6,8 @@ const state = {
     withoutAnimation: false
   },
   device: 'desktop',
+  // add by zxh
+  language: Cookies.get('language') || 'zh',
   size: Cookies.get('size') || 'medium'
 }
 
@@ -30,6 +32,11 @@ const mutations = {
   SET_SIZE: (state, size) => {
     state.size = size
     Cookies.set('size', size)
+  },
+  // add by zxh
+  SET_LANGUAGE: (state, language) => {
+    state.language = language
+    Cookies.set('language', language)
   }
 }
 
