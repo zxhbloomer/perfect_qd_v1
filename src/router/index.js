@@ -95,6 +95,39 @@ export const constantRoutes = [
       }
     ]
   },
+  // // 第一次尝试, 开发角色管理start
+  // {
+  //   path: 'system',
+  //   component: Layout,
+  //   redirect: 'role',
+  //   children: [
+  //     { path: 'role', component: import('@/views/00_system/role/index'), name: 'role', meta: { title: 'roleTitle', icon: 'bug' }}
+  //   ]
+  // },
+  {
+    path: '/sys',
+    component: Layout,
+    redirect: 'noredirect',
+    name: 'system', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+    alwaysShow: true,
+    meta: {
+      title: 'sys',
+      icon: '系统管理'
+    },
+    children: [
+      { path: 'role',
+        component: () => import('@/views/00_system/role/role'),
+        name: 'P00000000',
+        meta: { title: 'roleTitle', icon: '角色' }
+      },
+      { path: 'org',
+        component: () => import('@/views/00_system/organize/organize'),
+        name: 'P00000010',
+        meta: { title: 'orgTitle', icon: '角色' }
+      }
+    ]
+  },
+  // // 第一次尝试, 开发角色管理 end
   {
     path: '/guide',
     component: Layout,

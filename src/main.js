@@ -32,6 +32,11 @@ if (process.env.NODE_ENV === 'production') {
   mockXHR()
 }
 
+// add by zxh
+import commonFunction from './utils/commonFunction'
+
+Vue.use(commonFunction)
+
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
