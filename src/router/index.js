@@ -111,19 +111,19 @@ export const constantRoutes = [
     name: 'system', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
     alwaysShow: true,
     meta: {
-      title: 'sys',
+      title: '系统管理',
       icon: '系统管理'
     },
     children: [
       { path: 'role',
         component: () => import('@/views/00_system/role/role'),
         name: 'P00000000',
-        meta: { title: 'roleTitle', icon: '角色' }
+        meta: { title: '角色管理', icon: '角色' }
       },
       { path: 'org',
         component: () => import('@/views/00_system/organize/organize'),
         name: 'P00000010',
-        meta: { title: 'orgTitle', icon: '角色' }
+        meta: { title: '组织架构', icon: '角色' }
       }
     ]
   },

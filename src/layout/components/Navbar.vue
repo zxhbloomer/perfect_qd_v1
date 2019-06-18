@@ -16,8 +16,6 @@
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <lang-select class="right-menu-item hover-effect" />
-
       </template>
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
@@ -61,8 +59,6 @@ import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
-// add by zxh
-import LangSelect from '@/components/LangSelect'
 
 export default {
   components: {
@@ -71,9 +67,6 @@ export default {
     ErrorLog,
     Screenfull,
     SizeSelect,
-    // add by zxh
-    // eslint-disable-next-line vue/no-unused-components
-    LangSelect,
     Search
   },
   computed: {

@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie'
-import { getLanguage } from '@/lang/index'
 
 const state = {
   sidebar: {
@@ -8,7 +7,6 @@ const state = {
   },
   device: 'desktop',
   // add by zxh
-  language: getLanguage(),
   size: Cookies.get('size') || 'medium'
 }
 
@@ -33,11 +31,6 @@ const mutations = {
   SET_SIZE: (state, size) => {
     state.size = size
     Cookies.set('size', size)
-  },
-  // add by zxh
-  SET_LANGUAGE: (state, language) => {
-    state.language = language
-    Cookies.set('language', language)
   }
 }
 
@@ -53,10 +46,6 @@ const actions = {
   },
   setSize({ commit }, size) {
     commit('SET_SIZE', size)
-  },
-  // add by zxh
-  setLanguage({ commit }, language) {
-    commit('SET_LANGUAGE', language)
   }
 }
 
