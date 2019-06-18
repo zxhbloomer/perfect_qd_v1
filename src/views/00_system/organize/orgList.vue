@@ -22,7 +22,7 @@
     <el-table
       v-loading="listLoading"
       :data="listData"
-      :element-loading-text="$t('help.loadingMsg')"
+      :element-loading-text="'正在拼命加载中...'"
       :size="getSize()"
       :height="height"
       stripe

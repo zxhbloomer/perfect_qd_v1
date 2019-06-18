@@ -52,7 +52,7 @@
     <el-table
       v-loading="listLoading"
       :data="listData"
-      :element-loading-text="$t('help.loadingMsg')"
+      :element-loading-text="'正在拼命加载中...'"
       :size="size"
       :height="tableHeight"
       stripe
@@ -123,9 +123,9 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{ $t('table.confirm') }}</el-button>
-        <el-button v-else type="primary" @click="updateData">{{ $t('table.confirm') }}</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确 定</el-button>
+        <el-button v-else type="primary" @click="updateData">确 定</el-button>
       </div>
     </el-dialog>
   </div>
