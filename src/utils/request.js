@@ -20,7 +20,8 @@ service.interceptors.request.use(
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
       config.headers['X-Token'] = getToken()
-      config.headers['Authorization'] = `Bearer xxxxxxxxxxxxxx`
+      // add by zxh
+      config.headers['Authorization'] = `Bearer ` + store.getters.token
     }
     return config
   },
