@@ -1,7 +1,7 @@
 import Mock from 'mockjs'
 import { param2Obj } from '../src/utils'
-
-import user from './user'
+// del by zxh
+// import user from './user'
 // import role from './role'
 import article from './article'
 import search from './remote-search'
@@ -9,7 +9,7 @@ import sys_org from './00_system/organize/organize'
 import sys_role from './00_system/role/role'
 
 const mocks = [
-  ...user,
+  // ...user,
   // ...role,
   ...article,
   ...search,

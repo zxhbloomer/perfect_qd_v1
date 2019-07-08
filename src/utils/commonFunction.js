@@ -11,7 +11,21 @@ exports.install = function(Vue, options) {
   Vue.prototype.getLabelPosition = function() {
     return 'right'
   }
-  /** 弹出错误框 */
+  /** 弹出错误框
+   *
+   * element-ui定义
+   *
+  Vue.prototype.$loading = Loading.service;
+  Vue.prototype.$msgbox = MessageBox;
+  Vue.prototype.$alert = MessageBox.alert;
+  Vue.prototype.$confirm = MessageBox.confirm;
+  Vue.prototype.$prompt = MessageBox.prompt;
+  Vue.prototype.$notify = Notification;
+  Vue.prototype.$message = Message;
+
+   *
+   *
+   */
   Vue.prototype.showErrorMsg = function(message) {
     new Vue().$msgbox({
       title: '错误',
@@ -23,6 +37,14 @@ exports.install = function(Vue, options) {
       return
     }).catch(function() {
       return
+    })
+  }
+  /** 弹出Alert 警告 */
+  Vue.prototype.showErrorMsgAlert = function(message) {
+    new Vue().$message({
+      message: message,
+      type: 'error',
+      duration: 8 * 1000
     })
   }
 }

@@ -7,7 +7,7 @@ import { getToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 15000 // request timeout
 })
 
 // request interceptor
@@ -20,8 +20,6 @@ service.interceptors.request.use(
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
       config.headers['X-Token'] = getToken()
-      // add by zxh
-      config.headers['Authorization'] = `Bearer ` + store.getters.token
     }
     return config
   },
@@ -75,13 +73,20 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
-  }
+    // upd by zxh
+    // Message({
+    //   message: error.message,
+    //   type: 'error',
+    //   duration: 5 * 1000
+    // })
+    // return Promise.reject(error)
+    if (error.response) {
+      // switch (error.response.status) {
+      //   case 401:
+      //     // 返回 401 清除token信息并跳转到登录页面
+    }
+    return Promise.reject(error.response.data) // 返回接口返回的错误信息
+  },
 )
 
 export default service

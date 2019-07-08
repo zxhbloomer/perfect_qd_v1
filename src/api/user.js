@@ -1,8 +1,9 @@
 import request from '@/utils/request'
 
-export function login(data) {
+// update by zxh
+export function loginApi(data) {
   return request({
-    url: '/user/login',
+    url: '/api/v1/login_process',
     method: 'post',
     data
   })
