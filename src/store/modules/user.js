@@ -35,6 +35,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       loginApi({ username: username.trim(), password: password }).then(response => {
         const { data } = response
+        // 设置令牌
         commit('SET_TOKEN', data.token)
         setToken(data.token)
         resolve()
