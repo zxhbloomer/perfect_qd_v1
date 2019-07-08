@@ -1,12 +1,14 @@
 import Cookies from 'js-cookie'
 
-const TokenKey = 'Admin-Token'
+// upd by zxh
+const TokenKey = 'perfect-Token'
 
 export function getToken() {
   return Cookies.get(TokenKey)
 }
 
 export function setToken(token) {
+  debugger
   return Cookies.set(TokenKey, token)
 }
 
