@@ -3,16 +3,16 @@ import request from '@/utils/request'
 // update by zxh
 export function loginApi(data) {
   return request({
-    url: '/api/v1/login_process',
+    url: '/api/v1/user/token/get',
     method: 'post',
     data
   })
 }
 
-export function getInfo(token) {
+export function getUserInfoApi(token) {
   return request({
     url: '/user/info',
-    method: 'get',
+    method: 'post',
     params: { token }
   })
 }
