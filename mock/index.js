@@ -6,15 +6,15 @@ import { param2Obj } from '../src/utils'
 import article from './article'
 import search from './remote-search'
 import sys_org from './00_system/organize/organize'
-import sys_role from './00_system/role/role'
+// import sys_role from './00_system/role/role'
 
 const mocks = [
   // ...user,
   // ...role,
   ...article,
   ...search,
-  ...sys_org,
-  ...sys_role
+  ...sys_org
+  // ...sys_role
 ]
 
 // for front mock
