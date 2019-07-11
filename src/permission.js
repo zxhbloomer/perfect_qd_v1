@@ -1,6 +1,6 @@
 import router from './router'
 import store from './store'
-import { Message } from 'element-ui'
+import { Message, MessageBox } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
@@ -55,15 +55,20 @@ router.beforeEach(async(to, from, next) => {
       }
     }
   } else {
-    /* has no token*/
-
+    /* 没有token*/
     if (whiteList.indexOf(to.path) !== -1) {
-      // in the free login whitelist, go directly
+      // 如果在白名单中，可以进行跳转
       next()
     } else {
-      // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
-      NProgress.done()
+      // 没有在白名单中，进行重定向到login页面
+      debugger
+      MessageBox.alert('很抱歉，登录已过期，请重新登录', '登录已过期', {
+        confirmButtonText: '重新登录',
+        type: 'error'
+      }).then(() => {
+        next(`/login?redirect=${to.path}`)
+        NProgress.done()
+      })
     }
   }
 })
