@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getList(query) {
   return request({
-    url: '/sys/role/list',
+    url: '/api/v1/role/list',
     method: 'post',
     params: query
   })
