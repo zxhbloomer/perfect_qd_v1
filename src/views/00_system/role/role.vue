@@ -100,12 +100,11 @@ export default {
   mixins: [resizeMixin],
   data() {
     return {
-      thisData: {
+      dataJson: {
         // 查询使用的json
         search: {
           page: 1,
           limit: 20,
-          total: 0,
           role_name: undefined
         },
         // 分页控件的json
