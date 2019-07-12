@@ -46,7 +46,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="searchForm.total>0" ref="minusPaging" :total="searchForm.total" :page.sync="searchForm.page" :limit.sync="searchForm.limit" @pagination="getDataList" />
+    xx{{ paging.total }}xx{{ paging.page }}xx{{ paging.limit }}xx
+    <pagination ref="minusPaging" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getDataList" />
     <!-- pop窗口1 -->
     <el-dialog
       v-el-drag-dialog
@@ -99,7 +100,7 @@ export default {
   mixins: [resizeMixin],
   data() {
     return {
-      // 表格数据
+      // 查询使用的json
       searchForm: {
         page: 1,
         limit: 20,
@@ -110,21 +111,28 @@ export default {
       btnStatus: {
         doEdit: false
       },
+      // loading 状态
       listLoading: true,
+      // table使用的json
       listData: null,
-      tableHeight: this.setUIheight(),
       // 单条数据 json
       temp: {
         id: undefined,
         create_dt: '',
         role_name: ''
       },
-
       // 弹出窗口状态名称
       textMap: {
         update: '修改',
         create: '新增'
       },
+      // 分页控件的json
+      paging: {
+        page: 0,
+        limit: 0,
+        total: 0
+      },
+      tableHeight: this.setUIheight(),
       // 以下为pop的内容
       selection: [],
       dialogStatus: '',
@@ -139,6 +147,10 @@ export default {
     // 初始化查询
     this.getDataList()
     this.btnStatus.doEdit = false
+    // 初始化分页
+    this.paging.page = this.searchForm.page
+    this.paging.limit = this.searchForm.limit
+    this.paging.total = this.searchForm.total
   },
   methods: {
     handleRowClick(row) {
@@ -206,7 +218,7 @@ export default {
       // 查询逻辑
       this.listLoading = true
       getList(this.searchForm).then(response => {
-        this.listData = response.data.datas
+        this.listData = response.data.records
         this.searchForm.total = response.data.total
         this.listLoading = false
       })
