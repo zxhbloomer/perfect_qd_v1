@@ -100,43 +100,49 @@ export default {
   mixins: [resizeMixin],
   data() {
     return {
-      // 查询使用的json
-      searchForm: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        role_name: undefined
+      thisData: {
+        // 查询使用的json
+        search: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          role_name: undefined
+        },
+        // 分页控件的json
+        paging: {
+          page: 0,
+          limit: 0,
+          total: 0
+        },
+        // table使用的json
+        listData: null,
+        // 单条数据 json
+        temp: {
+          id: undefined,
+          create_dt: '',
+          role_name: ''
+        }
       },
-      // 按钮状态
-      btnStatus: {
-        doEdit: false
+      settings: {
+        // 按钮状态
+        btnStatus: {
+          doEdit: false
+        },
+        // loading 状态
+        listLoading: true,
+        tableHeight: this.setUIheight()
       },
-      // loading 状态
-      listLoading: true,
-      // table使用的json
-      listData: null,
-      // 单条数据 json
-      temp: {
-        id: undefined,
-        create_dt: '',
-        role_name: ''
+      popSettings: {
+        // 弹出窗口状态名称
+        textMap: {
+          update: '修改',
+          create: '新增'
+        },
+        // 以下为pop的内容
+        selection: [],
+        dialogStatus: '',
+        dialogFormVisible: false
       },
-      // 弹出窗口状态名称
-      textMap: {
-        update: '修改',
-        create: '新增'
-      },
-      // 分页控件的json
-      paging: {
-        page: 0,
-        limit: 0,
-        total: 0
-      },
-      tableHeight: this.setUIheight(),
-      // 以下为pop的内容
-      selection: [],
-      dialogStatus: '',
-      dialogFormVisible: false,
       rules: {
         create_dt: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'blur' }],
         role_name: [{ required: true, message: 'title is required', trigger: 'blur' }]
