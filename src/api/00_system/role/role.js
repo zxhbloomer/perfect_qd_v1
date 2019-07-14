@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getList(query) {
+export function apiGetList(query) {
   return request({
     url: '/api/v1/role/list',
     method: 'post',
@@ -8,9 +8,9 @@ export function getList(query) {
   })
 }
 
-export function updateData(data) {
+export function apiUpdateData(data) {
   return request({
-    url: '/sys/role/update',
+    url: '/api/v1/role/save',
     method: 'post',
     data
   })

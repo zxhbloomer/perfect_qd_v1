@@ -34,8 +34,11 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column type="index" />
-      <el-table-column sortable prop="create_dt" label="日期" />
-      <el-table-column sortable prop="role_name" label="权限组名称" />
+      <el-table-column sortable prop="type" label="角色类型" />
+      <el-table-column sortable prop="code" label="角色编码" />
+      <el-table-column sortable prop="name" label="角色名称" />
+      <el-table-column sortable prop="descr" label="描述" />
+      <el-table-column sortable prop="simpleName" label="简称" />
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row)" />
@@ -61,16 +64,25 @@
         label-width="120px"
         status-icon
       >
-        <el-form-item label="日期：" prop="create_dt">
-          <el-input v-model="dataJson.tempJson.create_dt" />
+        <el-form-item label="角色类型：" prop="type">
+          <el-input v-model="dataJson.tempJson.type" />
         </el-form-item>
-        <el-form-item label="权限组名称：" prop="role_name">
-          <el-input v-model="dataJson.tempJson.role_name" />
+        <el-form-item label="角色编码：" prop="code">
+          <el-input v-model="dataJson.tempJson.code" />
+        </el-form-item>
+        <el-form-item label="角色名称：" prop="name">
+          <el-input v-model="dataJson.tempJson.name" />
+        </el-form-item>
+        <el-form-item label="描述：" prop="descr">
+          <el-input v-model="dataJson.tempJson.descr" />
+        </el-form-item>
+        <el-form-item label="简称：" prop="simple_name">
+          <el-input v-model="dataJson.tempJson.simpleName" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button plain @click="popSettings.dialogFormVisible = false">取 消</el-button>
-        <el-button plain type="primary" @click="dialogStatus==='create'?createData():updateData()">确 定</el-button>
+        <el-button plain type="primary" @click="popSettings.dialogStatus==='create'?createData():updateData()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -83,7 +95,7 @@
 </style>
 
 <script>
-import { getList, updateData } from '@/api/00_system/role/role'
+import { apiGetList, apiUpdateData } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import elDragDialog from '@/directive/el-drag-dialog' // base on element-ui
@@ -108,8 +120,8 @@ export default {
         },
         // 分页控件的json
         paging: {
-          current: 0,
-          size: 0,
+          current: 1,
+          size: 20,
           total: 0
         },
         // table使用的json
@@ -117,8 +129,11 @@ export default {
         // 单条数据 json
         tempJson: {
           id: undefined,
-          create_dt: '',
-          role_name: ''
+          type: '',
+          code: '',
+          name: '',
+          descr: '',
+          simpleName: ''
         }
       },
       settings: {
@@ -211,15 +226,19 @@ export default {
     resetTemp() {
       this.dataJson.tempJson = {
         id: undefined,
-        create_dt: '',
-        role_name: ''
+        type: '',
+        code: '',
+        name: '',
+        descr: '',
+        simpleName: ''
       }
     },
     getDataList() {
       this.dataJson.searchForm.pageCondition.current = this.dataJson.paging.current
+      this.dataJson.searchForm.pageCondition.size = this.dataJson.paging.size
       // 查询逻辑
       this.settings.listLoading = true
-      getList(this.dataJson.searchForm).then(response => {
+      apiGetList(this.dataJson.searchForm).then(response => {
         this.dataJson.listData = response.data.records
         this.dataJson.paging = response.data
         this.dataJson.paging.records = {}
@@ -230,8 +249,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateData(tempData).then(() => {
+          apiUpdateData(tempData).then(() => {
             for (const v of this.list) {
               if (v.id === this.dataJson.tempJson.id) {
                 const index = this.list.indexOf(v)
