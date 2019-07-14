@@ -45,8 +45,8 @@
         </template>
       </el-table-column>
     </el-table>
-    xx{{ dataJson.paging.total }}xx{{ dataJson.paging.page }}xx{{ dataJson.paging.limit }}xx
-    <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.page" :limit.sync="dataJson.paging.limit" @pagination="getDataList" />
+    xx{{ dataJson.paging.total }}xx{{ dataJson.paging.current }}xx{{ dataJson.paging.size }}xx
+    <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口1 -->
     <el-dialog
       v-el-drag-dialog
@@ -102,14 +102,18 @@ export default {
       dataJson: {
         // 查询使用的json
         searchForm: {
-          page: 1,
-          limit: 20,
-          role_name: undefined
+          pageCondition: {
+            current: 1,
+            size: 10
+          }, // 当前页
+          // 查询条件
+          condition_role_name: undefined,
+          sorts: [] // 排序
         },
         // 分页控件的json
         paging: {
-          page: 0,
-          limit: 0,
+          current: 0,
+          size: 0,
           total: 0
         },
         // table使用的json
@@ -159,7 +163,7 @@ export default {
     },
     handleSearch() {
       // 查询
-      this.dataJson.searchForm.page = 1
+      this.dataJson.searchForm.pageCondition.current = 1
       this.getDataList()
     },
     handleCreate() {
@@ -216,11 +220,13 @@ export default {
       }
     },
     getDataList() {
+      this.dataJson.searchForm.pageCondition.current = this.dataJson.paging.current
       // 查询逻辑
       this.settings.listLoading = true
       getList(this.dataJson.searchForm).then(response => {
         this.dataJson.listData = response.data.records
-        this.dataJson.paging.total = response.data.total
+        this.dataJson.paging = response.data
+        this.dataJson.paging.records = {}
         this.settings.listLoading = false
       })
     },

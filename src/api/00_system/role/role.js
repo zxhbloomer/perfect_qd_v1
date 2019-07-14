@@ -4,7 +4,7 @@ export function getList(query) {
   return request({
     url: '/api/v1/role/list',
     method: 'post',
-    params: query
+    data: query
   })
 }
 

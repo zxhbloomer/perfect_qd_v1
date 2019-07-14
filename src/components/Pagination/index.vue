@@ -20,18 +20,22 @@ import { scrollTo } from '@/utils/scroll-to'
 export default {
   name: 'Pagination',
   props: {
+    // 总条数
     total: {
       required: true,
       type: Number
     },
+    // 当前页
     page: {
       type: Number,
       default: 1
     },
+    // 分页条数
     limit: {
       type: Number,
       default: 20
     },
+    // 可分页条数
     pageSizes: {
       type: Array,
       default() {
