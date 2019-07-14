@@ -1,16 +1,15 @@
 <template>
   <div class="app-container">
-    <!-- 我來玩玩 -->
     <el-form
       ref="minusForm"
       :inline="true"
-      :model="searchForm"
+      :model="dataJson.searchForm"
       :size="getSize()"
       label-position="getLabelPosition()"
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model="searchForm.role_name" placeholder="权限组名称" />
+        <el-input v-model="dataJson.searchForm.role_name" placeholder="权限组名称" />
       </el-form-item>
       <el-form-item :size="getSize()">
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
@@ -18,11 +17,11 @@
     </el-form>
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleCreate">新增</el-button>
-      <el-button :disabled="!btnStatus.doEdit" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
+      <el-button :disabled="!settings.btnStatus.doEdit" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
     </el-button-group>
     <el-table
-      v-loading="listLoading"
-      :data="listData"
+      v-loading="settings.listLoading"
+      :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
       :size="getSize()"
       :height="tableHeight"
@@ -46,35 +45,35 @@
         </template>
       </el-table-column>
     </el-table>
-    xx{{ paging.total }}xx{{ paging.page }}xx{{ paging.limit }}xx
-    <pagination ref="minusPaging" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getDataList" />
+    xx{{ dataJson.paging.total }}xx{{ dataJson.paging.page }}xx{{ dataJson.paging.limit }}xx
+    <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.page" :limit.sync="dataJson.paging.limit" @pagination="getDataList" />
     <!-- pop窗口1 -->
     <el-dialog
       v-el-drag-dialog
-      :title="textMap[dialogStatus]"
-      :visible.sync="dialogFormVisible"
+      :title="popSettings.textMap[popSettings.dialogStatus]"
+      :visible.sync="popSettings.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
     >
       <el-form
         ref="dataForm"
-        :rules="rules"
-        :model="temp"
+        :rules="popSettings.rules"
+        :model="dataJson.tempJson"
         :size="getSize()"
         label-position="rigth"
         label-width="120px"
         status-icon
       >
         <el-form-item label="日期：" prop="create_dt">
-          <el-input v-model="temp.create_dt" />
+          <el-input v-model="dataJson.tempJson.create_dt" />
         </el-form-item>
         <el-form-item label="权限组名称：" prop="role_name">
-          <el-input v-model="temp.role_name" />
+          <el-input v-model="dataJson.tempJson.role_name" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button plain @click="dialogFormVisible = false">取 消</el-button>
+        <el-button plain @click="popSettings.dialogFormVisible = false">取 消</el-button>
         <el-button plain type="primary" @click="dialogStatus==='create'?createData():updateData()">确 定</el-button>
       </div>
     </el-dialog>
@@ -102,7 +101,7 @@ export default {
     return {
       dataJson: {
         // 查询使用的json
-        search: {
+        searchForm: {
           page: 1,
           limit: 20,
           role_name: undefined
@@ -116,7 +115,7 @@ export default {
         // table使用的json
         listData: null,
         // 单条数据 json
-        temp: {
+        tempJson: {
           id: undefined,
           create_dt: '',
           role_name: ''
@@ -140,80 +139,77 @@ export default {
         // 以下为pop的内容
         selection: [],
         dialogStatus: '',
-        dialogFormVisible: false
-      },
-      rules: {
-        create_dt: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'blur' }],
-        role_name: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        dialogFormVisible: false,
+        // pop的check内容
+        rules: {
+          create_dt: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'blur' }],
+          role_name: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        }
       }
     }
   },
   created() {
     // 初始化查询
     this.getDataList()
-    this.btnStatus.doEdit = false
-    // 初始化分页
-    this.paging.page = this.searchForm.page
-    this.paging.limit = this.searchForm.limit
-    this.paging.total = this.searchForm.total
+    this.settings.btnStatus.doEdit = false
   },
   methods: {
     handleRowClick(row) {
-      this.temp = Object.assign({}, row) // copy obj
+      this.dataJson.tempJson = Object.assign({}, row) // copy obj
     },
     handleSearch() {
       // 查询
-      this.searchForm.page = 1
+      this.dataJson.searchForm.page = 1
       this.getDataList()
     },
     handleCreate() {
       // 新增
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
+      this.popSettings.dialogStatus = 'create'
+      this.popSettings.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
     },
     handleRowUpdate(row) {
       // 修改
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
+      this.dataJson.tempJson = Object.assign({}, row) // copy obj
+      this.popSettings.dialogStatus = 'update'
+      this.popSettings.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
     },
     handleUpdate() {
-      if (this.temp.id === undefined) {
+      if (this.dataJson.tempJson.id === undefined) {
         this.showErrorMsg('请选择一条数据')
         return
       }
       // 修改
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
+      this.popSettings.dialogStatus = 'update'
+      this.popSettings.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
     },
     handleCurrentChange(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      if (this.temp.id !== undefined) {
-        this.btnStatus.doEdit = true
+      this.dataJson.tempJson = Object.assign({}, row) // copy obj
+      if (this.dataJson.tempJson.id !== undefined) {
+        this.settings.btnStatus.doEdit = true
       } else {
-        this.btnStatus.doEdit = false
+        this.settings.btnStatus.doEdit = false
       }
     },
     handleSortChange(column) {
       // 服务器端排序
       if (column.order === 'ascending') {
-        this.searchForm.sort = column.prop
+        this.dataJson.searchForm.sort = column.prop
       } else if (column.order === 'descending') {
-        this.searchForm.sort = '-' + column.prop
+        this.dataJson.searchForm.sort = '-' + column.prop
       }
       this.getDataList()
     },
     resetTemp() {
-      this.temp = {
+      this.dataJson.tempJson = {
         id: undefined,
         create_dt: '',
         role_name: ''
@@ -221,27 +217,27 @@ export default {
     },
     getDataList() {
       // 查询逻辑
-      this.listLoading = true
-      getList(this.searchForm).then(response => {
-        this.listData = response.data.records
-        this.searchForm.total = response.data.total
-        this.listLoading = false
+      this.settings.listLoading = true
+      getList(this.dataJson.searchForm).then(response => {
+        this.dataJson.listData = response.data.records
+        this.dataJson.paging.total = response.data.total
+        this.settings.listLoading = false
       })
     },
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
+          const tempData = Object.assign({}, this.dataJson.tempJson)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           updateData(tempData).then(() => {
             for (const v of this.list) {
-              if (v.id === this.temp.id) {
+              if (v.id === this.dataJson.tempJson.id) {
                 const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
+                this.list.splice(index, 1, this.dataJson.tempJson)
                 break
               }
             }
-            this.dialogFormVisible = false
+            this.popSettings.dialogFormVisible = false
             this.$notify({
               title: '成功',
               message: '更新成功',
