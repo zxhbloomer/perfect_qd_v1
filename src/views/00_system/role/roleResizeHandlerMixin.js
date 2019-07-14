@@ -16,7 +16,7 @@ export default {
     setUIheight() {
       try {
         // 定义高度
-        const elementHeight = document.documentElement.clientHeight - 84
+        const elementHeight = document.documentElement.clientHeight - 175
         // 获取所有的ref，主要判断minus的refs
         const listRefsNames = Object.keys(this.$refs).map((key) => {
           return this.$refs[key]

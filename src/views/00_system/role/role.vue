@@ -4,14 +4,13 @@
       ref="minusForm"
       :inline="true"
       :model="dataJson.searchForm"
-      :size="getSize()"
       label-position="getLabelPosition()"
       class="floatRight"
     >
       <el-form-item label="">
         <el-input v-model="dataJson.searchForm.role_name" placeholder="权限组名称" />
       </el-form-item>
-      <el-form-item :size="getSize()">
+      <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
     </el-form>
@@ -23,7 +22,6 @@
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
-      :size="getSize()"
       :height="tableHeight"
       stripe
       border
@@ -40,12 +38,11 @@
       <el-table-column sortable prop="role_name" label="权限组名称" />
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button :size="getSize()" type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row)" />
-          <el-button :size="getSize()" type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
+          <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row)" />
+          <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
         </template>
       </el-table-column>
     </el-table>
-    xx{{ dataJson.paging.total }}xx{{ dataJson.paging.current }}xx{{ dataJson.paging.size }}xx
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口1 -->
     <el-dialog
@@ -60,7 +57,6 @@
         ref="dataForm"
         :rules="popSettings.rules"
         :model="dataJson.tempJson"
-        :size="getSize()"
         label-position="rigth"
         label-width="120px"
         status-icon
@@ -104,7 +100,7 @@ export default {
         searchForm: {
           pageCondition: {
             current: 1,
-            size: 10
+            size: 20
           }, // 当前页
           // 查询条件
           condition_role_name: undefined,

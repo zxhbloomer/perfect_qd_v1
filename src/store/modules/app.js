@@ -7,7 +7,7 @@ const state = {
   },
   device: 'desktop',
   // add by zxh
-  size: Cookies.get('size') || 'medium'
+  size: Cookies.get('size') || 'mini'
 }
 
 const mutations = {
