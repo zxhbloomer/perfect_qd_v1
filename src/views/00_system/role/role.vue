@@ -18,11 +18,12 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleCreate">新增</el-button>
       <el-button :disabled="!settings.btnStatus.doEdit" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
     </el-button-group>
+    {{ settings.tableHeight }}
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
-      :height="tableHeight"
+      :height="settings.tableHeight"
       stripe
       border
       fit
