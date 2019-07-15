@@ -18,7 +18,6 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleCreate">新增</el-button>
       <el-button :disabled="!settings.btnStatus.doEdit" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
     </el-button-group>
-    {{ settings.tableHeight }}
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
@@ -56,6 +55,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
+      width="620px"
     >
       <el-form
         ref="dataForm"
@@ -65,25 +65,54 @@
         label-width="120px"
         status-icon
       >
-        <el-form-item label="角色类型：" prop="type">
-          <el-input v-model="dataJson.tempJson.type" />
-        </el-form-item>
-        <el-form-item label="角色编码：" prop="code">
-          <el-input v-model="dataJson.tempJson.code" />
-        </el-form-item>
-        <el-form-item label="角色名称：" prop="name">
-          <el-input v-model="dataJson.tempJson.name" />
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="角色类型：" prop="type">
+              <el-input v-model="dataJson.tempJson.type" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色编码：" prop="code">
+              <el-input v-model="dataJson.tempJson.code" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="角色名称：" prop="name">
+              <el-input v-model="dataJson.tempJson.name" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="简称：" prop="simple_name">
+              <el-input v-model="dataJson.tempJson.simpleName" />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="描述：" prop="descr">
-          <el-input v-model="dataJson.tempJson.descr" />
+          <el-input v-model="dataJson.tempJson.descr" type="textarea" />
         </el-form-item>
-        <el-form-item label="简称：" prop="simple_name">
-          <el-input v-model="dataJson.tempJson.simpleName" />
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            1
+          </el-col>
+          <el-col :span="12">
+            2
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            11
+          </el-col>
+          <el-col :span="12">
+            22
+          </el-col>
+        </el-row>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button plain @click="popSettings.dialogFormVisible = false">取 消</el-button>
-        <el-button plain type="primary" @click="popSettings.dialogStatus==='create'?createData():updateData()">确 定</el-button>
+        <el-button plain :disabled="settings.listLoading" @click="popSettings.dialogFormVisible = false">取 消</el-button>
+        <el-button plain type="primary" :disabled="settings.listLoading" @click="popSettings.dialogStatus==='create'?createData():updateData()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -250,15 +279,17 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
+          this.settings.listLoading = true
           apiUpdateData(tempData).then(() => {
-            for (const v of this.list) {
+            for (const v of this.dataJson.listData) {
               if (v.id === this.dataJson.tempJson.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.dataJson.tempJson)
+                const index = this.dataJson.listData.indexOf(v)
+                this.dataJson.listData.splice(index, 1, this.dataJson.tempJson)
                 break
               }
             }
             this.popSettings.dialogFormVisible = false
+            this.settings.listLoading = false
             this.$notify({
               title: '成功',
               message: '更新成功',
