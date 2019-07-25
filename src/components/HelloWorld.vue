@@ -4,7 +4,7 @@
     <file-pond
       ref="pond"
       name="test"
-      label-idle="Drop files here..."
+      label-idle="文件上传..."
       allow-multiple="true"
       :server="myServer"
       :files="myFiles"
@@ -30,6 +30,7 @@ const FilePond = vueFilePond(
   FilePondPluginImageExifOrientation,
   FilePondPluginImagePreview
 )
+
 export default {
   name: 'App',
   data: function() {
@@ -50,7 +51,11 @@ export default {
       myFiles: [{
         source: 'photo.jpeg',
         options: {
-          type: 'local'
+          type: 'local',
+          labelFileProcessing: '上传中...',
+          labelFileProcessingComplete: '上传完成',
+          labelFileProcessingAborted: '上传取消',
+          labelFileProcessingError: '上传错误'
         }
       }]
     }

@@ -22,8 +22,9 @@
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">上传</el-button>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
-      <HelloWorld />
     </el-button-group>
+    <HelloWorld>xxxxxxxxxxx</HelloWorld>
+
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
