@@ -20,7 +20,7 @@
       <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">复制新增</el-button>
     </el-button-group>
     <el-button-group>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">上传</el-button>
+      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="true" @click="handleInsert">上传</el-button>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
     </el-button-group>
     <el-table
