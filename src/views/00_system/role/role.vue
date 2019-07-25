@@ -23,8 +23,6 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">上传</el-button>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
     </el-button-group>
-    <HelloWorld>xxxxxxxxxxx</HelloWorld>
-
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
@@ -133,11 +131,10 @@ import { getListApi, updateApi, insertApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import elDragDialog from '@/directive/el-drag-dialog' // base on element-ui
-import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, HelloWorld },
+  components: { Pagination },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
