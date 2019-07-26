@@ -21,8 +21,8 @@
     </el-button-group>
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="true" @click="handleInsert">上传</el-button>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载zz</el-button>
-      <my-upload />
+      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
+      <simple-upload />
     </el-button-group>
 
     <el-table
@@ -133,11 +133,11 @@ import { getListApi, updateApi, insertApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import elDragDialog from '@/directive/el-drag-dialog' // base on element-ui
-import MyUpload from '@/layout/components/MyUpload'
+import SimpleUpload from '@/layout/components/SimpleUpload'
 
 export default {
   name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, MyUpload },
+  components: { Pagination, SimpleUpload },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
