@@ -18,11 +18,27 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">新增</el-button>
       <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
       <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">复制新增</el-button>
+      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">数据导出</el-button>
     </el-button-group>
+
+    <el-dropdown split-button type="primary">
+      数据导入
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item>
+          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载3</el-button>
+        </el-dropdown-item>
+        <el-dropdown-item>
+          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载3</el-button>
+        </el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
+
     <el-button-group>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="true" @click="handleInsert">上传</el-button>
       <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
-      <simple-upload />
+      <simple-upload
+        @upload-success="handleUploadFileSuccess"
+        @upload-error="handleUploadFileError"
+      />
     </el-button-group>
 
     <el-table
@@ -421,6 +437,14 @@ export default {
           })
         }
       })
+    },
+    // 文件上传成功
+    handleUploadFileSuccess(response) {
+      console.debug('文件上传成功')
+    },
+    // 文件上传失败
+    handleUploadFileError() {
+      console.debug('文件上传失败')
     }
   }
 }

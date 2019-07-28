@@ -46,7 +46,20 @@ module.exports = {
     //   }
     // },
     // after: require('./mock/mock-server.js')
-    proxy: 'http://127.0.0.1:8088/'
+
+    // proxy: 'http://127.0.0.1:8088/'
+    proxy: {
+      '/perfect-manager': {
+        target: 'http://127.0.0.1:8088/',
+        ws: true,
+        changeOrigin: true
+      },
+      '/perfect-fs': {
+        target: 'http://127.0.0.1:9091/',
+        ws: true,
+        changeOrigin: true
+      }
+    }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
