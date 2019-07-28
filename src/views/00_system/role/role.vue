@@ -21,26 +21,9 @@
       <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">数据导出</el-button>
     </el-button-group>
 
-    <el-dropdown split-button type="primary">
-      数据导入
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>
-          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载3</el-button>
-        </el-dropdown-item>
-        <el-dropdown-item>
-          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载3</el-button>
-        </el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
-
     <el-button-group>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">下载</el-button>
-      <simple-upload
-        @upload-success="handleUploadFileSuccess"
-        @upload-error="handleUploadFileError"
-      />
+      <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
-
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
@@ -51,6 +34,7 @@
       fit
       highlight-current-row
       show-overflow-tooltip
+      :default-sort="{prop: 'uTime', order: 'descending'}"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
@@ -62,6 +46,7 @@
       <el-table-column sortable prop="name" label="角色名称" />
       <el-table-column sortable prop="descr" label="描述" />
       <el-table-column sortable prop="simpleName" label="简称" />
+      <el-table-column sortable prop="uTime" label="更新时间" />
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
@@ -70,11 +55,11 @@
       </el-table-column>
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-    <!-- pop窗口1 -->
+    <!-- pop窗口 数据批量导入：模版导出、excel导入-->
     <el-dialog
       v-el-drag-dialog
-      :title="popSettings.textMap[popSettings.dialogStatus]"
-      :visible.sync="popSettings.dialogFormVisible"
+      title="数据批量导入"
+      :visible.sync="popSettingsImport.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
@@ -82,7 +67,48 @@
     >
       <el-form
         ref="dataForm"
-        :rules="popSettings.rules"
+        label-position="rigth"
+        label-width="120px"
+        status-icon
+      >
+        <el-form-item label="点击下载：">
+          <el-link type="primary" :href="popSettingsImport.templateFilePath"> 模版文件</el-link>
+        </el-form-item>
+        <el-form-item label="选择导入文件：">
+          <simple-upload
+            @upload-success="handleUploadFileSuccess"
+            @upload-error="handleUploadFileError"
+          />
+        </el-form-item>
+      </el-form>
+      <p><strong>说明：</strong></p>
+      <ul>
+        <li>请先下载模版文件，在模版文件中进行修改后再上传</li>
+        <li>支持上传的文件类型：xls、xlsx</li>
+        <li>请避免excel文件格式错误</li>
+        <li>文件中存在任何错误，整个文件上传都将失败</li>
+        <li>如果上传失败，会自动下载错误信息，请修改完毕后再次上传</li>
+      </ul>
+
+      <div slot="footer" class="dialog-footer">
+        <el-divider />
+        <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- pop窗口 数据编辑:新增、修改、-->
+    <el-dialog
+      v-el-drag-dialog
+      :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
+      :visible.sync="popSettingsData.dialogFormVisible"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+      width="620px"
+    >
+      <el-form
+        ref="dataForm"
+        :rules="popSettingsData.rules"
         :model="dataJson.tempJson"
         label-position="rigth"
         label-width="120px"
@@ -129,10 +155,10 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button plain :disabled="settings.listLoading" @click="popSettings.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettings.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettings.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettings.btnStatus.doCopyInsert" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
+        <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doCopyInsert" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -212,7 +238,7 @@ export default {
         tableHeight: this.setUIheight(),
         duration: 4000
       },
-      popSettings: {
+      popSettingsData: {
         // 弹出窗口状态名称
         textMap: {
           update: '修改',
@@ -225,7 +251,7 @@ export default {
           doUpdate: false,
           doCopyInsert: false
         },
-        // 以下为pop的内容
+        // 以下为pop的内容：数据弹出框
         selection: [],
         dialogStatus: '',
         dialogFormVisible: false,
@@ -234,6 +260,13 @@ export default {
           create_dt: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'blur' }],
           role_name: [{ required: true, message: 'title is required', trigger: 'blur' }]
         }
+      },
+      // 导入窗口的状态
+      popSettingsImport: {
+        // 弹出窗口会否显示
+        dialogFormVisible: false,
+        // 模版文件地址
+        templateFilePath: 'http://baidu.com'
       }
     }
   },
@@ -262,8 +295,8 @@ export default {
       // 修改
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.rowIndex = _rowIndex
-      this.popSettings.dialogStatus = 'update'
-      this.popSettings.dialogFormVisible = true
+      this.popSettingsData.dialogStatus = 'update'
+      this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -271,17 +304,17 @@ export default {
     // 点击按钮 新增
     handleInsert() {
       // 新增
-      this.popSettings.dialogStatus = 'insert'
-      this.popSettings.dialogFormVisible = true
+      this.popSettingsData.dialogStatus = 'insert'
+      this.popSettingsData.dialogFormVisible = true
       // 数据初始化
       this.dataJson.tempJson = this.dataJson.tempJsonOriginal
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettings.btnStatus.doInsert = true
-      this.popSettings.btnStatus.doUpdate = false
-      this.popSettings.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnStatus.doInsert = true
+      this.popSettingsData.btnStatus.doUpdate = false
+      this.popSettingsData.btnStatus.doCopyInsert = false
     },
     // 点击按钮 更新
     handleUpdate() {
@@ -290,15 +323,15 @@ export default {
         return
       }
       // 修改
-      this.popSettings.dialogStatus = 'update'
-      this.popSettings.dialogFormVisible = true
+      this.popSettingsData.dialogStatus = 'update'
+      this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettings.btnStatus.doInsert = false
-      this.popSettings.btnStatus.doUpdate = true
-      this.popSettings.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnStatus.doInsert = false
+      this.popSettingsData.btnStatus.doUpdate = true
+      this.popSettingsData.btnStatus.doCopyInsert = false
     },
     // 点击按钮 复制新增
     handleCopyInsert() {
@@ -306,15 +339,15 @@ export default {
       this.dataJson.tempJson.uId = ''
       this.dataJson.tempJson.uTime = ''
       // 修改
-      this.popSettings.dialogStatus = 'copyInsert'
-      this.popSettings.dialogFormVisible = true
+      this.popSettingsData.dialogStatus = 'copyInsert'
+      this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettings.btnStatus.doInsert = false
-      this.popSettings.btnStatus.doUpdate = false
-      this.popSettings.btnStatus.doCopyInsert = true
+      this.popSettingsData.btnStatus.doInsert = false
+      this.popSettingsData.btnStatus.doUpdate = false
+      this.popSettingsData.btnStatus.doCopyInsert = true
     },
     handleCurrentChange(row) {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
@@ -365,7 +398,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
             this.$notify({
@@ -374,7 +407,7 @@ export default {
               type: 'error',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           })
         }
@@ -394,7 +427,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
             this.$notify({
@@ -403,7 +436,7 @@ export default {
               type: 'error',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           })
         }
@@ -423,7 +456,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
             this.$notify({
@@ -432,7 +465,7 @@ export default {
               type: 'error',
               duration: this.settings.duration
             })
-            this.popSettings.dialogFormVisible = false
+            this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           })
         }
@@ -445,6 +478,15 @@ export default {
     // 文件上传失败
     handleUploadFileError() {
       console.debug('文件上传失败')
+    },
+    // 数据批量导入按钮
+    handleOpenImportDialog() {
+      this.popSettingsImport.dialogFormVisible = true
+    },
+    // 关闭弹出窗口
+    handlCloseDialog() {
+      this.popSettingsImport.dialogFormVisible = false
+      this.popSettingsData.dialogFormVisible = false
     }
   }
 }
