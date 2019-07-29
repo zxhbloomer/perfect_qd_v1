@@ -193,7 +193,7 @@ export default {
           }, // 当前页
           // 查询条件
           condition_role_name: undefined,
-          sorts: [] // 排序
+          sort: '' // 排序
         },
         // 分页控件的json
         paging: {
