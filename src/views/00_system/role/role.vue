@@ -24,6 +24,7 @@
     <el-button-group>
       <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
+    {{ dataJson.multipleSelection }}
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
@@ -35,11 +36,13 @@
       highlight-current-row
       show-overflow-tooltip
       :default-sort="{prop: 'uTime', order: 'descending'}"
+      :row-key="getRowKeys"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
+      @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" />
+      <el-table-column type="selection" width="37" :reserve-selection="true" />
       <el-table-column type="index" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
@@ -47,6 +50,12 @@
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column label="操作" min-width="45">
+        <template slot-scope="scope">
+          <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
+          <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
+        </template>
+      </el-table-column>
 
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
@@ -220,7 +229,9 @@ export default {
           }
         },
         // 当前表格中的索引，第几条
-        rowIndex: 0
+        rowIndex: 0,
+        // 当前选中的行（checkbox）
+        multipleSelection: []
       },
       // 页面设置json
       settings: {
@@ -485,6 +496,13 @@ export default {
     handlCloseDialog() {
       this.popSettingsImport.dialogFormVisible = false
       this.popSettingsData.dialogFormVisible = false
+    },
+    getRowKeys(row) {
+      return row.id
+    },
+    // table选择框
+    handleSelectionChange(val) {
+      this.dataJson.multipleSelection = val
     }
   }
 }
