@@ -24,7 +24,6 @@
     <el-button-group>
       <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
-    {{ dataJson.multipleSelection }}
     <el-table
       v-loading="settings.listLoading"
       :data="dataJson.listData"
@@ -497,6 +496,7 @@ export default {
       this.popSettingsImport.dialogFormVisible = false
       this.popSettingsData.dialogFormVisible = false
     },
+    // 获取row-key
     getRowKeys(row) {
       return row.id
     },
