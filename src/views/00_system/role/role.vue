@@ -41,18 +41,13 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column type="index" />
-      <el-table-column sortable prop="code" label="角色编码" />
-      <el-table-column sortable prop="type" label="角色类型" />
-      <el-table-column sortable prop="name" label="角色名称" />
-      <el-table-column sortable prop="descr" label="描述" />
-      <el-table-column sortable prop="simpleName" label="简称" />
-      <el-table-column sortable prop="uTime" label="更新时间" />
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
-          <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
-        </template>
-      </el-table-column>
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据批量导入：模版导出、excel导入-->
@@ -193,7 +188,7 @@ export default {
           }, // 当前页
           // 查询条件
           condition_role_name: undefined,
-          sort: '' // 排序
+          sort: '-uTime' // 排序
         },
         // 分页控件的json
         paging: {
@@ -227,7 +222,10 @@ export default {
         // 当前表格中的索引，第几条
         rowIndex: 0
       },
+      // 页面设置json
       settings: {
+        // 表格排序规则
+        sortOrders: ['ascending', 'descending'],
         // 按钮状态
         btnStatus: {
           showUpdate: false,
