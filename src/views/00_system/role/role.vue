@@ -8,23 +8,30 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model="dataJson.searchForm.role_name" placeholder="权限组名称" />
+        <el-input v-model="dataJson.searchForm.condition.code" placeholder="角色编码" />
+      </el-form-item>
+      <el-form-item label="">
+        <el-input v-model="dataJson.searchForm.condition.name" placeholder="角色名称" />
+      </el-form-item>
+      <el-form-item label="">
+        <el-input v-model="dataJson.searchForm.condition.simpleName" placeholder="简称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
     </el-form>
     <el-button-group>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleInsert">新增</el-button>
-      <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" @click="handleUpdate">修改</el-button>
-      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" @click="handleCopyInsert">数据导出</el-button>
+      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增</el-button>
+      <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修改</el-button>
+      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
+      <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
     <el-button-group>
       <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
     <el-table
+      ref="multipleTable"
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
@@ -41,7 +48,7 @@
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="37" :reserve-selection="true" />
+      <el-table-column type="selection" width="37" :reserve-selection="true" prop="id" />
       <el-table-column type="index" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
@@ -173,10 +180,10 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
-import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import elDragDialog from '@/directive/el-drag-dialog' // base on element-ui
+import Pagination from '@/components/Pagination'
+import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
 
 export default {
@@ -189,12 +196,17 @@ export default {
       dataJson: {
         // 查询使用的json
         searchForm: {
+          // 翻页条件
           pageCondition: {
             current: 1,
             size: 20
-          }, // 当前页
+          },
           // 查询条件
-          condition_role_name: undefined,
+          condition: {
+            name: '',
+            simpleName: '',
+            code: ''
+          },
           sort: '-uTime' // 排序
         },
         // 分页控件的json
@@ -238,7 +250,8 @@ export default {
         // 按钮状态
         btnStatus: {
           showUpdate: false,
-          showCopyInsert: false
+          showCopyInsert: false,
+          showExport: false
         },
         // loading 状态
         listLoading: true,
@@ -277,6 +290,19 @@ export default {
       }
     }
   },
+  // 监听器
+  watch: {
+    // 选中的数据，使得导出按钮可用，否则就不可使用
+    'dataJson.multipleSelection': {
+      handler(newVal, oldVal) {
+        if (newVal.length > 0) {
+          this.settings.btnStatus.showExport = true
+        } else {
+          this.settings.btnStatus.showExport = false
+        }
+      }
+    }
+  },
   created() {
     // 初始化查询
     this.getDataList()
@@ -284,6 +310,7 @@ export default {
     this.dataJson.tempJson = this.dataJson.tempJsonOriginal
   },
   methods: {
+    // 获取行索引
     getRowIndex(row) {
       const _index = this.dataJson.listData.lastIndexOf(row)
       return _index
@@ -297,6 +324,9 @@ export default {
       // 查询
       this.dataJson.searchForm.pageCondition.current = 1
       this.getDataList()
+      // 清空选择
+      this.dataJson.multipleSelection = []
+      this.$refs.multipleTable.clearSelection()
     },
     handleRowUpdate(row, _rowIndex) {
       // 修改
@@ -339,6 +369,45 @@ export default {
       this.popSettingsData.btnStatus.doInsert = false
       this.popSettingsData.btnStatus.doUpdate = true
       this.popSettingsData.btnStatus.doCopyInsert = false
+    },
+    // 导出按钮
+    handleExport() {
+      // 没有选择任何数据的情况
+      if (this.dataJson.multipleSelection.length <= 0) {
+        this.$alert('请在表格中选择数据进行导出', '空数据错误', {
+          confirmButtonText: '关闭',
+          type: 'error'
+        }).then(() => {
+          this.settings.btnStatus.showExport = false
+        })
+      }
+      // 选择全部的时候
+      if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
+        this.$confirm('请选择：当前页数据导出，全数据导出？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '全数据导出',
+          cancelButtonText: '当前页数据导出'
+        }).then(() => {
+          this.handleExportAllData()
+        }).catch((action) => {
+          // 右上角X
+          if (action !== 'close') {
+            this.$message({
+              type: 'info',
+              message: '当前页数据导出!'
+            })
+          }
+        })
+      }
+    },
+    // 全部数据导出
+    handleExportAllData() {
+      // loading
+      this.settings.listLoading = true
+      // 开始导出
+      exportApi(this.dataJson.searchForm).then(response => {
+        this.settings.listLoading = false
+      })
     },
     // 点击按钮 复制新增
     handleCopyInsert() {
