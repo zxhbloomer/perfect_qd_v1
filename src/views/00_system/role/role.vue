@@ -94,7 +94,6 @@
       </ul>
 
       <div slot="footer" class="dialog-footer">
-        <el-divider />
         <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
       </div>
     </el-dialog>
