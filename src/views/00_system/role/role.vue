@@ -8,13 +8,13 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model="dataJson.searchForm.condition.code" placeholder="角色编码" />
+        <el-input v-model.trim="dataJson.searchForm.code" placeholder="角色编码" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model="dataJson.searchForm.condition.name" placeholder="角色名称" />
+        <el-input v-model.trim="dataJson.searchForm.name" placeholder="角色名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model="dataJson.searchForm.condition.simpleName" placeholder="简称" />
+        <el-input v-model.trim="dataJson.searchForm.simpleName" placeholder="简称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
@@ -126,39 +126,39 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="角色编码：" prop="code">
-              <el-input v-model="dataJson.tempJson.code" show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" autofocus />
+              <el-input v-model.trim="dataJson.tempJson.code" show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" autofocus />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="角色类型：" prop="type">
-              <el-input v-model="dataJson.tempJson.type" show-word-limit :maxlength="dataJson.inputSettings.maxLength.type" />
+              <el-input v-model.trim="dataJson.tempJson.type" show-word-limit :maxlength="dataJson.inputSettings.maxLength.type" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="角色名称：" prop="name">
-              <el-input v-model="dataJson.tempJson.name" show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input v-model.trim="dataJson.tempJson.name" show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="简称：" prop="simpleName">
-              <el-input v-model="dataJson.tempJson.simpleName" show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
+              <el-input v-model.trim="dataJson.tempJson.simpleName" show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="descr">
-          <el-input v-model="dataJson.tempJson.descr" type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+          <el-input v-model.trim="dataJson.tempJson.descr" type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
         <el-row>
           <el-col :span="12">
             <el-form-item label="更新者：" prop="uId">
-              <el-input v-model="dataJson.tempJson.uId" disabled />
+              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model="dataJson.tempJson.uTime" disabled />
+              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -185,6 +185,7 @@ import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
+import fileDownload from 'js-file-download'
 
 export default {
   name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存
@@ -199,15 +200,13 @@ export default {
           // 翻页条件
           pageCondition: {
             current: 1,
-            size: 20
+            size: 20,
+            sort: '-uTime' // 排序
           },
           // 查询条件
-          condition: {
-            name: '',
-            simpleName: '',
-            code: ''
-          },
-          sort: '-uTime' // 排序
+          name: '',
+          simpleName: '',
+          code: ''
         },
         // 分页控件的json
         paging: {
@@ -407,6 +406,7 @@ export default {
       // 开始导出
       exportApi(this.dataJson.searchForm).then(response => {
         this.settings.listLoading = false
+        fileDownload(response, 'filename.xlsx')
       })
     },
     // 点击按钮 复制新增
@@ -441,9 +441,9 @@ export default {
     handleSortChange(column) {
       // 服务器端排序
       if (column.order === 'ascending') {
-        this.dataJson.searchForm.sort = column.prop
+        this.dataJson.searchForm.pageCondition.sort = column.prop
       } else if (column.order === 'descending') {
-        this.dataJson.searchForm.sort = '-' + column.prop
+        this.dataJson.searchForm.pageCondition.sort = '-' + column.prop
       }
       this.getDataList()
     },

@@ -44,6 +44,7 @@ export function exportApi(data) {
   return request({
     url: '/api/v1/role/export',
     method: 'post',
-    data
+    data,
+    responseType: 'arraybuffer'
   })
 }
