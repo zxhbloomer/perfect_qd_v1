@@ -4,6 +4,7 @@ import axios from 'axios'
 import { MessageBox } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import fileDownload from 'js-file-download'
 
 // create an axios instance
 const service = axios.create({
@@ -68,6 +69,11 @@ service.interceptors.response.use(
             location.reload()
           })
         })
+      }
+      // 判断是否有下载，有的话，就下载
+      const fileName = response.headers['preafectfilename'] // 下载后文件名
+      if (fileName !== undefined) {
+        fileDownload(response.data, fileName)
       }
       // upd by zxh
       // return Promise.reject(new Error(res.message || 'Error'))

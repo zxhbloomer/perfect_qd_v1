@@ -185,7 +185,6 @@ import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
-import fileDownload from 'js-file-download'
 
 export default {
   name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存
@@ -406,7 +405,6 @@ export default {
       // 开始导出
       exportApi(this.dataJson.searchForm).then(response => {
         this.settings.listLoading = false
-        fileDownload(response, 'filename.xlsx')
       })
     },
     // 点击按钮 复制新增
