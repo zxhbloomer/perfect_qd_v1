@@ -180,7 +180,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -205,9 +205,7 @@ export default {
           // 查询条件
           name: '',
           simpleName: '',
-          code: '',
-          // 当前选中的行（checkbox）
-          multipleSelection: []
+          code: ''
         },
         // 分页控件的json
         paging: {
@@ -239,7 +237,9 @@ export default {
           }
         },
         // 当前表格中的索引，第几条
-        rowIndex: 0
+        rowIndex: 0,
+        // 当前选中的行（checkbox）
+        multipleSelection: []
       },
       // 页面设置json
       settings: {
@@ -378,26 +378,24 @@ export default {
         }).then(() => {
           this.settings.btnStatus.showExport = false
         })
-      }
-      // 选择全部的时候
-      if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
+      } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
+        // 选择全部的时候
         this.$confirm('请选择：当前页数据导出，全数据导出？', '确认信息', {
           distinguishCancelAndClose: true,
           confirmButtonText: '全数据导出',
           cancelButtonText: '当前页数据导出'
         }).then(() => {
-          // 全数据导出
           this.handleExportAllData()
-        }).catch((action) => {
+        }).catch(action => {
           // 右上角X
           if (action !== 'close') {
-            // 当前页数据导出
-            this.$message({
-              type: 'info',
-              message: '当前页数据导出!'
-            })
+            // 当前页所选择的数据导出
+            this.handleExportSelectionData()
           }
         })
+      } else {
+        // 部分数据导出
+        this.handleExportSelectionData()
       }
     },
     // 全部数据导出
@@ -405,7 +403,20 @@ export default {
       // loading
       this.settings.listLoading = true
       // 开始导出
-      exportApi(this.dataJson.searchForm).then(response => {
+      exportAllApi(this.dataJson.searchForm).then(response => {
+        this.settings.listLoading = false
+      })
+    },
+    // 部分数据导出
+    handleExportSelectionData() {
+      // loading
+      this.settings.listLoading = true
+      const selectionJson = []
+      this.dataJson.multipleSelection.forEach(function(value, index, array) {
+        selectionJson.push({ 'id': value.id })
+      })
+      // 开始导出
+      exportSelectionApi(selectionJson).then(response => {
         this.settings.listLoading = false
       })
     },

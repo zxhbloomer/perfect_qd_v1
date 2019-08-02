@@ -37,12 +37,25 @@ export function insertApi(data) {
 }
 
 /**
- * 导出逻辑
+ * 导出逻辑，全部导出
  * @param {*} data
  */
-export function exportApi(data) {
+export function exportAllApi(data) {
   return request({
-    url: '/api/v1/role/export',
+    url: '/api/v1/role/export_all',
+    method: 'post',
+    data,
+    responseType: 'arraybuffer'
+  })
+}
+
+/**
+ * 导出逻辑，部分导出
+ * @param {*} data
+ */
+export function exportSelectionApi(data) {
+  return request({
+    url: '/api/v1/role/export_selection',
     method: 'post',
     data,
     responseType: 'arraybuffer'

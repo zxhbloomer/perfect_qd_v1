@@ -10,7 +10,7 @@ import fileDownload from 'js-file-download'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 15000 // request timeout
+  timeout: 25000 // request timeout
 })
 
 // request interceptor
@@ -71,9 +71,9 @@ service.interceptors.response.use(
         })
       }
       // 判断是否有下载，有的话，就下载
-      const fileName = response.headers['preafectfilename'] // 下载后文件名
+      const fileName = response.headers['perfect-filename'] // 下载后文件名
       if (fileName !== undefined) {
-        fileDownload(response.data, fileName)
+        fileDownload(response.data, decodeURI(fileName))
       }
       // upd by zxh
       // return Promise.reject(new Error(res.message || 'Error'))
