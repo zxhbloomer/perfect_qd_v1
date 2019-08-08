@@ -61,3 +61,15 @@ export function exportSelectionApi(data) {
     responseType: 'arraybuffer'
   })
 }
+
+/**
+ * 导出逻辑，部分导出
+ * @param {*} data
+ */
+export function importExcelApi(data) {
+  return request({
+    url: '/api/v1/role/import',
+    method: 'post',
+    data
+  })
+}
