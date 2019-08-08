@@ -9,6 +9,7 @@
     :on-progress="handleUploadProcess"
     :before-upload="handleBeforeUpload"
     :disabled="settings.loadingStatus"
+    :accept="accept"
   >
     <el-button type="primary" :loading="settings.loadingStatus">
       <i v-show="!settings.loadingStatus" class="el-icon-upload el-icon--right " />
@@ -22,6 +23,13 @@ import fsRequest from '@/utils/fsRequest'
 
 export default {
   name: 'SimpleUpload',
+  props: {
+    // 接受上传的文件类型
+    accept: {
+      type: String,
+      default: '.xls,.xlsx'
+    }
+  },
   data() {
     return {
       settings: {
