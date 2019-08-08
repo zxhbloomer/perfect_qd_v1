@@ -58,11 +58,12 @@
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
       <el-table-column label="操作" min-width="45">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
-          <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
+          <el-button-group>
+            <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
+            <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
+          </el-button-group>
         </template>
       </el-table-column>
-
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据批量导入：模版导出、excel导入-->
@@ -86,6 +87,7 @@
         </el-form-item>
         <el-form-item label="选择导入文件：">
           <simple-upload
+            :accept="'.xls,.xlsx'"
             @upload-success="handleUploadFileSuccess"
             @upload-error="handleUploadFileError"
           />
@@ -101,6 +103,7 @@
       </ul>
 
       <div slot="footer" class="dialog-footer">
+        <el-divider />
         <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
       </div>
     </el-dialog>
