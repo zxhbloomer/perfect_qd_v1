@@ -180,7 +180,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -559,8 +559,22 @@ export default {
       })
     },
     // 文件上传成功
-    handleUploadFileSuccess(response) {
-      console.debug('文件上传成功')
+    handleUploadFileSuccess(res) {
+      importExcelApi(res.response.data).then((_data) => {
+        this.$notify({
+          title: '导入成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+      }, (_error) => {
+        this.$notify({
+          title: '导入发生错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+      })
     },
     // 文件上传失败
     handleUploadFileError() {
