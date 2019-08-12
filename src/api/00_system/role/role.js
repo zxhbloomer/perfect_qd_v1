@@ -70,6 +70,7 @@ export function importExcelApi(data) {
   return request({
     url: '/api/v1/role/import',
     method: 'post',
-    data
+    data,
+    responseType: 'arraybuffer'
   })
 }

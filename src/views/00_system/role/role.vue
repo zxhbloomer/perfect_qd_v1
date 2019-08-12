@@ -563,25 +563,36 @@ export default {
     },
     // 文件上传成功
     handleUploadFileSuccess(res) {
-      importExcelApi(res.response.data).then((_data) => {
-        this.$notify({
-          title: '导入成功',
-          message: _data.message,
-          type: 'success',
-          duration: this.settings.duration
-        })
-      }, (_error) => {
-        this.$notify({
-          title: '导入发生错误',
-          message: _error.message,
-          type: 'error',
-          duration: this.settings.duration
-        })
+      // 开始导出
+      importExcelApi(res.response.data).then(response => {
+        debugger
+        this.settings.listLoading = false
       })
+      // importExcelApi(res.response.data).then((_data) => {
+      //   this.$notify({
+      //     title: '导入成功',
+      //     message: _data.message,
+      //     type: 'success',
+      //     duration: this.settings.duration
+      //   })
+      // }, (_error) => {
+      //   this.$notify({
+      //     title: '导入发生错误',
+      //     message: _error.message,
+      //     type: 'error',
+      //     duration: this.settings.duration
+      //   })
+      // })
     },
     // 文件上传失败
     handleUploadFileError() {
       console.debug('文件上传失败')
+      this.$notify({
+        title: '导入错误',
+        message: '文件上传发生错误！',
+        type: 'error',
+        duration: 0
+      })
     },
     // 数据批量导入按钮
     handleOpenImportDialog() {

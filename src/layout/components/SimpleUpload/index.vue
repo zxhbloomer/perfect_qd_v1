@@ -66,21 +66,23 @@ export default {
       fsRequest.post(this.getActionUrl(), param, config).then((_data) => {
         // 成功
         f.onSuccess(_data)
-        this.$notify({
-          title: '上传文件成功',
-          message: _data.message,
-          type: 'success',
-          duration: this.settings.duration
-        })
+        // this.$notify({
+        //   title: '上传文件成功',
+        //   message: _data.message,
+        //   type: 'success',
+        //   duration: this.settings.duration
+        // })
+        console.log('上传文件成功:' + _data)
       }, (_error) => {
         // 失败
         f.onError(_error)
-        this.$notify({
-          title: '上传文件发生异常',
-          message: _error.message,
-          type: 'error',
-          duration: this.settings.duration
-        })
+        console.log('上传文件发生异常:' + _error)
+        // this.$notify({
+        //   title: '上传文件发生异常',
+        //   message: _error.message,
+        //   type: 'error',
+        //   duration: this.settings.duration
+        // })
       })
     },
     handleUploadFileSuccess(_response, _file, _fileList) {
