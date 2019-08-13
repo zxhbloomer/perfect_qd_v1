@@ -8,13 +8,13 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" placeholder="角色编码" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" placeholder="角色名称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.simpleName" placeholder="简称" />
+        <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
@@ -91,6 +91,9 @@
             @upload-success="handleUploadFileSuccess"
             @upload-error="handleUploadFileError"
           />
+          <el-link v-show="!(popSettingsImport.errorFileUrl =='')" type="danger" :href="popSettingsImport.errorFileUrl">
+            <i class="el-icon-view el-icon--right" />错误信息
+          </el-link>
         </el-form-item>
       </el-form>
       <p><strong>说明：</strong></p>
@@ -129,39 +132,39 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="角色编码：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" autofocus />
+              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" autofocus />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="角色类型：" prop="type">
-              <el-input v-model.trim="dataJson.tempJson.type" show-word-limit :maxlength="dataJson.inputSettings.maxLength.type" />
+              <el-input v-model.trim="dataJson.tempJson.type" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.type" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="角色名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="简称：" prop="simpleName">
-              <el-input v-model.trim="dataJson.tempJson.simpleName" show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
+              <el-input v-model.trim="dataJson.tempJson.simpleName" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
         <el-row>
           <el-col :span="12">
             <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
+              <el-input v-model.trim="dataJson.tempJson.uId" clearable disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
+              <el-input v-model.trim="dataJson.tempJson.uTime" clearable disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -287,7 +290,9 @@ export default {
         // 弹出窗口会否显示
         dialogFormVisible: false,
         // 模版文件地址
-        templateFilePath: 'http://baidu.com'
+        templateFilePath: 'http://baidu.com',
+        // 错误数据文件
+        errorFileUrl: ''
       }
     }
   },
@@ -301,6 +306,13 @@ export default {
         } else {
           this.settings.btnStatus.showExport = false
         }
+      }
+    },
+    // 根据窗口状态，清空错误link
+    'popSettingsImport.dialogFormVisible': {
+      handler(newVal, oldVal) {
+        // 清空错误文件
+        this.popSettingsImport.errorFileUrl = ''
       }
     }
   },
@@ -565,24 +577,24 @@ export default {
     handleUploadFileSuccess(res) {
       // 开始导出
       importExcelApi(res.response.data).then(response => {
-        debugger
         this.settings.listLoading = false
+        this.popSettingsImport.errorFileUrl = ''
+        if (response.code !== 0) {
+          this.popSettingsImport.errorFileUrl = response.data.fsType2Url
+          this.showErrorMsg('您上传的excel数据有错误，请点击错误信息进行查看！')
+        } else if (response.code === 0) {
+          const successList = '成功导入[' + response.data.length + ']条数据'
+          this.$alert(successList, '导入成功', {
+            confirmButtonText: '关闭',
+            type: 'success'
+          }).then(() => {
+            this.popSettingsImport.dialogFormVisible = false
+          })
+        }
+      }, (_error) => {
+        this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
+        console.log('发生了异常，请联系管理员！:' + JSON.stringify(_error))
       })
-      // importExcelApi(res.response.data).then((_data) => {
-      //   this.$notify({
-      //     title: '导入成功',
-      //     message: _data.message,
-      //     type: 'success',
-      //     duration: this.settings.duration
-      //   })
-      // }, (_error) => {
-      //   this.$notify({
-      //     title: '导入发生错误',
-      //     message: _error.message,
-      //     type: 'error',
-      //     duration: this.settings.duration
-      //   })
-      // })
     },
     // 文件上传失败
     handleUploadFileError() {

@@ -26,10 +26,17 @@ exports.install = function(Vue, options) {
    *
    *
    */
-  Vue.prototype.showErrorMsg = function(message) {
+  /**
+   * 显示错误的信息
+   */
+  Vue.prototype.showErrorMsg = function(message, error) {
+    let showMsg = message
+    if (JSON.stringify(error) !== '{}') {
+      showMsg = showMsg + ' : ' + error
+    }
     new Vue().$msgbox({
       title: '错误',
-      message: message,
+      message: showMsg,
       showCancelButton: false,
       confirmButtonText: '确定',
       type: 'error'
