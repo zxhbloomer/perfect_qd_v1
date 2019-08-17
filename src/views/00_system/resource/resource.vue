@@ -8,43 +8,18 @@
       class="floatRight"
     >
       <el-form-item label="">
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
+      </el-form-item>
+      <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
+      </el-form-item>
+      <el-form-item label="">
+        <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-search">高级搜索</el-button>
-      </el-form-item>
     </el-form>
-    <el-popover
-      ref="popover"
-      placement="top"
-      width="400"
-      title="高级查询"
-    >
-      <el-form
-        :inline="true"
-        :model="dataJson.searchForm"
-        label-position="getLabelPosition()"
-        class="floatRight"
-      >
-        <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
-        </el-form-item>
-        <div style="text-align: right; margin: 0">
-          <el-button size="mini" type="text">重置</el-button>
-          <el-button type="primary" size="mini">提交</el-button>
-        </div>
-      </el-form>
-    </el-popover>
-
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增</el-button>
       <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修改</el-button>
@@ -68,6 +43,7 @@
         <el-dropdown-item class="xx">蚵仔煎</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
+
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -93,34 +69,8 @@
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="isdel" label="删除">
-        <template slot-scope="scope">
-          <el-tooltip :content="'Switch value: ' + scope.row.isdel" placement="top">
-            <el-switch
-              v-model="scope.row.isdel"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              active-value="true"
-              inactive-value="false"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="isforbidden" label="启用">
-        <template slot-scope="scope">
-          <el-tooltip :content="'Switch value: ' + scope.row.isforbidden" placement="top">
-            <el-switch
-              v-model="scope.row.isforbidden"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              active-value="true"
-              inactive-value="false"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
-      <el-table-column label="操作" min-width="65">
+      <el-table-column label="操作" min-width="45">
         <template slot-scope="scope">
           <el-button-group>
             <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
@@ -234,7 +184,6 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-divider />
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
         <el-button v-show="popSettingsData.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
         <el-button v-show="popSettingsData.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
@@ -252,13 +201,13 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi } from '@/api/00_system/role/role'
-import resizeMixin from './roleResizeHandlerMixin'
+import resizeMixin from './resourceResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
 
 export default {
-  name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存
+  name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
   components: { Pagination, SimpleUpload },
   directives: { elDragDialog },
   mixins: [resizeMixin],
@@ -276,9 +225,7 @@ export default {
           // 查询条件
           name: '',
           simpleName: '',
-          code: '',
-          isdel: '',
-          isforbidden: ''
+          code: ''
         },
         // 分页控件的json
         paging: {

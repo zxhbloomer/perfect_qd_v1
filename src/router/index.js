@@ -120,6 +120,11 @@ export const constantRoutes = [
         name: 'P00000000',
         meta: { title: '角色管理', icon: '角色' }
       },
+      { path: 'resource',
+        component: () => import('@/views/00_system/resource/resource'),
+        name: 'P00000020',
+        meta: { title: '资源管理', icon: '角色' }
+      },
       { path: 'org',
         component: () => import('@/views/00_system/organize/organize'),
         name: 'P00000010',
