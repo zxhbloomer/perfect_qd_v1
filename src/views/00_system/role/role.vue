@@ -78,49 +78,50 @@
       border
       fit
       highlight-current-row
-      show-overflow-tooltip
       :default-sort="{prop: 'uTime', order: 'descending'}"
       :row-key="getRowKeys"
+      style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="37" :reserve-selection="true" prop="id" />
-      <el-table-column type="index" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="isdel" label="删除">
+      <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
+      <el-table-column type="index" width="38" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
+      <el-table-column min-width="65" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
-          <el-tooltip :content="'Switch value: ' + scope.row.isdel" placement="top">
+          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
               v-model="scope.row.isdel"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-value="true"
-              inactive-value="false"
+              :active-value="true"
+              :inactive-value="false"
             />
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="isforbidden" label="启用">
+      <el-table-column min-width="65" :sort-orders="settings.sortOrders" label="启用">
         <template slot-scope="scope">
-          <el-tooltip :content="'Switch value: ' + scope.row.isforbidden" placement="top">
+          <el-tooltip :content="'启用状态: ' + scope.row.isenable" placement="top">
             <el-switch
-              v-model="scope.row.isforbidden"
+              v-model="scope.row.isenable"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-value="true"
-              inactive-value="false"
+              :active-value="true"
+              :inactive-value="false"
+              @change="handleDel(scope.row)"
             />
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
-      <el-table-column label="操作" min-width="65">
+      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column label="操作" width="120" fixed="right">
         <template slot-scope="scope">
           <el-button-group>
             <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
@@ -251,7 +252,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -278,7 +279,7 @@ export default {
           simpleName: '',
           code: '',
           isdel: '',
-          isforbidden: ''
+          isenable: ''
         },
         // 分页控件的json
         paging: {
@@ -416,6 +417,45 @@ export default {
       this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
+      })
+    },
+    // 删除操作
+    handleDel(row) {
+      // 选择全部的时候
+      this.$confirm('确认要删除选中的1条数据吗？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+      }).then(() => {
+        // loading
+        this.settings.listLoading = true
+        const selectionJson = []
+        selectionJson.push({ 'id': row.id })
+        deleteApi(selectionJson).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
+      }).catch(action => {
+        // 右上角X
+        // if (action !== 'close') {
+        row.isenable = !row.isenable
+        // 当前页所选择的数据导出
+        // }
       })
     },
     // 点击按钮 新增

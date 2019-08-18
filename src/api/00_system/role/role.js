@@ -73,3 +73,15 @@ export function importExcelApi(data) {
     data
   })
 }
+
+/**
+ * 删除逻辑
+ * @param {*} data
+ */
+export function deleteApi(data) {
+  return request({
+    url: '/api/v1/role/delete',
+    method: 'post',
+    data
+  })
+}
