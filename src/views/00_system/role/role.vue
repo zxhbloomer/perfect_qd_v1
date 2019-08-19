@@ -73,6 +73,7 @@
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
+      element-loading-background="rgba(255, 255, 255, 0.3)"
       :height="settings.tableHeight"
       stripe
       border
@@ -93,15 +94,17 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
-      <el-table-column min-width="65" :sort-orders="settings.sortOrders" label="删除">
+      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
               v-model="scope.row.isdel"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
+              active-color="#ff4949"
+              inactive-color="#dcdfe6"
               :active-value="true"
               :inactive-value="false"
+              :width="30"
+              @change="handleDel(scope.row)"
             />
           </el-tooltip>
         </template>
@@ -111,11 +114,12 @@
           <el-tooltip :content="'启用状态: ' + scope.row.isenable" placement="top">
             <el-switch
               v-model="scope.row.isenable"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
+              active-color="#ff4949"
+              inactive-color="#dcdfe6"
               :active-value="true"
               :inactive-value="false"
-              @change="handleDel(scope.row)"
+              :width="30"
+              @change="handleEnable(scope.row)"
             />
           </el-tooltip>
         </template>
@@ -252,7 +256,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi, enableApi } from '@/api/00_system/role/role'
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -388,7 +392,7 @@ export default {
     // 初始化查询
     this.getDataList()
     // 数据初始化
-    this.dataJson.tempJson = this.dataJson.tempJsonOriginal
+    this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
     // 获取行索引
@@ -421,16 +425,23 @@ export default {
     },
     // 删除操作
     handleDel(row) {
+      let _message = ''
+      const _value = row.isdel
+      const selectionJson = []
+      selectionJson.push({ 'id': row.id })
+      if (_value === true) {
+        _message = '是否要删除该条数据？'
+      } else {
+        _message = '是否要复原该条数据？'
+      }
       // 选择全部的时候
-      this.$confirm('确认要删除选中的1条数据吗？', '确认信息', {
+      this.$confirm(_message, '确认信息', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确认',
         cancelButtonText: '取消'
       }).then(() => {
         // loading
         this.settings.listLoading = true
-        const selectionJson = []
-        selectionJson.push({ 'id': row.id })
         deleteApi(selectionJson).then((_data) => {
           this.$notify({
             title: '更新成功',
@@ -451,11 +462,49 @@ export default {
           this.settings.listLoading = false
         })
       }).catch(action => {
-        // 右上角X
-        // if (action !== 'close') {
+        row.isdel = !row.isdel
+      })
+    },
+    // 启用操作
+    handleEnable(row) {
+      let _message = ''
+      const _value = row.isenable
+      const selectionJson = []
+      selectionJson.push({ 'id': row.id })
+      if (_value === true) {
+        _message = '是否要禁用该条数据？'
+      } else {
+        _message = '是否要启用该条数据？'
+      }
+      // 选择全部的时候
+      this.$confirm(_message, '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+      }).then(() => {
+        // loading
+        this.settings.listLoading = true
+        enableApi(selectionJson).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
+      }).catch(action => {
         row.isenable = !row.isenable
-        // 当前页所选择的数据导出
-        // }
       })
     },
     // 点击按钮 新增
@@ -464,7 +513,7 @@ export default {
       this.popSettingsData.dialogStatus = 'insert'
       this.popSettingsData.dialogFormVisible = true
       // 数据初始化
-      this.dataJson.tempJson = this.dataJson.tempJsonOriginal
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })

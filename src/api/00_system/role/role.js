@@ -85,3 +85,15 @@ export function deleteApi(data) {
     data
   })
 }
+
+/**
+ * 启用逻辑
+ * @param {*} data
+ */
+export function enableApi(data) {
+  return request({
+    url: '/api/v1/role/enable',
+    method: 'post',
+    data
+  })
+}
