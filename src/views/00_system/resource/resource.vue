@@ -10,48 +10,20 @@
       <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
       </el-form-item>
+      <el-form-item label="">
+        <el-select v-model="dataJson.selectContext" placeholder="请选择资源类型" multiple collapse-tags clearable>
+          <el-option
+            v-for="item in settings.options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-search">高级搜索</el-button>
-      </el-form-item>
     </el-form>
-    <el-popover
-      ref="popover"
-      placement="top"
-      width="420"
-      title="高级查询"
-    >
-      <el-form
-        :inline="true"
-        :model="dataJson.searchForm"
-        label-position="getLabelPosition()"
-        class="floatRight"
-      >
-        <el-form-item label="">
-          <el-col :span="24">
-            <el-select placeholder="请选择类型" multiple collapse-tags clearable>
-              <el-option label="配置文件" value="10" />
-              <el-option label="json配置" value="20" />
-            </el-select>
-          </el-col>
-        </el-form-item>
-        <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
-        </el-form-item>
-        <div style="text-align: right; margin: 0">
-          <el-button size="mini" type="text">重置</el-button>
-          <el-button type="primary" size="mini">提交</el-button>
-        </div>
-      </el-form>
-    </el-popover>
 
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增</el-button>
@@ -97,11 +69,12 @@
     >
       <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
       <el-table-column type="index" width="38" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uri" label="相对路径" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="baseurl" label="baseurl" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="50" :sort-orders="settings.sortOrders" prop="size" label="文件大小" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="40" :sort-orders="settings.sortOrders" prop="extension" label="扩展名" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
@@ -113,21 +86,6 @@
               :inactive-value="false"
               :width="30"
               @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
-      <el-table-column min-width="65" :sort-orders="settings.sortOrders" label="启用">
-        <template slot-scope="scope">
-          <el-tooltip :content="'启用状态: ' + scope.row.isenable" placement="top">
-            <el-switch
-              v-model="scope.row.isenable"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              @change="handleEnable(scope.row)"
             />
           </el-tooltip>
         </template>
@@ -196,7 +154,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="620px"
+      width="1024px"
     >
       <el-form
         ref="dataForm"
@@ -208,40 +166,62 @@
       >
         <el-row>
           <el-col :span="12">
-            <el-form-item label="角色编码：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" autofocus />
+            <el-form-item label="资源类型：" prop="type">
+              <el-select v-model="dataJson.tempJson.type" placeholder="请选择资源类型" clearable @change="handleSelectChange">
+                <el-option
+                  v-for="item in settings.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="角色类型：" prop="type">
-              <el-input v-model.trim="dataJson.tempJson.type" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.type" />
+            <el-form-item label="资源名称：" prop="name">
+              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="角色名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="相对路径：" prop="uri">
+              <el-input v-model.trim="dataJson.tempJson.uri" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.uri" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="简称：" prop="simpleName">
-              <el-input v-model.trim="dataJson.tempJson.simpleName" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
+            <el-form-item label="baseurl：" prop="base">
+              <el-input v-model.trim="dataJson.tempJson.base" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.base" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="文件大小：" prop="size">
+              <el-input v-model.trim="dataJson.tempJson.size" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="文件扩展名：" prop="extension">
+              <el-input v-model.trim="dataJson.tempJson.extension" disabled />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="descr">
           <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
+        <el-form-item label="json配置信息：" prop="context">
+          <json-editor ref="jsonEditor" v-model.trim="dataJson.tempJson.context" />
+        </el-form-item>
         <el-row>
           <el-col :span="12">
             <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" clearable disabled />
+              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" clearable disabled />
+              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -261,6 +241,9 @@
   .floatRight {
     float: right;
   }
+  .el-form-item .el-select {
+    width: 100%;
+  }
 </style>
 
 <script>
@@ -269,10 +252,11 @@ import resizeMixin from './resourceResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
+import JsonEditor from '@/components/JsonEditor'
 
 export default {
   name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload },
+  components: { Pagination, SimpleUpload, JsonEditor },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -318,17 +302,19 @@ export default {
         tempJson: null,
         inputSettings: {
           maxLength: {
-            type: 10,
-            code: 10,
             name: 10,
+            uri: 50,
+            base: 50,
             descr: 200,
-            simpleName: 10
+            dbversion: 0
           }
         },
         // 当前表格中的索引，第几条
         rowIndex: 0,
         // 当前选中的行（checkbox）
-        multipleSelection: []
+        multipleSelection: [],
+        // 下拉选项选择的内容
+        selectContext: []
       },
       // 页面设置json
       settings: {
@@ -343,7 +329,15 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000
+        duration: 4000,
+        // 下拉选项json
+        options: [{
+          value: '10',
+          label: '配置文件'
+        }, {
+          value: '20',
+          label: 'json配置'
+        }]
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -364,8 +358,8 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          create_dt: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'blur' }],
-          role_name: [{ required: true, message: 'title is required', trigger: 'blur' }]
+          type: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
+          name: [{ required: true, message: '请输入资源名称', trigger: 'change' }]
         }
       },
       // 导入窗口的状态
@@ -406,6 +400,10 @@ export default {
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
+    // 下拉选项控件事件
+    handleSelectChange(val) {
+      alert(val)
+    },
     // 获取行索引
     getRowIndex(row) {
       const _index = this.dataJson.listData.lastIndexOf(row)

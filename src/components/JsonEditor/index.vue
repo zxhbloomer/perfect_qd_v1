@@ -60,7 +60,7 @@ export default {
   position: relative;
 }
 .json-editor >>> .CodeMirror {
-  height: auto;
+  height: 300px;
   min-height: 300px;
 }
 .json-editor >>> .CodeMirror-scroll{

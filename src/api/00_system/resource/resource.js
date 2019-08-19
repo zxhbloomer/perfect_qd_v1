@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function getListApi(query) {
   return request({
-    url: '/api/v1/role/list',
+    url: '/api/v1/resource/list',
     method: 'post',
     data: query
   })
@@ -18,7 +18,7 @@ export function getListApi(query) {
  */
 export function updateApi(data) {
   return request({
-    url: '/api/v1/role/save',
+    url: '/api/v1/resource/save',
     method: 'post',
     data
   })
@@ -30,7 +30,7 @@ export function updateApi(data) {
  */
 export function insertApi(data) {
   return request({
-    url: '/api/v1/role/insert',
+    url: '/api/v1/resource/insert',
     method: 'post',
     data
   })
@@ -42,7 +42,7 @@ export function insertApi(data) {
  */
 export function exportAllApi(data) {
   return request({
-    url: '/api/v1/role/export_all',
+    url: '/api/v1/resource/export_all',
     method: 'post',
     data,
     responseType: 'arraybuffer'
@@ -55,7 +55,7 @@ export function exportAllApi(data) {
  */
 export function exportSelectionApi(data) {
   return request({
-    url: '/api/v1/role/export_selection',
+    url: '/api/v1/resource/export_selection',
     method: 'post',
     data,
     responseType: 'arraybuffer'
@@ -68,7 +68,7 @@ export function exportSelectionApi(data) {
  */
 export function importExcelApi(data) {
   return request({
-    url: '/api/v1/role/import',
+    url: '/api/v1/resource/import',
     method: 'post',
     data
   })
@@ -80,7 +80,7 @@ export function importExcelApi(data) {
  */
 export function deleteApi(data) {
   return request({
-    url: '/api/v1/role/delete',
+    url: '/api/v1/resource/delete',
     method: 'post',
     data
   })
@@ -92,7 +92,7 @@ export function deleteApi(data) {
  */
 export function enableApi(data) {
   return request({
-    url: '/api/v1/role/enable',
+    url: '/api/v1/resource/enable',
     method: 'post',
     data
   })
