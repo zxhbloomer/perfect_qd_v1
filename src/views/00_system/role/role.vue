@@ -61,11 +61,11 @@
         更多<i class="el-icon-arrow-down el-icon--right" />
       </el-button>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item class="xx">黄金糕</el-dropdown-item>
-        <el-dropdown-item class="xx">狮子头</el-dropdown-item>
-        <el-dropdown-item class="xx">螺蛳粉</el-dropdown-item>
-        <el-dropdown-item class="xx">双皮奶</el-dropdown-item>
-        <el-dropdown-item class="xx">蚵仔煎</el-dropdown-item>
+        <el-dropdown-item>黄金糕</el-dropdown-item>
+        <el-dropdown-item>狮子头</el-dropdown-item>
+        <el-dropdown-item>螺蛳粉</el-dropdown-item>
+        <el-dropdown-item>双皮奶</el-dropdown-item>
+        <el-dropdown-item>蚵仔煎</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <el-table
