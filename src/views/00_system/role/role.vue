@@ -20,7 +20,7 @@
     <el-popover
       ref="popover"
       placement="top"
-      width="400"
+      width="420"
       title="高级查询"
     >
       <el-form

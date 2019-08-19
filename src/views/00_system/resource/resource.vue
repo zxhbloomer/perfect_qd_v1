@@ -8,18 +8,51 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
-      </el-form-item>
-      <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
-      </el-form-item>
-      <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button v-popover:popover type="primary" plain icon="el-icon-search">高级搜索</el-button>
+      </el-form-item>
     </el-form>
+    <el-popover
+      ref="popover"
+      placement="top"
+      width="420"
+      title="高级查询"
+    >
+      <el-form
+        :inline="true"
+        :model="dataJson.searchForm"
+        label-position="getLabelPosition()"
+        class="floatRight"
+      >
+        <el-form-item label="">
+          <el-col :span="24">
+            <el-select placeholder="请选择类型" multiple collapse-tags clearable>
+              <el-option label="配置文件" value="10" />
+              <el-option label="json配置" value="20" />
+            </el-select>
+          </el-col>
+        </el-form-item>
+        <el-form-item v-show="false" label="">
+          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="角色名称" />
+        </el-form-item>
+        <el-form-item label="">
+          <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
+        </el-form-item>
+        <el-form-item label="">
+          <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
+        </el-form-item>
+        <div style="text-align: right; margin: 0">
+          <el-button size="mini" type="text">重置</el-button>
+          <el-button type="primary" size="mini">提交</el-button>
+        </div>
+      </el-form>
+    </el-popover>
+
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增</el-button>
       <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修改</el-button>
@@ -36,41 +69,71 @@
         更多<i class="el-icon-arrow-down el-icon--right" />
       </el-button>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item class="xx">黄金糕</el-dropdown-item>
-        <el-dropdown-item class="xx">狮子头</el-dropdown-item>
-        <el-dropdown-item class="xx">螺蛳粉</el-dropdown-item>
-        <el-dropdown-item class="xx">双皮奶</el-dropdown-item>
-        <el-dropdown-item class="xx">蚵仔煎</el-dropdown-item>
+        <el-dropdown-item>黄金糕</el-dropdown-item>
+        <el-dropdown-item>狮子头</el-dropdown-item>
+        <el-dropdown-item>螺蛳粉</el-dropdown-item>
+        <el-dropdown-item>双皮奶</el-dropdown-item>
+        <el-dropdown-item>蚵仔煎</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
+      element-loading-background="rgba(255, 255, 255, 0.5)"
       :height="settings.tableHeight"
       stripe
       border
       fit
       highlight-current-row
-      show-overflow-tooltip
       :default-sort="{prop: 'uTime', order: 'descending'}"
       :row-key="getRowKeys"
+      style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="37" :reserve-selection="true" prop="id" />
-      <el-table-column type="index" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
-      <el-table-column label="操作" min-width="45">
+      <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
+      <el-table-column type="index" width="38" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="角色编码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
+      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
+        <template slot-scope="scope">
+          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
+            <el-switch
+              v-model="scope.row.isdel"
+              active-color="#ff4949"
+              inactive-color="#dcdfe6"
+              :active-value="true"
+              :inactive-value="false"
+              :width="30"
+              @change="handleDel(scope.row)"
+            />
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="65" :sort-orders="settings.sortOrders" label="启用">
+        <template slot-scope="scope">
+          <el-tooltip :content="'启用状态: ' + scope.row.isenable" placement="top">
+            <el-switch
+              v-model="scope.row.isenable"
+              active-color="#ff4949"
+              inactive-color="#dcdfe6"
+              :active-value="true"
+              :inactive-value="false"
+              :width="30"
+              @change="handleEnable(scope.row)"
+            />
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column label="操作" width="120" fixed="right">
         <template slot-scope="scope">
           <el-button-group>
             <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
@@ -184,6 +247,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
+        <el-divider />
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
         <el-button v-show="popSettingsData.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
         <el-button v-show="popSettingsData.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
@@ -200,7 +264,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi } from '@/api/00_system/role/role'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi, enableApi } from '@/api/00_system/resource/resource'
 import resizeMixin from './resourceResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -225,7 +289,9 @@ export default {
           // 查询条件
           name: '',
           simpleName: '',
-          code: ''
+          code: '',
+          isdel: '',
+          isenable: ''
         },
         // 分页控件的json
         paging: {
@@ -239,10 +305,13 @@ export default {
         tempJsonOriginal: {
           id: undefined,
           type: '',
-          code: '',
           name: '',
+          uri: '',
+          base: '',
+          size: '',
+          extension: '',
           descr: '',
-          simpleName: '',
+          context: '',
           dbversion: 0
         },
         // 单条数据 json
@@ -334,7 +403,7 @@ export default {
     // 初始化查询
     this.getDataList()
     // 数据初始化
-    this.dataJson.tempJson = this.dataJson.tempJsonOriginal
+    this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
     // 获取行索引
@@ -365,13 +434,97 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
+    // 删除操作
+    handleDel(row) {
+      let _message = ''
+      const _value = row.isdel
+      const selectionJson = []
+      selectionJson.push({ 'id': row.id })
+      if (_value === true) {
+        _message = '是否要删除该条数据？'
+      } else {
+        _message = '是否要复原该条数据？'
+      }
+      // 选择全部的时候
+      this.$confirm(_message, '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+      }).then(() => {
+        // loading
+        this.settings.listLoading = true
+        deleteApi(selectionJson).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
+      }).catch(action => {
+        row.isdel = !row.isdel
+      })
+    },
+    // 启用操作
+    handleEnable(row) {
+      let _message = ''
+      const _value = row.isenable
+      const selectionJson = []
+      selectionJson.push({ 'id': row.id })
+      if (_value === true) {
+        _message = '是否要禁用该条数据？'
+      } else {
+        _message = '是否要启用该条数据？'
+      }
+      // 选择全部的时候
+      this.$confirm(_message, '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+      }).then(() => {
+        // loading
+        this.settings.listLoading = true
+        enableApi(selectionJson).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
+      }).catch(action => {
+        row.isenable = !row.isenable
+      })
+    },
     // 点击按钮 新增
     handleInsert() {
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
       this.popSettingsData.dialogFormVisible = true
       // 数据初始化
-      this.dataJson.tempJson = this.dataJson.tempJsonOriginal
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
