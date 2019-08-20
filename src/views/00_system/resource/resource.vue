@@ -156,6 +156,31 @@
       :show-close="false"
       width="1024px"
     >
+      <form-wizard
+        shape="square"
+        color="#3498db"
+        @on-complete="onComplete"
+      >
+        <tab-content
+          title="Personal details"
+          icon="ti-user"
+        >
+          My first tab content
+        </tab-content>
+        <tab-content
+          title="Additional Info"
+          icon="ti-settings"
+        >
+          My second tab content
+        </tab-content>
+        <tab-content
+          title="Last step"
+          icon="ti-check"
+        >
+          Yuhuuu! This seems pretty damn simple
+        </tab-content>
+      </form-wizard>
+
       <el-form
         ref="dataForm"
         :rules="popSettingsData.rules"
@@ -253,10 +278,11 @@ import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
 import JsonEditor from '@/components/JsonEditor'
+import formWizard from 'vue-form-wizard'
 
 export default {
   name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload, JsonEditor },
+  components: { Pagination, SimpleUpload, JsonEditor, formWizard },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
