@@ -156,31 +156,6 @@
       :show-close="false"
       width="1024px"
     >
-      <form-wizard
-        shape="square"
-        color="#3498db"
-        @on-complete="onComplete"
-      >
-        <tab-content
-          title="Personal details"
-          icon="ti-user"
-        >
-          My first tab content
-        </tab-content>
-        <tab-content
-          title="Additional Info"
-          icon="ti-settings"
-        >
-          My second tab content
-        </tab-content>
-        <tab-content
-          title="Last step"
-          icon="ti-check"
-        >
-          Yuhuuu! This seems pretty damn simple
-        </tab-content>
-      </form-wizard>
-
       <el-form
         ref="dataForm"
         :rules="popSettingsData.rules"
@@ -189,67 +164,79 @@
         label-width="120px"
         status-icon
       >
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="资源类型：" prop="type">
-              <el-select v-model="dataJson.tempJson.type" placeholder="请选择资源类型" clearable @change="handleSelectChange">
-                <el-option
-                  v-for="item in settings.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="资源名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="相对路径：" prop="uri">
-              <el-input v-model.trim="dataJson.tempJson.uri" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.uri" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="baseurl：" prop="base">
-              <el-input v-model.trim="dataJson.tempJson.base" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.base" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="文件大小：" prop="size">
-              <el-input v-model.trim="dataJson.tempJson.size" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="文件扩展名：" prop="extension">
-              <el-input v-model.trim="dataJson.tempJson.extension" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
-        </el-form-item>
-        <el-form-item label="json配置信息：" prop="context">
-          <json-editor ref="jsonEditor" v-model.trim="dataJson.tempJson.context" />
-        </el-form-item>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
+        111{{ stepsSetting.active }}222
+        <el-steps :active="stepsSetting.active" finish-status="success">
+          <el-step title="选择资源类型" />
+          <el-step title="输入资源数据" />
+          <el-step title="步骤 3" />
+        </el-steps>
+        <div v-show="stepsSetting.active === 0">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="资源类型：" prop="type">
+                <el-select v-model="dataJson.tempJson.type" placeholder="请选择资源类型" clearable @change="handleSelectChange">
+                  <el-option
+                    v-for="item in settings.options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="资源名称：" prop="name">
+                <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+        <div v-show="stepsSetting.active === 1">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="相对路径：" prop="uri">
+                <el-input v-model.trim="dataJson.tempJson.uri" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.uri" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="baseurl：" prop="base">
+                <el-input v-model.trim="dataJson.tempJson.base" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.base" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="文件大小：" prop="size">
+                <el-input v-model.trim="dataJson.tempJson.size" disabled />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="文件扩展名：" prop="extension">
+                <el-input v-model.trim="dataJson.tempJson.extension" disabled />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="描述：" prop="descr">
+            <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+          </el-form-item>
+          <el-form-item label="json配置信息：" prop="context">
+            <json-editor ref="jsonEditor" v-model.trim="dataJson.tempJson.context" />
+          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="更新者：" prop="uId">
+                <el-input v-model.trim="dataJson.tempJson.uId" disabled />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="更新时间：" prop="uTime">
+                <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+        <el-button @click="handleNext">下一步</el-button>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -259,8 +246,7 @@
         <el-button v-show="popSettingsData.btnStatus.doCopyInsert" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
-  </div>
-</template>
+  </div></template>
 
 <style scoped>
   .floatRight {
@@ -278,11 +264,10 @@ import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
 import JsonEditor from '@/components/JsonEditor'
-import formWizard from 'vue-form-wizard'
 
 export default {
   name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload, JsonEditor, formWizard },
+  components: { Pagination, SimpleUpload, JsonEditor },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -396,6 +381,11 @@ export default {
         templateFilePath: 'http://baidu.com',
         // 错误数据文件
         errorFileUrl: ''
+      },
+      // 步骤设置部分
+      stepsSetting: {
+        active: 0, // 控制步骤
+        stepNumber: 2 // 总步数
       }
     }
   },
@@ -813,6 +803,54 @@ export default {
     // table选择框
     handleSelectionChange(val) {
       this.dataJson.multipleSelection = val
+    },
+    handleNext() {
+      debugger
+      if (this.stepsSetting.active === this.stepsSetting.stepNumber) {
+        return
+      }
+      const forms = []
+      // 验证当前页的表单是否通过验证
+      switch (this.stepsSetting.active) {
+        case 0:
+          // forms.push('serviceStaffInfo');
+          forms.push('partnerInfoes')
+          break
+        case 1:
+          // forms.push('agentBasicInfo');
+          // forms.push('agentArea');
+          break
+        case 2:
+          forms.push('agentCompanyInfo')
+          forms.push('corporateInfo')
+          // forms.push('contractInfo');
+          break
+        case 3:
+          forms.push('serviceManager')
+          forms.push('bdManager')
+          break
+        case 4:
+          // forms.push('agentCommissionRatio');
+          // forms.push('agentCommissionAccount');
+          break
+        case 5:
+          // forms.push('platformServiceFee');
+          // forms.push('dividingInfo');
+          // forms.push('paymentInfo');
+          break
+      }
+      let r = 0
+      for (let i = 0; i < forms.length; i++) {
+        debugger
+        this.$refs[forms[i]].validate((valid) => {
+          if (valid) {
+            r++
+          }
+        })
+      }
+      if (r === forms.length) {
+        this.active++
+      }
     }
   }
 }
