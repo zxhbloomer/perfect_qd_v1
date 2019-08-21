@@ -32,22 +32,6 @@
       <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
-    <el-button-group>
-      <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
-    </el-button-group>
-
-    <el-dropdown trigger="click">
-      <el-button type="primary">
-        更多<i class="el-icon-arrow-down el-icon--right" />
-      </el-button>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item>黄金糕</el-dropdown-item>
-        <el-dropdown-item>狮子头</el-dropdown-item>
-        <el-dropdown-item>螺蛳粉</el-dropdown-item>
-        <el-dropdown-item>双皮奶</el-dropdown-item>
-        <el-dropdown-item>蚵仔煎</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -71,10 +55,6 @@
       <el-table-column type="index" width="38" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uri" label="相对路径" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="baseurl" label="baseurl" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="50" :sort-orders="settings.sortOrders" prop="size" label="文件大小" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="40" :sort-orders="settings.sortOrders" prop="extension" label="扩展名" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
@@ -101,52 +81,7 @@
       </el-table-column>
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-    <!-- pop窗口 数据批量导入：模版导出、excel导入-->
-    <el-dialog
-      v-el-drag-dialog
-      title="数据批量导入"
-      :visible.sync="popSettingsImport.dialogFormVisible"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-      width="620px"
-    >
-      <el-form
-        ref="dataForm"
-        label-position="rigth"
-        label-width="120px"
-        status-icon
-      >
-        <el-form-item label="点击下载：">
-          <el-link type="primary" :href="popSettingsImport.templateFilePath"> 模版文件</el-link>
-        </el-form-item>
-        <el-form-item label="选择导入文件：">
-          <simple-upload
-            :accept="'.xls,.xlsx'"
-            @upload-success="handleUploadFileSuccess"
-            @upload-error="handleUploadFileError"
-          />
-          <el-link v-show="!(popSettingsImport.errorFileUrl =='')" type="danger" :href="popSettingsImport.errorFileUrl">
-            <i class="el-icon-view el-icon--right" />错误信息
-          </el-link>
-        </el-form-item>
-      </el-form>
-      <p><strong>说明：</strong></p>
-      <ul>
-        <li>请先下载模版文件，在模版文件中进行修改后再上传</li>
-        <li>支持上传的文件类型：xls、xlsx</li>
-        <li>请避免excel文件格式错误</li>
-        <li>文件中存在任何错误，整个文件上传都将失败</li>
-        <li>如果上传失败，会自动下载错误信息，请修改完毕后再次上传</li>
-      </ul>
-
-      <div slot="footer" class="dialog-footer">
-        <el-divider />
-        <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- pop窗口 数据编辑:新增、修改、-->
+    <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
@@ -154,22 +89,22 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="1024px"
+      width="800px"
     >
       <el-form
-        ref="dataForm"
+        ref="dataSubmitForm"
         :rules="popSettingsData.rules"
         :model="dataJson.tempJson"
         label-position="rigth"
         label-width="120px"
         status-icon
       >
-        111{{ stepsSetting.active }}222
         <el-steps :active="stepsSetting.active" finish-status="success">
           <el-step title="选择资源类型" />
           <el-step title="输入资源数据" />
-          <el-step title="步骤 3" />
         </el-steps>
+        <br>
+        <br>
         <div v-show="stepsSetting.active === 0">
           <el-row>
             <el-col :span="12">
@@ -192,30 +127,6 @@
           </el-row>
         </div>
         <div v-show="stepsSetting.active === 1">
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="相对路径：" prop="uri">
-                <el-input v-model.trim="dataJson.tempJson.uri" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.uri" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="baseurl：" prop="base">
-                <el-input v-model.trim="dataJson.tempJson.base" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.base" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <el-form-item label="文件大小：" prop="size">
-                <el-input v-model.trim="dataJson.tempJson.size" disabled />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="文件扩展名：" prop="extension">
-                <el-input v-model.trim="dataJson.tempJson.extension" disabled />
-              </el-form-item>
-            </el-col>
-          </el-row>
           <el-form-item label="描述：" prop="descr">
             <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
           </el-form-item>
@@ -235,15 +146,18 @@
             </el-col>
           </el-row>
         </div>
-        <el-button @click="handleNext">下一步</el-button>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
+        <div class="floatLeft">
+          <el-button v-show="stepsSetting.active === stepsSetting.stepNumber" type="danger" :disabled="settings.listLoading" @click="doReset()">重置</el-button>
+        </div>
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doCopyInsert" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
+        <el-button v-show="stepsSetting.active !== stepsSetting.stepNumber" @click="handleNext">下一步</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doUpdate && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnStatus.doCopyInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
   </div></template>
@@ -252,22 +166,24 @@
   .floatRight {
     float: right;
   }
+  .floatLeft {
+    float: left;
+  }
   .el-form-item .el-select {
     width: 100%;
   }
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi, enableApi } from '@/api/00_system/resource/resource'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/resource/resource'
 import resizeMixin from './resourceResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import SimpleUpload from '@/layout/components/SimpleUpload'
 import JsonEditor from '@/components/JsonEditor'
 
 export default {
   name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload, JsonEditor },
+  components: { Pagination, JsonEditor },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -301,10 +217,6 @@ export default {
           id: undefined,
           type: '',
           name: '',
-          uri: '',
-          base: '',
-          size: '',
-          extension: '',
           descr: '',
           context: '',
           dbversion: 0
@@ -344,10 +256,10 @@ export default {
         // 下拉选项json
         options: [{
           value: '10',
-          label: '配置文件'
+          label: 'json配置'
         }, {
           value: '20',
-          label: 'json配置'
+          label: '配置文件'
         }]
       },
       popSettingsData: {
@@ -368,24 +280,24 @@ export default {
         dialogStatus: '',
         dialogFormVisible: false,
         // pop的check内容
-        rules: {
-          type: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
-          name: [{ required: true, message: '请输入资源名称', trigger: 'change' }]
-        }
-      },
-      // 导入窗口的状态
-      popSettingsImport: {
-        // 弹出窗口会否显示
-        dialogFormVisible: false,
-        // 模版文件地址
-        templateFilePath: 'http://baidu.com',
-        // 错误数据文件
-        errorFileUrl: ''
+        rules: []
       },
       // 步骤设置部分
       stepsSetting: {
         active: 0, // 控制步骤
-        stepNumber: 2 // 总步数
+        stepNumber: 1, // 总步数
+        // 步骤1的check内容
+        rulesFirst: {
+          type: [
+            { required: true, message: '请选择资源类型', trigger: 'change' },
+            { validator: this.validateType, trigger: 'change' }
+          ],
+          name: [{ required: true, message: '请输入资源名称', trigger: 'change' }]
+        },
+        // 步骤2的check内容
+        rulesSecond: {
+          context: [{ required: true, message: '请输入json配置信息', trigger: 'change' }]
+        }
       }
     }
   },
@@ -401,11 +313,17 @@ export default {
         }
       }
     },
-    // 根据窗口状态，清空错误link
-    'popSettingsImport.dialogFormVisible': {
+    // 根据当前步骤，替换相应validate的rules
+    'stepsSetting.active': {
       handler(newVal, oldVal) {
-        // 清空错误文件
-        this.popSettingsImport.errorFileUrl = ''
+        switch (newVal) {
+          case 0:
+            this.popSettingsData.rules = this.stepsSetting.rulesFirst
+            break
+          case 1:
+            this.popSettingsData.rules = this.stepsSetting.rulesSecond
+            break
+        }
       }
     }
   },
@@ -414,11 +332,12 @@ export default {
     this.getDataList()
     // 数据初始化
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+    // 步骤初始化
+    this.popSettingsData.rules = this.stepsSetting.rulesFirst
   },
   methods: {
     // 下拉选项控件事件
     handleSelectChange(val) {
-      alert(val)
     },
     // 获取行索引
     getRowIndex(row) {
@@ -445,7 +364,7 @@ export default {
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['dataSubmitForm'].clearValidate()
       })
     },
     // 删除操作
@@ -490,57 +409,18 @@ export default {
         row.isdel = !row.isdel
       })
     },
-    // 启用操作
-    handleEnable(row) {
-      let _message = ''
-      const _value = row.isenable
-      const selectionJson = []
-      selectionJson.push({ 'id': row.id })
-      if (_value === true) {
-        _message = '是否要禁用该条数据？'
-      } else {
-        _message = '是否要启用该条数据？'
-      }
-      // 选择全部的时候
-      this.$confirm(_message, '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }).then(() => {
-        // loading
-        this.settings.listLoading = true
-        enableApi(selectionJson).then((_data) => {
-          this.$notify({
-            title: '更新成功',
-            message: _data.message,
-            type: 'success',
-            duration: this.settings.duration
-          })
-          this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        }, (_error) => {
-          this.$notify({
-            title: '更新错误',
-            message: _error.message,
-            type: 'error',
-            duration: this.settings.duration
-          })
-          this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        })
-      }).catch(action => {
-        row.isenable = !row.isenable
-      })
-    },
     // 点击按钮 新增
     handleInsert() {
+      // 初始化
+      this.doReset()
+
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
       this.popSettingsData.dialogFormVisible = true
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
       this.popSettingsData.btnStatus.doInsert = true
@@ -557,7 +437,7 @@ export default {
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
       this.popSettingsData.btnStatus.doInsert = false
@@ -625,7 +505,7 @@ export default {
       this.popSettingsData.dialogStatus = 'copyInsert'
       this.popSettingsData.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
       this.popSettingsData.btnStatus.doInsert = false
@@ -668,7 +548,7 @@ export default {
     },
     // 更新逻辑
     doUpdate() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -696,9 +576,21 @@ export default {
         }
       })
     },
+    // 重置
+    doReset() {
+      // 数据初始化
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+      // 步骤初始化
+      this.popSettingsData.rules = this.stepsSetting.rulesFirst
+      this.stepsSetting.active = 0
+      // 去除validate信息
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
+    },
     // 插入逻辑
     doInsert() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -727,7 +619,7 @@ export default {
     },
     // 复制新增逻辑
     doCopyInsert() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -754,46 +646,8 @@ export default {
         }
       })
     },
-    // 文件上传成功
-    handleUploadFileSuccess(res) {
-      // 开始导出
-      importExcelApi(res.response.data).then(response => {
-        this.settings.listLoading = false
-        this.popSettingsImport.errorFileUrl = ''
-        if (response.code !== 0) {
-          this.popSettingsImport.errorFileUrl = response.data.fsType2Url
-          this.showErrorMsg('您上传的excel数据有错误，请点击错误信息进行查看！')
-        } else if (response.code === 0) {
-          const successList = '成功导入 ' + response.data.length + ' 条数据'
-          this.$alert(successList, '导入成功', {
-            confirmButtonText: '关闭',
-            type: 'success'
-          }).then(() => {
-            this.popSettingsImport.dialogFormVisible = false
-          })
-        }
-      }, (_error) => {
-        this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
-        console.log('发生了异常，请联系管理员！:' + JSON.stringify(_error))
-      })
-    },
-    // 文件上传失败
-    handleUploadFileError() {
-      console.debug('文件上传失败')
-      this.$notify({
-        title: '导入错误',
-        message: '文件上传发生错误！',
-        type: 'error',
-        duration: 0
-      })
-    },
-    // 数据批量导入按钮
-    handleOpenImportDialog() {
-      this.popSettingsImport.dialogFormVisible = true
-    },
     // 关闭弹出窗口
     handlCloseDialog() {
-      this.popSettingsImport.dialogFormVisible = false
       this.popSettingsData.dialogFormVisible = false
     },
     // 获取row-key
@@ -805,52 +659,32 @@ export default {
       this.dataJson.multipleSelection = val
     },
     handleNext() {
-      debugger
-      if (this.stepsSetting.active === this.stepsSetting.stepNumber) {
-        return
-      }
-      const forms = []
-      // 验证当前页的表单是否通过验证
-      switch (this.stepsSetting.active) {
-        case 0:
-          // forms.push('serviceStaffInfo');
-          forms.push('partnerInfoes')
-          break
-        case 1:
-          // forms.push('agentBasicInfo');
-          // forms.push('agentArea');
-          break
-        case 2:
-          forms.push('agentCompanyInfo')
-          forms.push('corporateInfo')
-          // forms.push('contractInfo');
-          break
-        case 3:
-          forms.push('serviceManager')
-          forms.push('bdManager')
-          break
-        case 4:
-          // forms.push('agentCommissionRatio');
-          // forms.push('agentCommissionAccount');
-          break
-        case 5:
-          // forms.push('platformServiceFee');
-          // forms.push('dividingInfo');
-          // forms.push('paymentInfo');
-          break
-      }
-      let r = 0
-      for (let i = 0; i < forms.length; i++) {
-        debugger
-        this.$refs[forms[i]].validate((valid) => {
-          if (valid) {
-            r++
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
+      this.$refs['dataSubmitForm'].validate((valid) => {
+        if (valid) {
+          // check没有错误
+          if (this.stepsSetting.active === this.stepsSetting.stepNumber) {
+            return
           }
-        })
+          this.stepsSetting.active++
+          this.$nextTick(() => {
+            this.$refs['dataSubmitForm'].clearValidate()
+          })
+        } else {
+          // check有错误
+          return false
+        }
+      })
+    },
+    // 资源类型check
+    validateType(rule, value, callback) {
+      // 现阶段只支持json配置
+      if (value === '10') {
+        return callback()
       }
-      if (r === forms.length) {
-        this.active++
-      }
+      return callback(new Error('现在只支持json配置，请选择“json配置”'))
     }
   }
 }
