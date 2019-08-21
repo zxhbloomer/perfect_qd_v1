@@ -11,7 +11,7 @@
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-select v-model="dataJson.selectContext" placeholder="请选择资源类型" multiple collapse-tags clearable>
+        <el-select v-model="dataJson.searchForm.code" placeholder="请选择资源类型" multiple collapse-tags clearable>
           <el-option
             v-for="item in settings.options"
             :key="item.value"
@@ -23,7 +23,51 @@
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜索</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button v-popover:popover type="primary" plain icon="el-icon-search">高级搜索</el-button>
+      </el-form-item>
     </el-form>
+    <el-popover
+      ref="popover"
+      placement="top"
+      width="420"
+      title="高级查询"
+    >
+      <el-form
+        :inline="true"
+        :model="dataJson.searchForm"
+        label-position="getLabelPosition()"
+        class="floatRight"
+      >
+
+        <el-form-item label="">
+          <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
+        </el-form-item>
+        <el-form-item label="">
+          <el-select v-model="dataJson.searchForm.code" placeholder="请选择资源类型" multiple collapse-tags clearable>
+            <el-option
+              v-for="item in settings.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="">
+          <el-switch
+            v-model="value1"
+            active-text="已删除"
+            inactive-text="未删除"
+            :active-value="true"
+            :inactive-value="false"
+          />
+        </el-form-item>
+        <div style="text-align: right; margin: 0">
+          <el-button size="mini" type="text">重置</el-button>
+          <el-button type="primary" size="mini">提交</el-button>
+        </div>
+      </el-form>
+    </el-popover>
 
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增</el-button>
@@ -55,7 +99,7 @@
       <el-table-column type="index" width="38" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
-      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
+      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
@@ -71,11 +115,10 @@
         </template>
       </el-table-column>
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
-      <el-table-column label="操作" width="120" fixed="right">
+      <el-table-column label="操作" width="70" fixed="right">
         <template slot-scope="scope">
           <el-button-group>
             <el-button type="primary" icon="el-icon-edit" @click="handleRowUpdate(scope.row, scope.$index)" />
-            <el-button type="danger" icon="el-icon-delete" @click="onDel(scope.row)" />
           </el-button-group>
         </template>
       </el-table-column>
@@ -201,9 +244,10 @@ export default {
           // 查询条件
           name: '',
           simpleName: '',
-          code: '',
           isdel: '',
-          isenable: ''
+          isenable: '',
+          // 下拉选项选择的内容
+          code: []
         },
         // 分页控件的json
         paging: {
@@ -236,9 +280,7 @@ export default {
         // 当前表格中的索引，第几条
         rowIndex: 0,
         // 当前选中的行（checkbox）
-        multipleSelection: [],
-        // 下拉选项选择的内容
-        selectContext: []
+        multipleSelection: []
       },
       // 页面设置json
       settings: {
