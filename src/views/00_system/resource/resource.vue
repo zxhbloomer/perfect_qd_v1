@@ -160,7 +160,8 @@
         <el-button v-show="popSettingsData.btnStatus.doCopyInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
-  </div></template>
+  </div>
+</template>
 
 <style scoped>
   .floatRight {
@@ -303,16 +304,6 @@ export default {
   },
   // 监听器
   watch: {
-    // 选中的数据，使得导出按钮可用，否则就不可使用
-    'dataJson.multipleSelection': {
-      handler(newVal, oldVal) {
-        if (newVal.length > 0) {
-          this.settings.btnStatus.showExport = true
-        } else {
-          this.settings.btnStatus.showExport = false
-        }
-      }
-    },
     // 根据当前步骤，替换相应validate的rules
     'stepsSetting.active': {
       handler(newVal, oldVal) {
