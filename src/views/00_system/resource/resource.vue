@@ -582,7 +582,7 @@ export default {
         // 查询条件
         name: '',
         simpleName: '',
-        isdel: '',
+        isdel: 'null',
         isenable: '',
         // 下拉选项选择的内容
         code: []
