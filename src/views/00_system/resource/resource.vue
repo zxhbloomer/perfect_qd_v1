@@ -40,7 +40,6 @@
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
       <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
@@ -122,13 +121,22 @@
           </el-form-item>
         </div>
         <div v-show="stepsSetting.active === 1">
-          <el-form-item label="资源名称：" prop="name">
-            <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="资源类型：" prop="type">
+                <el-input v-model.trim="dataJson.tempJson.type" disabled />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="资源名称：" prop="name">
+                <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="描述：" prop="descr">
             <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
           </el-form-item>
-          <el-form-item label="配置信息：" prop="context">
+          <el-form-item label="JSON配置信息：" prop="context">
             <el-input v-model.trim="dataJson.tempJson.context" :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
           </el-form-item>
           <el-row>
@@ -274,8 +282,7 @@ export default {
         // 弹出窗口状态名称
         textMap: {
           update: '修改',
-          insert: '新增',
-          copyInsert: '复制新增'
+          insert: '新增'
         },
         // 按钮状态
         btnStatus: {
@@ -314,6 +321,9 @@ export default {
     // 根据当前步骤，替换相应validate的rules
     'stepsSetting.active': {
       handler(newVal, oldVal) {
+        this.$nextTick(() => {
+          this.$refs['dataSubmitForm'].clearValidate()
+        })
         switch (newVal) {
           case 0:
             this.popSettingsData.rules = this.stepsSetting.rulesFirst
@@ -409,12 +419,8 @@ export default {
     },
     // 点击按钮 新增
     handleInsert() {
-      // 初始化
-      this.doReset()
-
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
-      this.popSettingsData.dialogFormVisible = true
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
@@ -424,6 +430,9 @@ export default {
       this.popSettingsData.btnStatus.doInsert = true
       this.popSettingsData.btnStatus.doUpdate = false
       this.popSettingsData.btnStatus.doCopyInsert = false
+      // 初始化弹出页面
+      this.doReset()
+      this.popSettingsData.dialogFormVisible = true
     },
     // 点击按钮 更新
     handleUpdate() {
@@ -441,6 +450,8 @@ export default {
       this.popSettingsData.btnStatus.doInsert = false
       this.popSettingsData.btnStatus.doUpdate = true
       this.popSettingsData.btnStatus.doCopyInsert = false
+      // 设置步骤激活的步骤：2
+      this.stepsSetting.active = 1
     },
     // 导出按钮
     handleExport() {
@@ -493,22 +504,6 @@ export default {
       exportSelectionApi(selectionJson).then(response => {
         this.settings.listLoading = false
       })
-    },
-    // 点击按钮 复制新增
-    handleCopyInsert() {
-      this.dataJson.tempJson.id === undefined
-      this.dataJson.tempJson.uId = ''
-      this.dataJson.tempJson.uTime = ''
-      // 修改
-      this.popSettingsData.dialogStatus = 'copyInsert'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnStatus.doInsert = false
-      this.popSettingsData.btnStatus.doUpdate = false
-      this.popSettingsData.btnStatus.doCopyInsert = true
     },
     handleCurrentChange(row) {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
@@ -592,13 +587,21 @@ export default {
         code: []
       }
     },
-    // 重置
+    // 重置按钮
     doReset() {
-      // 数据初始化
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       // 步骤初始化
-      this.popSettingsData.rules = this.stepsSetting.rulesFirst
-      this.stepsSetting.active = 0
+      switch (this.popSettingsData.dialogStatus) {
+        case 'insert':
+          this.stepsSetting.active = 0
+          break
+        case 'update':
+          this.stepsSetting.active = 1
+          break
+      }
+      // 数据初始化
+      this.dataJson.tempJson.name = ''
+      this.dataJson.tempJson.descr = ''
+      this.dataJson.tempJson.context = ''
       // 去除validate信息
       this.$nextTick(() => {
         this.$refs['dataSubmitForm'].clearValidate()
@@ -633,35 +636,6 @@ export default {
         }
       })
     },
-    // 复制新增逻辑
-    doCopyInsert() {
-      this.$refs['dataSubmitForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.dataJson.tempJson)
-          this.settings.listLoading = true
-          insertApi(tempData).then((_data) => {
-            this.dataJson.listData.push(_data.data)
-            this.$notify({
-              title: '更新成功',
-              message: _data.message,
-              type: 'success',
-              duration: this.settings.duration
-            })
-            this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          }, (_error) => {
-            this.$notify({
-              title: '更新错误',
-              message: _error.message,
-              type: 'error',
-              duration: this.settings.duration
-            })
-            this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          })
-        }
-      })
-    },
     // 关闭弹出窗口
     handlCloseDialog() {
       this.popSettingsData.dialogFormVisible = false
@@ -675,9 +649,6 @@ export default {
       this.dataJson.multipleSelection = val
     },
     handleNext() {
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
       this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           // check没有错误
