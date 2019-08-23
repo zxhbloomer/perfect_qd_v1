@@ -748,7 +748,7 @@ export default {
           })
         }
       }, (_error) => {
-        this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
+        // this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
         console.log('发生了异常，请联系管理员！:' + JSON.stringify(_error))
       })
     },

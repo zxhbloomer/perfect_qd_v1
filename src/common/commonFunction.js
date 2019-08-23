@@ -1,3 +1,10 @@
+const cacheWithNameMap = new Map(
+  [
+    ['demoSample', 'P00000000'],
+    ['age', '22']
+  ]
+)
+
 exports.install = function(Vue, options) {
   /** 获取页面的size */
   Vue.prototype.getSize = function() {
@@ -53,5 +60,10 @@ exports.install = function(Vue, options) {
       type: 'error',
       duration: 8 * 1000
     })
+  }
+
+  /** 获取缓存的name */
+  Vue.prototype.getCacheName = function(pageName) {
+    return cacheWithNameMap.get(pageName)
   }
 }

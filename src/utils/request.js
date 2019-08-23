@@ -96,6 +96,24 @@ service.interceptors.response.use(
       //   case 401:
       //     // 返回 401 清除token信息并跳转到登录页面
     }
+    // commonFunction.showErrorMsg('发生了异常，请联系管理员！', error.response.data.data)
+    let showMsg = ''
+
+    try {
+      showMsg = error.response.data.message
+    } catch (error) {
+      showMsg = error
+    }
+    if (JSON.stringify(error) !== '{}') {
+      showMsg = '发生了异常，请联系管理员！' + ' : ' + showMsg
+    }
+    MessageBox.confirm(showMsg, '错误信息', {
+      showCancelButton: false,
+      confirmButtonText: '确定',
+      type: 'error'
+    }).then(() => {
+
+    })
     return Promise.reject(error.response.data) // 返回接口返回的错误信息
   },
 )

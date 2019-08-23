@@ -33,8 +33,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // add by zxh
-import commonFunction from './utils/commonFunction'
-
+import commonFunction from './common/commonFunction'
 Vue.use(commonFunction)
 
 Vue.use(Element, {
