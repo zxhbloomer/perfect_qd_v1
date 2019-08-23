@@ -98,14 +98,17 @@ service.interceptors.response.use(
     }
     // commonFunction.showErrorMsg('发生了异常，请联系管理员！', error.response.data.data)
     let showMsg = ''
-
     try {
-      showMsg = error.response.data.message
+      if (error.response.status === 404) {
+        showMsg = error.message
+      } else {
+        showMsg = error.response.data.message
+      }
     } catch (error) {
       showMsg = error
     }
-    if (JSON.stringify(error) !== '{}') {
-      showMsg = '发生了异常，请联系管理员！' + ' : ' + showMsg
+    if (JSON.stringify(showMsg) !== '{}') {
+      showMsg = '发生了异常，请联系管理员！' + ' : ' + JSON.stringify(showMsg)
     }
     MessageBox.confirm(showMsg, '错误信息', {
       showCancelButton: false,

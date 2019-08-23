@@ -8,17 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.code" placeholder="请选择资源类型" multiple collapse-tags clearable>
-          <el-option
-            v-for="item in settings.codeOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典编码" />
       </el-form-item>
       <el-form-item label="">
         <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
@@ -64,8 +57,8 @@
     >
       <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
       <el-table-column type="index" width="38" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="编码" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
@@ -183,13 +176,13 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/resource/resource'
-import resizeMixin from './resourceResizeHandlerMixin'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/dicttype/dicttype'
+import resizeMixin from './dictypeResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 
 export default {
-  name: 'P00000020', // 页面id，和router中的name需要一致，作为缓存
+  name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
   components: { Pagination },
   directives: { elDragDialog },
   mixins: [resizeMixin],
@@ -206,10 +199,9 @@ export default {
           },
           // 查询条件
           name: '',
+          code: '',
           isdel: 'null',
-          isenable: '',
-          // 下拉选项选择的内容
-          code: []
+          isenable: ''
         },
         // 分页控件的json
         paging: {
@@ -222,10 +214,9 @@ export default {
         // 单条数据 json的，初始化原始数据
         tempJsonOriginal: {
           id: undefined,
-          type: '',
           name: '',
+          code: '',
           descr: '',
-          context: '',
           dbversion: 0
         },
         // 单条数据 json
@@ -233,8 +224,7 @@ export default {
         inputSettings: {
           maxLength: {
             name: 10,
-            uri: 50,
-            base: 50,
+            code: 50,
             descr: 200,
             dbversion: 0
           }
@@ -257,26 +247,7 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000,
-        // 资源类型下拉选项json
-        codeOptions: [{
-          value: '10',
-          label: 'json配置'
-        }, {
-          value: '20',
-          label: '配置文件'
-        }],
-        // 资源类型下拉选项json
-        delOptions: [{
-          value: '0',
-          label: '未删除'
-        }, {
-          value: '1',
-          label: '已删除'
-        }, {
-          value: 'null',
-          label: '全部'
-        }]
+        duration: 4000
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -580,10 +551,9 @@ export default {
         },
         // 查询条件
         name: '',
+        simpleName: '',
         isdel: 'null',
-        isenable: '',
-        // 下拉选项选择的内容
-        code: []
+        isenable: ''
       }
     },
     // 重置按钮
