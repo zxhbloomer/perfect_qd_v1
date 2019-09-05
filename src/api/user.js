@@ -19,7 +19,7 @@ export function getUserInfoApi(token) {
 
 export function logout() {
   return request({
-    url: '/user/logout',
+    url: '/api/v1/user/logout',
     method: 'post'
   })
 }

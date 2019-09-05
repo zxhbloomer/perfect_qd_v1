@@ -110,13 +110,16 @@ service.interceptors.response.use(
     if (JSON.stringify(showMsg) !== '{}') {
       showMsg = '发生了异常，请联系管理员！' + ' : ' + JSON.stringify(showMsg)
     }
-    MessageBox.confirm(showMsg, '错误信息', {
-      showCancelButton: false,
-      confirmButtonText: '确定',
-      type: 'error'
-    }).then(() => {
 
-    })
+    if (error.response.status !== 401) {
+      MessageBox.confirm(showMsg, '错误信息', {
+        showCancelButton: false,
+        confirmButtonText: '确定',
+        type: 'error'
+      }).then(() => {
+
+      })
+    }
     return Promise.reject(error.response.data) // 返回接口返回的错误信息
   },
 )

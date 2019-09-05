@@ -1,3 +1,5 @@
+import { Loading } from 'element-ui'
+
 exports.install = function(Vue, options) {
   /** 获取页面的size */
   Vue.prototype.getSize = function() {
@@ -58,5 +60,14 @@ exports.install = function(Vue, options) {
   /** 截取字符串 */
   Vue.prototype.truncateString = function(str, num) {
     return str.length > num ? str.slice(0, num > 3 ? num - 3 : num) + '...' : str
+  }
+
+  /** loading打开 */
+  Vue.prototype.showLoading = function(msg) {
+    Loading.service({ fullscreen: true, text: msg, lock: true, background: 'rgba(255, 255, 255, 0.7)' })
+  }
+  /** loading关闭 */
+  Vue.prototype.closeLoading = function() {
+    Loading.service().close()
   }
 }

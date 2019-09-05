@@ -5,7 +5,15 @@
       <div class="title-container">
         <h3 class="title">登&#8195;&#8195;录</h3>
       </div>
-
+      <el-form-item v-show="checkJson.errorStatus">
+        <el-alert
+          :title="checkJson.errorMsg"
+          type="error"
+          show-icon
+          close-text="知道了"
+          @close="handleClose"
+        />
+      </el-form-item>
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -104,6 +112,12 @@ export default {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
+      checkJson: {
+        // 错误信息
+        errorMsg: '',
+        // 错误状态
+        errorStatus: false
+      },
       passwordType: 'password',
       capsTooltip: false,
       loading: false,
@@ -122,6 +136,38 @@ export default {
         }
       },
       immediate: true
+    },
+    // 输入信息是否有变更监控，如果有变化则情况错误信息
+    'loginForm': {
+      handler(newVal, oldVal) {
+        this.checkJson.errorMsg = ''
+      },
+      deep: true
+    },
+    // 错误信息
+    'checkJson.errorMsg': {
+      handler(newVal, oldVal) {
+        if (newVal.length === 0) {
+          // 没有错误
+          this.checkJson.errorStatus = false
+        } else {
+          // 有错误
+          this.checkJson.errorStatus = true
+        }
+      }
+    },
+    // loading
+    'loading': {
+      handler(newVal, oldVal) {
+        switch (newVal) {
+          case true:
+            this.showLoading('正在验证登录，请稍后...')
+            break
+          case false:
+            this.closeLoading()
+            break
+        }
+      }
     }
   },
   created() {
@@ -170,7 +216,7 @@ export default {
               this.loading = false
             })
             .catch((data) => {
-              this.showErrorMsgAlert(data.message)
+              this.checkJson.errorMsg = data.message
               this.loading = false
             })
         } else {
@@ -186,6 +232,9 @@ export default {
         }
         return acc
       }, {})
+    },
+    handleClose() {
+      this.checkJson.errorStatus = ''
     }
     // afterQRScan() {
     //   if (e.key === 'x-admin-oauth-code') {
