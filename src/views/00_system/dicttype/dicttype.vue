@@ -36,6 +36,10 @@
       <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
+    <el-button-group>
+      <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
+    </el-button-group>
+
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -78,6 +82,52 @@
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
+
+    <!-- pop窗口 数据批量导入：模版导出、excel导入-->
+    <el-dialog
+      v-el-drag-dialog
+      title="数据批量导入"
+      :visible.sync="popSettingsImport.dialogFormVisible"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+      width="620px"
+    >
+      <el-form
+        ref="dataForm"
+        label-position="rigth"
+        label-width="120px"
+        status-icon
+      >
+        <el-form-item label="点击下载：">
+          <el-link type="primary" :href="popSettingsImport.templateFilePath"> 模版文件</el-link>
+        </el-form-item>
+        <el-form-item label="选择导入文件：">
+          <simple-upload
+            :accept="'.xls,.xlsx'"
+            @upload-success="handleUploadFileSuccess"
+            @upload-error="handleUploadFileError"
+          />
+          <el-link v-show="!(popSettingsImport.errorFileUrl =='')" type="danger" :href="popSettingsImport.errorFileUrl">
+            <i class="el-icon-view el-icon--right" />错误信息
+          </el-link>
+        </el-form-item>
+      </el-form>
+      <p><strong>说明：</strong></p>
+      <ul>
+        <li>请先下载模版文件，在模版文件中进行修改后再上传</li>
+        <li>支持上传的文件类型：xls、xlsx</li>
+        <li>请避免excel文件格式错误</li>
+        <li>文件中存在任何错误，整个文件上传都将失败</li>
+        <li>如果上传失败，会自动下载错误信息，请修改完毕后再次上传</li>
+      </ul>
+
+      <div slot="footer" class="dialog-footer">
+        <el-divider />
+        <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
+      </div>
+    </el-dialog>
+
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
       v-el-drag-dialog
@@ -151,14 +201,15 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/dicttype/dicttype'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/dicttype/dicttype'
 import resizeMixin from './dictypeResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
+import SimpleUpload from '@/layout/components/SimpleUpload'
 
 export default {
   name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination },
+  components: { Pagination, SimpleUpload },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -245,11 +296,27 @@ export default {
           name: [{ required: true, message: '请输入字典名称', trigger: 'change' }],
           code: [{ required: true, message: '请输入字典编码', trigger: 'change' }]
         }
+      },
+      // 导入窗口的状态
+      popSettingsImport: {
+        // 弹出窗口会否显示
+        dialogFormVisible: false,
+        // 模版文件地址
+        templateFilePath: '/api/v1/template.html?id=xxxx',
+        // 错误数据文件
+        errorFileUrl: ''
       }
     }
   },
   // 监听器
   watch: {
+    // 根据窗口状态，清空错误link
+    'popSettingsImport.dialogFormVisible': {
+      handler(newVal, oldVal) {
+        // 清空错误文件
+        this.popSettingsImport.errorFileUrl = ''
+      }
+    }
   },
   created() {
     // 初始化查询
@@ -537,8 +604,46 @@ export default {
         }
       })
     },
+    // 文件上传成功
+    handleUploadFileSuccess(res) {
+      // 开始导出
+      importExcelApi(res.response.data).then(response => {
+        this.settings.listLoading = false
+        this.popSettingsImport.errorFileUrl = ''
+        if (response.code !== 0) {
+          this.popSettingsImport.errorFileUrl = response.data.fsType2Url
+          this.showErrorMsg('您上传的excel数据有错误，请点击错误信息进行查看！')
+        } else if (response.code === 0) {
+          const successList = '成功导入 ' + response.data.length + ' 条数据'
+          this.$alert(successList, '导入成功', {
+            confirmButtonText: '关闭',
+            type: 'success'
+          }).then(() => {
+            this.popSettingsImport.dialogFormVisible = false
+          })
+        }
+      }, (_error) => {
+        // this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
+        console.log('发生了异常，请联系管理员！:' + JSON.stringify(_error))
+      })
+    },
+    // 文件上传失败
+    handleUploadFileError() {
+      console.debug('文件上传失败')
+      this.$notify({
+        title: '导入错误',
+        message: '文件上传发生错误！',
+        type: 'error',
+        duration: 0
+      })
+    },
+    // 数据批量导入按钮
+    handleOpenImportDialog() {
+      this.popSettingsImport.dialogFormVisible = true
+    },
     // 关闭弹出窗口
     handlCloseDialog() {
+      this.popSettingsImport.dialogFormVisible = false
       this.popSettingsData.dialogFormVisible = false
     },
     // 获取row-key
