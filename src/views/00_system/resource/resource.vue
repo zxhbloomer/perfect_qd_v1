@@ -8,9 +8,6 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
-      </el-form-item>
-      <el-form-item label="">
         <el-select v-model="dataJson.searchForm.code" placeholder="请选择资源类型" multiple collapse-tags clearable>
           <el-option
             v-for="item in settings.codeOptions"
@@ -19,6 +16,10 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+
+      <el-form-item label="">
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="资源名称" />
       </el-form-item>
       <el-form-item label="">
         <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>

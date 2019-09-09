@@ -302,7 +302,7 @@ export default {
         // 弹出窗口会否显示
         dialogFormVisible: false,
         // 模版文件地址
-        templateFilePath: '/api/v1/template.html?id=xxxx',
+        templateFilePath: '/api/v1/template.html?id=P00000030',
         // 错误数据文件
         errorFileUrl: ''
       }
