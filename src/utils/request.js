@@ -108,7 +108,14 @@ service.interceptors.response.use(
       showMsg = error
     }
     if (JSON.stringify(showMsg) !== '{}') {
-      showMsg = '发生了异常，请联系管理员！' + ' : ' + JSON.stringify(showMsg)
+      showMsg = '' + '' + JSON.stringify(showMsg, null, 2)
+    }
+    // 存在多个双引号的情况，则去除开头和结尾的多余双引号
+    if (showMsg.startsWith('"')) {
+      showMsg = showMsg.slice(1)
+    }
+    if (showMsg.endsWith('"')) {
+      showMsg = showMsg.slice(0, showMsg.length - 1)
     }
 
     if (error.response.status !== 401) {

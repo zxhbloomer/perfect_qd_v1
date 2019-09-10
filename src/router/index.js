@@ -134,6 +134,11 @@ export const constantRoutes = [
         component: () => import('@/views/00_system/dicttype/dicttype'),
         name: 'P00000030',
         meta: { title: '字典类型', icon: '字典类型' }
+      },
+      { path: 'module',
+        component: () => import('@/views/00_system/module/module'),
+        name: 'P00000040',
+        meta: { title: '模块编辑', icon: '模块编辑' }
       }
     ]
   },
