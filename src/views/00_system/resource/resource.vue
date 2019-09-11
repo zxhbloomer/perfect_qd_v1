@@ -112,7 +112,7 @@
         <br>
         <div v-show="stepsSetting.active === 0">
           <el-form-item label="资源类型：" prop="type">
-            <el-select v-model="dataJson.tempJson.type" placeholder="请选择资源类型" clearable @change="handleSelectChange">
+            <el-select ref="refType" v-model="dataJson.tempJson.type" placeholder="请选择资源类型" clearable @change="handleSelectChange">
               <el-option
                 v-for="item in settings.codeOptions"
                 :key="item.value"
@@ -131,7 +131,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="资源名称：" prop="name">
-                <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+                <el-input ref="refName" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -481,6 +481,10 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+      // 修改时控件focus
+      this.$nextTick(() => {
+        this.$refs['refType'].focus()
+      })
     },
     // 点击按钮 更新
     handleUpdate() {
@@ -500,6 +504,10 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 设置步骤激活的步骤：2
       this.stepsSetting.active = 1
+      // 设置控件焦点focus
+      this.$nextTick(() => {
+        this.$refs['refName'].focus()
+      })
     },
     // 导出按钮
     handleExport() {
@@ -639,16 +647,30 @@ export default {
       // 步骤初始化
       switch (this.popSettingsData.dialogStatus) {
         case 'insert':
+          // 数据初始化
+          this.dataJson.tempJson.type = ''
+          this.dataJson.tempJson.name = ''
+          this.dataJson.tempJson.descr = ''
+          this.dataJson.tempJson.context = ''
           this.stepsSetting.active = 0
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refType'].focus()
+          })
           break
         case 'update':
+          // 数据初始化
+          this.dataJson.tempJson.name = ''
+          this.dataJson.tempJson.descr = ''
+          this.dataJson.tempJson.context = ''
           this.stepsSetting.active = 1
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refName'].focus()
+          })
           break
       }
-      // 数据初始化
-      this.dataJson.tempJson.name = ''
-      this.dataJson.tempJson.descr = ''
-      this.dataJson.tempJson.context = ''
+
       // 去除validate信息
       this.$nextTick(() => {
         this.$refs['dataSubmitForm'].clearValidate()
@@ -710,6 +732,10 @@ export default {
           // check有错误
           return false
         }
+      })
+      // 设置控件焦点focus
+      this.$nextTick(() => {
+        this.$refs['refName'].focus()
       })
     },
     // 资源类型check
