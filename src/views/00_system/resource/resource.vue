@@ -56,14 +56,13 @@
       fit
       highlight-current-row
       :default-sort="{prop: 'uTime', order: 'descending'}"
-      :row-key="getRowKeys"
       style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="45" :reserve-selection="true" prop="id" />
+      <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />

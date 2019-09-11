@@ -8,10 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典编码" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典编码" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
       </el-form-item>
       <el-form-item label="">
         <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
@@ -32,8 +32,8 @@
     </el-form>
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
-      <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
     <el-button-group>
@@ -52,17 +52,16 @@
       fit
       highlight-current-row
       :default-sort="{prop: 'uTime', order: 'descending'}"
-      :row-key="getRowKeys"
       style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="45" :reserve-selection="true" prop="id" />
+      <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
@@ -136,7 +135,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="800px"
+      width="600px"
     >
       <el-form
         ref="dataSubmitForm"
@@ -148,20 +147,20 @@
       >
         <el-row>
           <el-col :span="12">
-            <el-form-item label="字典名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="字典编码：" prop="code">
+              <el-input ref="refCode" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="字典编码：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
+            <el-form-item label="字典名称：" prop="name">
+              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="descr">
           <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
-        <el-row>
+        <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
             <el-form-item label="更新者：" prop="uId">
               <el-input v-model.trim="dataJson.tempJson.uId" disabled />
@@ -177,12 +176,12 @@
       <div slot="footer" class="dialog-footer">
         <el-divider />
         <div class="floatLeft">
-          <el-button type="danger" :disabled="settings.listLoading" @click="doReset()">重置</el-button>
+          <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset" @click="doReset()">重置</el-button>
         </div>
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doInsert" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doUpdate" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doCopyInsert" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -246,6 +245,7 @@ export default {
           dbversion: 0
         },
         // 单条数据 json
+        currentJson: null,
         tempJson: null,
         inputSettings: {
           maxLength: {
@@ -265,7 +265,7 @@ export default {
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态
-        btnStatus: {
+        btnShowStatus: {
           showUpdate: false,
           showCopyInsert: false,
           showExport: false
@@ -282,11 +282,20 @@ export default {
           insert: '新增'
         },
         // 按钮状态
-        btnStatus: {
-          doInsert: false,
-          doUpdate: false,
-          doCopyInsert: false
+        btnShowStatus: {
+          showInsert: false,
+          showUpdate: false,
+          showCopyInsert: false
         },
+        // 按钮状态：是否可用
+        btnDisabledStatus: {
+          disabledReset: false,
+          disabledInsert: false,
+          disabledUpdate: false,
+          disabledCopyInsert: false
+        },
+        // 重置按钮点击后
+        btnResetStatus: false,
         // 以下为pop的内容：数据弹出框
         selection: [],
         dialogStatus: '',
@@ -310,11 +319,42 @@ export default {
   },
   // 监听器
   watch: {
-    // 根据窗口状态，清空错误link
-    'popSettingsImport.dialogFormVisible': {
+    // 监听页面上面是否有修改，有修改按钮高亮
+    'dataJson.tempJson': {
       handler(newVal, oldVal) {
-        // 清空错误文件
-        this.popSettingsImport.errorFileUrl = ''
+        if (this.popSettingsData.btnResetStatus === true) {
+          // 点击了重置按钮
+          this.popSettingsData.btnDisabledStatus.disabledReset = true
+          this.popSettingsData.btnDisabledStatus.disabledInsert = true
+          this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+          this.popSettingsData.btnResetStatus = false
+        } else if (this.popSettingsData.dialogFormVisible) {
+          // 有修改按钮高亮
+          this.popSettingsData.btnDisabledStatus.disabledReset = false
+          this.popSettingsData.btnDisabledStatus.disabledInsert = false
+          this.popSettingsData.btnDisabledStatus.disabledUpdate = false
+        }
+      },
+      deep: true
+    },
+    // 弹出窗口初始化，按钮不可用
+    'popSettingsData.dialogFormVisible': {
+      handler(newVal, oldVal) {
+        if (this.popSettingsData.dialogFormVisible) {
+          this.popSettingsData.btnDisabledStatus.disabledReset = true
+          this.popSettingsData.btnDisabledStatus.disabledInsert = true
+          this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+        }
+      }
+    },
+    // 选中的数据，使得导出按钮可用，否则就不可使用
+    'dataJson.multipleSelection': {
+      handler(newVal, oldVal) {
+        if (newVal.length > 0) {
+          this.settings.btnShowStatus.showExport = true
+        } else {
+          this.settings.btnShowStatus.showExport = false
+        }
       }
     }
   },
@@ -408,15 +448,20 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettingsData.btnStatus.doInsert = true
-      this.popSettingsData.btnStatus.doUpdate = false
-      this.popSettingsData.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnShowStatus.showInsert = true
+      this.popSettingsData.btnShowStatus.showUpdate = false
+      this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+      // 控件focus
+      this.$nextTick(() => {
+        this.$refs['refCode'].focus()
+      })
     },
     // 点击按钮 更新
     handleUpdate() {
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
       if (this.dataJson.tempJson.id === undefined) {
         this.showErrorMsg('请选择一条数据')
         return
@@ -428,9 +473,13 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettingsData.btnStatus.doInsert = false
-      this.popSettingsData.btnStatus.doUpdate = true
-      this.popSettingsData.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnShowStatus.showInsert = false
+      this.popSettingsData.btnShowStatus.showUpdate = true
+      this.popSettingsData.btnShowStatus.showCopyInsert = false
+      // 控件focus
+      this.$nextTick(() => {
+        this.$refs['refName'].focus()
+      })
     },
     // 导出按钮
     handleExport() {
@@ -440,7 +489,7 @@ export default {
           confirmButtonText: '关闭',
           type: 'error'
         }).then(() => {
-          this.settings.btnStatus.showExport = false
+          this.settings.btnShowStatus.showExport = false
         })
       } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
         // 选择全部的时候
@@ -485,16 +534,16 @@ export default {
       })
     },
     handleCurrentChange(row) {
-      this.dataJson.tempJson = Object.assign({}, row) // copy obj
-      this.dataJson.tempJson.index = this.getRowIndex(row)
-      if (this.dataJson.tempJson.id !== undefined) {
-        // this.settings.btnStatus.doInsert = true
-        this.settings.btnStatus.showUpdate = true
-        this.settings.btnStatus.showCopyInsert = true
+      this.dataJson.currentJson = Object.assign({}, row) // copy obj
+      this.dataJson.currentJson.index = this.getRowIndex(row)
+      if (this.dataJson.currentJson.id !== undefined) {
+        // this.settings.btnShowStatus.doInsert = true
+        this.settings.btnShowStatus.showUpdate = true
+        this.settings.btnShowStatus.showCopyInsert = true
       } else {
-        // this.settings.btnStatus.doInsert = false
-        this.settings.btnStatus.showUpdate = false
-        this.settings.btnStatus.showCopyInsert = false
+        // this.settings.btnShowStatus.doInsert = false
+        this.settings.btnShowStatus.showUpdate = false
+        this.settings.btnShowStatus.showCopyInsert = false
       }
     },
     handleSortChange(column) {
@@ -526,7 +575,10 @@ export default {
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
             this.dataJson.tempJson.dbversion = _data.data.dbversion
+            // 设置到table中绑定的json数据源
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
+            // 设置到currentjson中
+            this.dataJson.currentJson = Object.assign({}, this.dataJson.tempJson)
             this.$notify({
               title: '更新成功',
               message: _data.message,
@@ -566,10 +618,27 @@ export default {
     },
     // 重置按钮
     doReset() {
-      // 数据初始化
-      this.dataJson.tempJson.name = ''
-      this.dataJson.tempJson.descr = ''
-      this.dataJson.tempJson.context = ''
+      this.popSettingsData.btnResetStatus = true
+      switch (this.popSettingsData.dialogStatus) {
+        case 'update':
+          // 数据初始化
+          this.dataJson.tempJson.name = ''
+          this.dataJson.tempJson.descr = ''
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refName'].focus()
+          })
+          break
+        default:
+          // 数据初始化
+          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refCode'].focus()
+          })
+          break
+      }
+
       // 去除validate信息
       this.$nextTick(() => {
         this.$refs['dataSubmitForm'].clearValidate()
