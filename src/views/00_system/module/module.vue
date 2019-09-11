@@ -8,7 +8,7 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.type" placeholder="请选择模块类型" multiple collapse-tags clearable>
+        <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple collapse-tags clearable>
           <el-option
             v-for="type in settings.selectOptions"
             :key="type.value"
@@ -18,10 +18,10 @@
         </el-select>
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
       </el-form-item>
       <el-form-item label="">
         <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
@@ -42,9 +42,9 @@
     </el-form>
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
-      <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
     <el-table
@@ -99,7 +99,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="800px"
+      width="700px"
     >
       <el-form
         ref="dataForm"
@@ -111,7 +111,7 @@
       >
         <el-row>
           <el-form-item label="模块类型：" prop="type">
-            <el-select v-model="dataJson.tempJson.type" placeholder="请选择模块类型" clearable @change="handleSelectChange">
+            <el-select ref="refType" v-model="dataJson.tempJson.type" placeholder="请选择" clearable :disabled="popSettingsData.dialogStatus==='update'" @change="handleSelectChange">
               <el-option
                 v-for="item in settings.selectOptions"
                 :key="item.value"
@@ -122,19 +122,19 @@
           </el-form-item>
           <el-col :span="12">
             <el-form-item label="模块编号：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
+              <el-input v-model.trim="dataJson.tempJson.code" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="popSettingsData.dialogStatus==='update'" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="模块名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+          <el-input v-model.trim="dataJson.tempJson.descr" placeholder="请输入" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
-        <el-row>
+        <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
             <el-form-item label="更新者：" prop="uId">
               <el-input v-model.trim="dataJson.tempJson.uId" disabled />
@@ -199,7 +199,8 @@ export default {
           name: '',
           code: '',
           isdel: 'null',
-          isenable: ''
+          isenable: '',
+          types: []
         },
         // 分页控件的json
         paging: {
@@ -258,7 +259,7 @@ export default {
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态是否启用
-        btnStatus: {
+        btnShowStatus: {
           showUpdate: false,
           showCopyInsert: false,
           showExport: false
@@ -282,13 +283,15 @@ export default {
           showUpdate: false,
           showCopyInsert: false
         },
-        // 按钮状态：是否显示
+        // 按钮状态：是否可用
         btnDisabledStatus: {
           disabledReset: false,
           disabledInsert: false,
           disabledUpdate: false,
           disabledCopyInsert: false
         },
+        // 重置按钮点击后
+        btnResetStatus: false,
         // 以下为pop的内容：数据弹出框
         selection: [],
         dialogStatus: '',
@@ -307,7 +310,15 @@ export default {
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
-        if (this.popSettingsData.dialogFormVisible) {
+        if (this.popSettingsData.btnResetStatus === true) {
+          // 点击了重置按钮
+          this.popSettingsData.btnDisabledStatus.disabledReset = true
+          this.popSettingsData.btnDisabledStatus.disabledInsert = true
+          this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+          this.popSettingsData.btnResetStatus = false
+        } else if (this.popSettingsData.dialogFormVisible) {
+          // 有修改按钮高亮
           this.popSettingsData.btnDisabledStatus.disabledReset = false
           this.popSettingsData.btnDisabledStatus.disabledInsert = false
           this.popSettingsData.btnDisabledStatus.disabledUpdate = false
@@ -324,6 +335,16 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledInsert = true
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+        }
+      }
+    },
+    // 选中的数据，使得导出按钮可用，否则就不可使用
+    'dataJson.multipleSelection': {
+      handler(newVal, oldVal) {
+        if (newVal.length > 0) {
+          this.settings.btnShowStatus.showExport = true
+        } else {
+          this.settings.btnShowStatus.showExport = false
         }
       }
     }
@@ -442,6 +463,10 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
+      // 修改时控件focus
+      this.$nextTick(() => {
+        this.$refs['refName'].focus()
+      })
     },
     // 导出按钮
     handleExport() {
@@ -451,7 +476,7 @@ export default {
           confirmButtonText: '关闭',
           type: 'error'
         }).then(() => {
-          this.settings.btnStatus.showExport = false
+          this.settings.btnShowStatus.showExport = false
         })
       } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
         // 选择全部的时候
@@ -511,18 +536,22 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = false
       this.popSettingsData.btnShowStatus.showCopyInsert = true
+      // 修改时控件focus
+      this.$nextTick(() => {
+        this.$refs['refType'].focus()
+      })
     },
     handleCurrentChange(row) {
       this.dataJson.currentJson = Object.assign({}, row) // copy obj
       this.dataJson.currentJson.index = this.getRowIndex(row)
       if (this.dataJson.currentJson.id !== undefined) {
-        // this.settings.btnStatus.doInsert = true
-        this.settings.btnStatus.showUpdate = true
-        this.settings.btnStatus.showCopyInsert = true
+        // this.settings.btnShowStatus.doInsert = true
+        this.settings.btnShowStatus.showUpdate = true
+        this.settings.btnShowStatus.showCopyInsert = true
       } else {
-        // this.settings.btnStatus.doInsert = false
-        this.settings.btnStatus.showUpdate = false
-        this.settings.btnStatus.showCopyInsert = false
+        // this.settings.btnShowStatus.doInsert = false
+        this.settings.btnShowStatus.showUpdate = false
+        this.settings.btnShowStatus.showCopyInsert = false
       }
     },
     handleSortChange(column) {
@@ -554,7 +583,10 @@ export default {
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
             this.dataJson.tempJson.dbversion = _data.data.dbversion
+            // 设置到table中绑定的json数据源
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
+            // 设置到currentjson中
+            this.dataJson.currentJson = Object.assign({}, this.dataJson.tempJson)
             this.$notify({
               title: '更新成功',
               message: _data.message,
@@ -594,10 +626,27 @@ export default {
     },
     // 重置按钮
     doReset() {
-      // 数据初始化
-      this.dataJson.tempJson.name = ''
-      this.dataJson.tempJson.descr = ''
-      this.dataJson.tempJson.context = ''
+      this.popSettingsData.btnResetStatus = true
+      switch (this.popSettingsData.dialogStatus) {
+        case 'update':
+          // 数据初始化
+          this.dataJson.tempJson.name = ''
+          this.dataJson.tempJson.descr = ''
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refName'].focus()
+          })
+          break
+        default:
+          // 数据初始化
+          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refType'].focus()
+          })
+          break
+      }
+
       // 去除validate信息
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()

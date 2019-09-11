@@ -40,8 +40,8 @@
     </el-form>
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
-      <el-button :disabled="!settings.btnStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
     <el-table
@@ -63,8 +63,8 @@
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
-      <el-table-column type="index" width="38" />
+      <el-table-column type="selection" width="45" :reserve-selection="true" prop="id" />
+      <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
@@ -159,13 +159,13 @@
       <div slot="footer" class="dialog-footer">
         <el-divider />
         <div class="floatLeft">
-          <el-button v-show="stepsSetting.active === stepsSetting.stepNumber" type="danger" :disabled="settings.listLoading" @click="doReset()">重置</el-button>
+          <el-button v-show="stepsSetting.active === stepsSetting.stepNumber" type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset " @click="doReset()">重置</el-button>
         </div>
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="stepsSetting.active !== stepsSetting.stepNumber" @click="handleNext">下一步</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doUpdate && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnStatus.doCopyInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
+        <el-button v-show="stepsSetting.active !== stepsSetting.stepNumber" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledNext " @click="handleNext">下一步</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showUpdate && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert && stepsSetting.active === stepsSetting.stepNumber" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -230,10 +230,11 @@ export default {
           dbversion: 0
         },
         // 单条数据 json
+        currentJson: null,
         tempJson: null,
         inputSettings: {
           maxLength: {
-            name: 10,
+            name: 20,
             uri: 50,
             base: 50,
             descr: 200,
@@ -250,7 +251,7 @@ export default {
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态
-        btnStatus: {
+        btnShowStatus: {
           showUpdate: false,
           showCopyInsert: false,
           showExport: false
@@ -285,11 +286,19 @@ export default {
           update: '修改',
           insert: '新增'
         },
-        // 按钮状态
-        btnStatus: {
-          doInsert: false,
-          doUpdate: false,
-          doCopyInsert: false
+        // 按钮状态：是否显示
+        btnShowStatus: {
+          showInsert: false,
+          showUpdate: false,
+          showCopyInsert: false
+        },
+        // 按钮状态：是否可用
+        btnDisabledStatus: {
+          disabledNext: false,
+          disabledReset: false,
+          disabledInsert: false,
+          disabledUpdate: false,
+          disabledCopyInsert: false
         },
         // 以下为pop的内容：数据弹出框
         selection: [],
@@ -319,6 +328,44 @@ export default {
   },
   // 监听器
   watch: {
+    // 监听页面上面是否有修改，有修改按钮高亮
+    'dataJson.tempJson': {
+      handler(newVal, oldVal) {
+        if (this.popSettingsData.dialogFormVisible) {
+          switch (this.stepsSetting.active) {
+            case 0:
+              // 第一页
+              this.popSettingsData.btnDisabledStatus.disabledNext = false
+              this.popSettingsData.btnDisabledStatus.disabledReset = true
+              this.popSettingsData.btnDisabledStatus.disabledInsert = true
+              this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+              this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+              break
+            default:
+              // 第二页
+              this.popSettingsData.btnDisabledStatus.disabledNext = true
+              this.popSettingsData.btnDisabledStatus.disabledReset = false
+              this.popSettingsData.btnDisabledStatus.disabledInsert = false
+              this.popSettingsData.btnDisabledStatus.disabledUpdate = false
+              this.popSettingsData.btnDisabledStatus.disabledCopyInsert = false
+              break
+          }
+        }
+      },
+      deep: true
+    },
+    // 弹出窗口初始化，按钮不可用
+    'popSettingsData.dialogFormVisible': {
+      handler(newVal, oldVal) {
+        if (this.popSettingsData.dialogFormVisible) {
+          this.popSettingsData.btnDisabledStatus.disabledNext = true
+          this.popSettingsData.btnDisabledStatus.disabledReset = true
+          this.popSettingsData.btnDisabledStatus.disabledInsert = true
+          this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+        }
+      }
+    },
     // 根据当前步骤，替换相应validate的rules
     'stepsSetting.active': {
       handler(newVal, oldVal) {
@@ -428,9 +475,9 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettingsData.btnStatus.doInsert = true
-      this.popSettingsData.btnStatus.doUpdate = false
-      this.popSettingsData.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnShowStatus.showInsert = true
+      this.popSettingsData.btnShowStatus.showUpdate = false
+      this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
@@ -448,9 +495,9 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
       // 设置按钮
-      this.popSettingsData.btnStatus.doInsert = false
-      this.popSettingsData.btnStatus.doUpdate = true
-      this.popSettingsData.btnStatus.doCopyInsert = false
+      this.popSettingsData.btnShowStatus.showInsert = false
+      this.popSettingsData.btnShowStatus.showUpdate = true
+      this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 设置步骤激活的步骤：2
       this.stepsSetting.active = 1
     },
@@ -462,7 +509,7 @@ export default {
           confirmButtonText: '关闭',
           type: 'error'
         }).then(() => {
-          this.settings.btnStatus.showExport = false
+          this.settings.btnShowStatus.showExport = false
         })
       } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
         // 选择全部的时候
@@ -510,13 +557,13 @@ export default {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.tempJson.index = this.getRowIndex(row)
       if (this.dataJson.tempJson.id !== undefined) {
-        // this.settings.btnStatus.doInsert = true
-        this.settings.btnStatus.showUpdate = true
-        this.settings.btnStatus.showCopyInsert = true
+        // this.settings.btnShowStatus.showInsert = true
+        this.settings.btnShowStatus.showUpdate = true
+        this.settings.btnShowStatus.showCopyInsert = true
       } else {
-        // this.settings.btnStatus.doInsert = false
-        this.settings.btnStatus.showUpdate = false
-        this.settings.btnStatus.showCopyInsert = false
+        // this.settings.btnShowStatus.showInsert = false
+        this.settings.btnShowStatus.showUpdate = false
+        this.settings.btnShowStatus.showCopyInsert = false
       }
     },
     handleSortChange(column) {

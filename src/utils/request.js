@@ -105,7 +105,7 @@ service.interceptors.response.use(
         showMsg = error.response.data.message
       }
     } catch (error) {
-      showMsg = error
+      showMsg = error.message
     }
     if (JSON.stringify(showMsg) !== '{}') {
       showMsg = '' + '' + JSON.stringify(showMsg, null, 2)

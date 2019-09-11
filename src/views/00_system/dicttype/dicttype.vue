@@ -59,8 +59,8 @@
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="38" :reserve-selection="true" prop="id" />
-      <el-table-column type="index" width="38" />
+      <el-table-column type="selection" width="45" :reserve-selection="true" prop="id" />
+      <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
