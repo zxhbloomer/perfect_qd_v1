@@ -11,6 +11,7 @@ import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
+import subMenu from '@/views/00_system/submenu'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -108,7 +109,7 @@ export const constantRoutes = [
     path: '/sys',
     component: Layout,
     redirect: 'noredirect',
-    name: 'system', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+    name: 'M00000010', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
     alwaysShow: true,
     meta: {
       title: '系统管理',
@@ -130,15 +131,33 @@ export const constantRoutes = [
         name: 'P00000020',
         meta: { title: '资源管理', icon: '资源管理' }
       },
-      { path: 'dicttype',
-        component: () => import('@/views/00_system/dicttype/dicttype'),
-        name: 'P00000030',
-        meta: { title: '字典管理', icon: '字典类型' }
-      },
+      // { path: 'dicttype',
+      //   component: () => import('@/views/00_system/dicttype/dicttype'),
+      //   name: 'P00000030',
+      //   meta: { title: '字典管理', icon: '字典类型' }
+      // },
       { path: 'module',
         component: () => import('@/views/00_system/module/module'),
         name: 'P00000040',
         meta: { title: '模块编辑', icon: '模块编辑' }
+      },
+      {
+        path: 'dic',
+        component: subMenu,
+        redirect: 'noredirect',
+        name: 'M00000020', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+        alwaysShow: true,
+        meta: {
+          title: '字典管理',
+          icon: '字典管理'
+        },
+        children: [
+          { path: 'dicttype',
+            component: () => import('@/views/00_system/dicttype/dicttype'),
+            name: 'P00000030',
+            meta: { title: '字典类型' }
+          }
+        ]
       }
     ]
   },

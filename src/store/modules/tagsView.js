@@ -1,6 +1,15 @@
 const state = {
   visitedViews: [],
-  cachedViews: []
+  cachedViews: [
+    'M00000010',
+    'M00000020',
+
+    'P00000000',
+    'P00000010',
+    'P00000020',
+    'P00000030',
+    'P00000040'
+  ]
 }
 
 const mutations = {
