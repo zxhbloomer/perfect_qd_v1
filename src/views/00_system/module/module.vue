@@ -8,38 +8,64 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple collapse-tags clearable>
-          <el-option
-            v-for="type in settings.selectOptions"
-            :key="type.value"
-            :label="type.label"
-            :value="type.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
       </el-form-item>
       <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
       </el-form-item>
-      <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
-          <el-option
-            v-for="item in settings.delOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-search" @click="doResetSearch">重 置</el-button>
+        <el-button v-popover:popover type="primary" plain icon="el-icon-s-promotion">高级搜索</el-button>
       </el-form-item>
     </el-form>
+
+    <el-popover
+      ref="popover"
+      placement="top"
+      width="420"
+      title="高级查询"
+    >
+      <el-form
+        :inline="true"
+        :model="dataJson.searchForm"
+        label-position="getLabelPosition()"
+        class="floatRight"
+      >
+        <el-form-item v-show="false" label="">
+          <el-input v-show="false" v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
+        </el-form-item>
+        <el-form-item v-show="false" label="">
+          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
+        </el-form-item>
+        <el-form-item label="">
+          <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple collapse-tags clearable>
+            <el-option
+              v-for="type in settings.selectOptions"
+              :key="type.value"
+              :label="type.label"
+              :value="type.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="">
+          <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
+            <el-option
+              v-for="item in settings.delOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <div style="text-align: right; margin: 0">
+          <el-button type="text" @click="doResetSearch()">重置</el-button>
+          <el-button type="primary" @click="handleSearch">提交</el-button>
+        </div>
+      </el-form>
+    </el-popover>
+
     <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
@@ -89,7 +115,8 @@
       <el-table-column sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-
+    11{{ popSettingsData.searchDialogData.dialogVisible }}22
+    <resource-dialog :show="popSettingsData.searchDialogData.dialogVisible" />
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
       v-el-drag-dialog
@@ -99,6 +126,7 @@
       :close-on-press-escape="false"
       :show-close="false"
       width="700px"
+      top="5vh"
     >
       <el-form
         ref="dataForm"
@@ -108,6 +136,12 @@
         label-width="120px"
         status-icon
       >
+        <el-alert
+          title="模块基本信息"
+          type="info"
+          :closable="false"
+        />
+        <br>
         <el-row>
           <el-form-item label="模块类型：" prop="type">
             <el-select ref="refType" v-model="dataJson.tempJson.type" placeholder="请选择" clearable :disabled="popSettingsData.dialogStatus==='update'" @change="handleSelectChange">
@@ -145,6 +179,35 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-alert
+          title="模块资源信息：非必须"
+          type="info"
+          :closable="false"
+        />
+        <br>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="资源类型：" prop="type">
+              <el-input v-model.trim="dataJson.tempJson.type" disabled>
+                <el-button slot="append" icon="el-icon-search" class="el-button--primary" @click="handleShowDialog">
+                  选择111
+                </el-button>
+              </el-input>
+            </el-form-item>
+
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="资源名称：" prop="name">
+              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" disabled clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="描述：" prop="descr">
+          <el-input v-model.trim="dataJson.tempJson.descr" disabled clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+        </el-form-item>
+        <el-form-item label="JSON配置信息：" prop="context">
+          <el-input v-model.trim="dataJson.tempJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -170,6 +233,21 @@
   .el-form-item .el-select {
     width: 100%;
   }
+  .grid-content {
+    border-radius: 2px;
+    min-height: 36px;
+    margin-bottom: 10px;
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+</style>
+<style >
+.el-input-group__append{
+    color: #FFFFFF;
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
 </style>
 
 <script>
@@ -177,10 +255,11 @@ import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, del
 import resizeMixin from './moduleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
+import resourceDialog from '@/views/00_system/resource/dialog/dialog'
 
 export default {
   name: 'P00000040', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination },
+  components: { Pagination, resourceDialog },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -303,6 +382,13 @@ export default {
           type: [{ required: true, message: '请选择模块类型', trigger: 'change' }],
           code: [{ required: true, message: '请输入模块编号', trigger: 'change' }],
           name: [{ required: true, message: '请输入模块名称', trigger: 'change' }]
+        },
+        // 弹出的搜索框参数设置
+        searchDialogData: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: null
         }
       }
     }
@@ -731,6 +817,11 @@ export default {
         return callback()
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
+    },
+    // 弹出搜索对话框
+    handleShowDialog() {
+      debugger
+      this.popSettingsData.searchDialogData.dialogVisible = true
     }
   }
 }

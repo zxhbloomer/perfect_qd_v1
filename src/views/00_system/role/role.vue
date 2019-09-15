@@ -39,8 +39,8 @@
           <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
         </el-form-item>
         <div style="text-align: right; margin: 0">
-          <el-button size="mini" type="text">重置</el-button>
-          <el-button type="primary" size="mini">提交</el-button>
+          <el-button type="text">重置</el-button>
+          <el-button type="primary">提交</el-button>
         </div>
       </el-form>
     </el-popover>

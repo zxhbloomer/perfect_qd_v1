@@ -38,12 +38,11 @@
         <el-button v-popover:popover type="primary" plain icon="el-icon-search" @click="doResetSearch">重 置</el-button>
       </el-form-item>
     </el-form>
-    <el-button-group>
+    <el-button-group v-show="!dialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
-
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -62,7 +61,7 @@
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="45" prop="id" />
+      <el-table-column v-if="!dialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
@@ -77,6 +76,7 @@
               :active-value="true"
               :inactive-value="false"
               :width="30"
+              :disabled="dialogSetting.dialogStatus"
               @change="handleDel(scope.row)"
             />
           </el-tooltip>
@@ -184,7 +184,7 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/resource/resource'
-import resizeMixin from './resourceResizeHandlerMixin'
+import resizeMixin from '@/views/00_system/resource/resourceResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 
@@ -322,6 +322,11 @@ export default {
           name: [{ required: true, message: '请输入资源名称', trigger: 'change' }],
           context: [{ required: true, message: '请输入json配置信息', trigger: 'change' }]
         }
+      },
+      dialogSetting: {
+        program: this.$store.getters.program,
+        selectedDataJson: this.$store.getters.selectedDataJson,
+        dialogStatus: false
       }
     }
   },
@@ -389,8 +394,20 @@ export default {
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
     // 步骤初始化
     this.popSettingsData.rules = this.stepsSetting.rulesFirst
+    // 弹出框的设置
+    this.initDialogStatus()
   },
   methods: {
+    // 弹出框设置初始化
+    initDialogStatus() {
+      if (this.$store.getters.program !== undefined &&
+          this.$store.getters.program !== null &&
+          this.$store.getters.program.status === 'open') {
+        this.dialogSetting.dialogStatus = true
+      } else {
+        this.dialogSetting.dialogStatus = false
+      }
+    },
     // 下拉选项控件事件
     handleSelectChange(val) {
     },
