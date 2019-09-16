@@ -2,7 +2,7 @@
   <el-dialog
     v-el-drag-dialog
     title="资源选择对话框"
-    :visible="dataJson.settings.dialogVisible"
+    :visible.sync="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
@@ -10,11 +10,11 @@
     destroy-on-close
     top="5vh"
   >
-    <P00000020 />
+    <P00000020 ref="dialogRef" @rowDbClick="handleRowDbClick" />
     <div slot="footer" class="dialog-footer">
       <el-divider />
-      <el-button plain>取 消</el-button>
-      <el-button @click="doOk()">确 定</el-button>
+      <el-button plain @click="handleDoCancel()">取 消</el-button>
+      <el-button :disabled="dataJson.settings.btnDisabledStatus.disabledOk" @click="handleDoOk()">确 定</el-button>
     </div>
   </el-dialog>
 </template>
@@ -29,14 +29,9 @@ export default {
   directives: { elDragDialog },
   props: {
     // 页面是否显示参数
-    show: {
+    visible: {
       type: Boolean,
       default: false
-    },
-    // 返回值参数
-    selectedDataJson: {
-      type: Object,
-      default: null
     }
   },
   data() {
@@ -44,26 +39,73 @@ export default {
       dataJson: {
         // 页面设置json
         settings: {
-          dialogVisible: this.isShow()
+          // 按钮状态：是否可用
+          btnDisabledStatus: {
+            disabledOk: false
+          }
         }
       }
     }
   },
   computed: {
+    listenSelectedDataJson() {
+      return this.$store.getters.selectedDataJson
+    },
+    listenVisible() {
+      return this.visible
+    }
+  },
+  // 监听器
+  watch: {
+    // 监听页面上面是否有选择
+    listenSelectedDataJson: {
+      handler(newVal, oldVal) {
+        if (newVal === undefined || newVal === null) {
+          this.dataJson.settings.btnDisabledStatus.disabledOk = true
+        } else {
+          this.dataJson.settings.btnDisabledStatus.disabledOk = false
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    // 监听页面是否打开
+    listenVisible: {
+      handler(newVal, oldVal) {
+        if (newVal) {
+          // dialog打开后初始化
+          this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000000', status: 'open' })
+          this.$store.dispatch('popUpSearchDialog/selectedDataJson', null)
+          this.$nextTick(() => {
+            this.$refs.dialogRef.initDialogStatus()
+          })
+        }
+      },
+      deep: true,
+      immediate: true
+    }
   },
   created() {
     // 设置当前打开的页面
-    this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000000', status: 'open' })
-    this.$store.dispatch('popUpSearchDialog/selectedDataJson', null)
+
   },
   methods: {
-    isShow() {
-      return this.show
-    },
-    // 插入逻辑
-    doOk() {
-      this.dataJson.settings.dialogVisible = false
+    handleRowDbClick(val) {
       this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000000', status: 'closed' })
+      this.$emit('closeMeOk', this.$store.getters.selectedDataJson)
+    },
+    // 确定
+    handleDoOk() {
+      // this.$emit('update:visible', false)
+      this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000000', status: 'closed' })
+      this.$emit('closeMeOk', this.$store.getters.selectedDataJson)
+    },
+    // 取消
+    handleDoCancel() {
+      // this.$emit('update:visible', false)
+      this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000000', status: 'closed' })
+      this.$store.dispatch('popUpSearchDialog/selectedDataJson', null)
+      this.$emit('closeMeCancle')
     }
   }
 }

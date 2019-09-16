@@ -38,7 +38,7 @@
         <el-button v-popover:popover type="primary" plain icon="el-icon-search" @click="doResetSearch">重 置</el-button>
       </el-form-item>
     </el-form>
-    <el-button-group v-show="!dialogSetting.dialogStatus">
+    <el-button-group v-show="!resourceDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
@@ -57,11 +57,12 @@
       :default-sort="{prop: 'uTime', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
+      @row-dblclick="handleRowDbClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column v-if="!dialogSetting.dialogStatus" type="selection" width="45" prop="id" />
+      <el-table-column v-if="!resourceDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
@@ -76,7 +77,7 @@
               :active-value="true"
               :inactive-value="false"
               :width="30"
-              :disabled="dialogSetting.dialogStatus"
+              :disabled="resourceDialogSetting.dialogStatus"
               @change="handleDel(scope.row)"
             />
           </el-tooltip>
@@ -323,7 +324,7 @@ export default {
           context: [{ required: true, message: '请输入json配置信息', trigger: 'change' }]
         }
       },
-      dialogSetting: {
+      resourceDialogSetting: {
         program: this.$store.getters.program,
         selectedDataJson: this.$store.getters.selectedDataJson,
         dialogStatus: false
@@ -394,8 +395,6 @@ export default {
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
     // 步骤初始化
     this.popSettingsData.rules = this.stepsSetting.rulesFirst
-    // 弹出框的设置
-    this.initDialogStatus()
   },
   methods: {
     // 弹出框设置初始化
@@ -403,9 +402,9 @@ export default {
       if (this.$store.getters.program !== undefined &&
           this.$store.getters.program !== null &&
           this.$store.getters.program.status === 'open') {
-        this.dialogSetting.dialogStatus = true
+        this.resourceDialogSetting.dialogStatus = true
       } else {
-        this.dialogSetting.dialogStatus = false
+        this.resourceDialogSetting.dialogStatus = false
       }
     },
     // 下拉选项控件事件
@@ -420,6 +419,14 @@ export default {
     handleRowClick(row) {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.rowIndex = this.getRowIndex(row)
+    },
+    // 行双点击，尽在dialog中有效
+    handleRowDbClick(row) {
+      this.dataJson.tempJson = Object.assign({}, row) // copy obj
+      this.dataJson.rowIndex = this.getRowIndex(row)
+      if (this.resourceDialogSetting.dialogStatus) {
+        this.$emit('rowDbClick', this.dataJson.tempJson)
+      }
     },
     handleSearch() {
       // 查询
@@ -589,6 +596,8 @@ export default {
         this.settings.btnShowStatus.showUpdate = false
         this.settings.btnShowStatus.showCopyInsert = false
       }
+      // 设置dialog的返回
+      this.$store.dispatch('popUpSearchDialog/selectedDataJson', Object.assign({}, row))
     },
     handleSortChange(column) {
       // 服务器端排序

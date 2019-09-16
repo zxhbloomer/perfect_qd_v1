@@ -115,8 +115,11 @@
       <el-table-column sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-    11{{ popSettingsData.searchDialogData.dialogVisible }}22
-    <resource-dialog :show="popSettingsData.searchDialogData.dialogVisible" />
+    <resource-dialog
+      :visible.sync="popSettingsData.searchDialogData.dialogVisible"
+      @closeMeOk="handleResourceCloseOk"
+      @closeMeCancle="handleResourceCloseCancle"
+    />
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
       v-el-drag-dialog
@@ -187,26 +190,26 @@
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="资源类型：" prop="type">
-              <el-input v-model.trim="dataJson.tempJson.type" disabled>
+            <el-form-item label="资源类型：" prop="">
+              <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
                 <el-button slot="append" icon="el-icon-search" class="el-button--primary" @click="handleShowDialog">
-                  选择111
+                  选择
                 </el-button>
               </el-input>
             </el-form-item>
 
           </el-col>
           <el-col :span="12">
-            <el-form-item label="资源名称：" prop="name">
-              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" disabled clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="资源名称：" prop="">
+              <el-input ref="refName" v-model.trim="popSettingsData.searchDialogData.selectedDataJson.name" disabled clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" disabled clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+        <el-form-item label="描述：" prop="">
+          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
-        <el-form-item label="JSON配置信息：" prop="context">
-          <el-input v-model.trim="dataJson.tempJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
+        <el-form-item label="JSON配置信息：" prop="">
+          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -388,7 +391,7 @@ export default {
           // 弹出框显示参数
           dialogVisible: false,
           // 点击确定以后返回的值
-          selectedDataJson: null
+          selectedDataJson: {}
         }
       }
     }
@@ -419,10 +422,7 @@ export default {
     'popSettingsData.dialogFormVisible': {
       handler(newVal, oldVal) {
         if (this.popSettingsData.dialogFormVisible) {
-          this.popSettingsData.btnDisabledStatus.disabledReset = true
-          this.popSettingsData.btnDisabledStatus.disabledInsert = true
-          this.popSettingsData.btnDisabledStatus.disabledUpdate = true
-          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+          this.initPopUpStatus()
         }
       }
     },
@@ -444,6 +444,14 @@ export default {
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
+    // 弹出框设置初始化
+    initPopUpStatus() {
+      this.popSettingsData.btnDisabledStatus.disabledReset = true
+      this.popSettingsData.btnDisabledStatus.disabledInsert = true
+      this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+      this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+      this.popSettingsData.searchDialogData.selectedDataJson = {}
+    },
     // 下拉选项控件事件
     handleSelectChange(val) {
     },
@@ -820,8 +828,17 @@ export default {
     },
     // 弹出搜索对话框
     handleShowDialog() {
-      debugger
+      // this.$store.dispatch('popUpSearchDialog/show', true)
       this.popSettingsData.searchDialogData.dialogVisible = true
+    },
+    // 关闭对话框：确定
+    handleResourceCloseOk(val) {
+      this.popSettingsData.searchDialogData.selectedDataJson = val
+      this.popSettingsData.searchDialogData.dialogVisible = false
+    },
+    // 关闭对话框：取消
+    handleResourceCloseCancle() {
+      this.popSettingsData.searchDialogData.dialogVisible = false
     }
   }
 }
