@@ -112,7 +112,9 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column sortable="custom" min-width="100" prop="uTime" label="更新时间" />
+      <el-table-column min-width="100" prop="templateName" label="使用资源名称" />
+      <el-table-column min-width="100" prop="templateDescr" label="资源描述" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <resource-dialog
@@ -188,28 +190,28 @@
           :closable="false"
         />
         <br>
+        {{ popSettingsData.dialogFormVisible }}
         <el-row>
           <el-col :span="12">
-            <el-form-item label="资源类型：" prop="">
-              <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
-                <el-button slot="append" icon="el-icon-search" class="el-button--primary" @click="handleShowDialog">
-                  选择
+            <el-form-item label="资源类型：" prop="templateType">
+              <el-input v-model="dataJson.tempJson.templateType" disabled>
+                <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
+                  {{ popSettingsData.searchDialogData.selectOrResetName }}
                 </el-button>
               </el-input>
             </el-form-item>
-
           </el-col>
           <el-col :span="12">
-            <el-form-item label="资源名称：" prop="">
-              <el-input ref="refName" v-model.trim="popSettingsData.searchDialogData.selectedDataJson.name" disabled clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="资源名称：" prop="templateName">
+              <el-input ref="refName" disabled />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="描述：" prop="">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+        <el-form-item label="描述：" prop="templateDescr">
+          <el-input v-model.trim="dataJson.tempJson.templateDescr" disabled type="textarea" show-word-limit />
         </el-form-item>
-        <el-form-item label="JSON配置信息：" prop="">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
+        <el-form-item label="JSON配置信息：" prop="templateContext">
+          <el-input v-model.trim="dataJson.tempJson.templateContext" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -246,10 +248,15 @@
   }
 </style>
 <style >
-.el-input-group__append{
+  .el-input-group__append_select{
     color: #FFFFFF;
     background-color: #1890ff;
     border-color: #1890ff;
+  }
+  .el-input-group__append_reset{
+    color: #FFFFFF;
+    background-color: #F56C6C;
+    border-color: #F56C6C;
   }
 </style>
 
@@ -298,7 +305,8 @@ export default {
           name: '',
           code: '',
           descr: '',
-          dbversion: 0
+          dbversion: 0,
+          templateId: undefined
         },
         // 单条数据 json
         currentJson: null,
@@ -390,6 +398,10 @@ export default {
         searchDialogData: {
           // 弹出框显示参数
           dialogVisible: false,
+          // 当前设置状态:false->选择（select）;true->重置(reset)----选择后置为true，修改时有数据置为true
+          selectOrReset: false,
+          selectOrResetName: '选择',
+          selectOrResetIcon: 'el-icon-search',
           // 点击确定以后返回的值
           selectedDataJson: {}
         }
@@ -398,6 +410,16 @@ export default {
   },
   // 监听器
   watch: {
+    // 监听弹出窗口是否有返回值
+    'popSettingsData.searchDialogData.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal.id !== undefined) {
+          this.dataJson.tempJson.template_id = newVal.id
+        }
+      },
+      deep: true,
+      immediate: true
+    },
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
@@ -451,6 +473,35 @@ export default {
       this.popSettingsData.btnDisabledStatus.disabledUpdate = true
       this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
       this.popSettingsData.searchDialogData.selectedDataJson = {}
+      this.initSelectOrResect()
+    },
+    isResourceSelected() {
+      if (this.popSettingsData.searchDialogData.selectedDataJson.id === undefined) {
+        // 未选择
+        return false
+      } else {
+        // 已经选择
+        return true
+      }
+    },
+    // 选择or重置
+    initSelectOrResect() {
+      debugger
+      if (this.isResourceSelected() === false) {
+        this.$nextTick(() => {
+          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+        })
+        this.popSettingsData.searchDialogData.selectOrReset = false
+        this.popSettingsData.searchDialogData.selectOrResetName = '选择'
+        this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-search'
+      } else {
+        this.$nextTick(() => {
+          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_reset'
+        })
+        this.popSettingsData.searchDialogData.selectOrReset = true
+        this.popSettingsData.searchDialogData.selectOrResetName = '重置'
+        this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-circle-close'
+      }
     },
     // 下拉选项控件事件
     handleSelectChange(val) {
@@ -473,16 +524,16 @@ export default {
       this.dataJson.multipleSelection = []
       this.$refs.multipleTable.clearSelection()
     },
-    handleRowUpdate(row, _rowIndex) {
-      // 修改
-      this.dataJson.tempJson = Object.assign({}, row) // copy obj
-      this.dataJson.rowIndex = _rowIndex
-      this.popSettingsData.dialogStatus = 'update'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
+    // handleRowUpdate(row, _rowIndex) {
+    //   // 修改
+    //   this.dataJson.tempJson = Object.assign({}, row) // copy obj
+    //   this.dataJson.rowIndex = _rowIndex
+    //   this.popSettingsData.dialogStatus = 'update'
+    //   this.popSettingsData.dialogFormVisible = true
+    //   this.$nextTick(() => {
+    //     this.$refs['dataForm'].clearValidate()
+    //   })
+    // },
     // 删除操作
     handleDel(row) {
       let _message = ''
@@ -827,14 +878,24 @@ export default {
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
     },
     // 弹出搜索对话框
-    handleShowDialog() {
+    handleSelectOrReset() {
       // this.$store.dispatch('popUpSearchDialog/show', true)
-      this.popSettingsData.searchDialogData.dialogVisible = true
+      if (this.popSettingsData.searchDialogData.selectOrReset === false) {
+        // 选择按钮
+        this.popSettingsData.searchDialogData.dialogVisible = true
+      } else {
+        // 重置按钮
+        this.popSettingsData.searchDialogData.selectedDataJson = {}
+        this.initSelectOrResect()
+      }
     },
     // 关闭对话框：确定
     handleResourceCloseOk(val) {
       this.popSettingsData.searchDialogData.selectedDataJson = val
       this.popSettingsData.searchDialogData.dialogVisible = false
+      this.initSelectOrResect()
+      debugger
+      this.dataJson
     },
     // 关闭对话框：取消
     handleResourceCloseCancle() {
