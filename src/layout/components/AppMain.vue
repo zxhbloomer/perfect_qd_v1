@@ -57,3 +57,6 @@ export default {
   }
 }
 </style>
+<style scoped>
+  @import '//at.alicdn.com/t/font_1423566_06vbqsoijcgn.css';
+</style>
