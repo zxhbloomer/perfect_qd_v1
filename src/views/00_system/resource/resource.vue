@@ -788,7 +788,7 @@ export default {
             <br/>灰色：未删除
             <br/>红色：已删除
             </div>
-            <span class='el-icon-question'></span>
+            <svg-icon icon-class='question' style='margin-left: 5px'/>
           </el-tooltip>
         </span>
       )
