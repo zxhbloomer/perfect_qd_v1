@@ -97,19 +97,17 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
+      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
-          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
-            <el-switch
-              v-model="scope.row.isdel"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
+          <el-switch
+            v-model="scope.row.isdel"
+            active-color="#ff4949"
+            inactive-color="#dcdfe6"
+            :active-value="true"
+            :inactive-value="false"
+            :width="30"
+            @change="handleDel(scope.row)"
+          />
         </template>
       </el-table-column>
       <el-table-column sortable="custom" min-width="100" prop="uTime" label="更新时间" />
@@ -949,6 +947,24 @@ export default {
     // 关闭对话框：取消
     handleResourceCloseCancle() {
       this.popSettingsData.searchDialogData.dialogVisible = false
+    },
+    renderHeaderIsDel: function(h, { column }) {
+      return (
+        <span>{column.label}
+          <el-tooltip
+            class='item'
+            effect='dark'
+            placement='bottom'
+          >
+            <div slot='content'>
+            删除状态提示：
+            <br/>灰色：未删除
+            <br/>红色：已删除
+            </div>
+            <svg-icon icon-class='question' style='margin-left: 5px'/>
+          </el-tooltip>
+        </span>
+      )
     }
   }
 }
