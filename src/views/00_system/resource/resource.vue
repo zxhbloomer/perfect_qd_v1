@@ -67,20 +67,18 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="资源类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
+      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
-          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
-            <el-switch
-              v-model="scope.row.isdel"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              :disabled="resourceDialogSetting.dialogStatus"
-              @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
+          <el-switch
+            v-model="scope.row.isdel"
+            active-color="#ff4949"
+            inactive-color="#dcdfe6"
+            :active-value="true"
+            :inactive-value="false"
+            :width="30"
+            :disabled="resourceDialogSetting.dialogStatus"
+            @change="handleDel(scope.row)"
+          />
         </template>
       </el-table-column>
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
@@ -248,6 +246,9 @@ export default {
       },
       // 页面设置json
       settings: {
+        tableHeadTooltips: [
+          { text: '订购触发次数', tooltip: '统计周期内，订购触发（任一订购）次数之和', code: 'iOActionTotal' }
+        ],
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态
@@ -389,14 +390,17 @@ export default {
     }
   },
   created() {
-    // 初始化查询
-    this.getDataList()
-    // 数据初始化
-    this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-    // 步骤初始化
-    this.popSettingsData.rules = this.stepsSetting.rulesFirst
+    this.initShow()
   },
   methods: {
+    initShow() {
+      // 初始化查询
+      this.getDataList()
+      // 数据初始化
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+      // 步骤初始化
+      this.popSettingsData.rules = this.stepsSetting.rulesFirst
+    },
     // 弹出框设置初始化
     initDialogStatus() {
       if (this.$store.getters.program !== undefined &&
@@ -770,6 +774,24 @@ export default {
         return callback()
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
+    },
+    renderHeaderIsDel: function(h, { column }) {
+      return (
+        <span>{column.label}
+          <el-tooltip
+            class='item'
+            effect='dark'
+            placement='bottom'
+          >
+            <div slot='content'>
+            删除状态提示：
+            <br/>灰色：未删除
+            <br/>红色：已删除
+            </div>
+            <span class='el-icon-question'></span>
+          </el-tooltip>
+        </span>
+      )
     }
   }
 }

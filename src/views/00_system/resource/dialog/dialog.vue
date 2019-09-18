@@ -78,6 +78,7 @@ export default {
           this.$store.dispatch('popUpSearchDialog/selectedDataJson', null)
           this.$nextTick(() => {
             this.$refs.dialogRef.initDialogStatus()
+            this.$refs.dialogRef.initShow()
           })
         }
       },

@@ -413,7 +413,7 @@ export default {
     'popSettingsData.searchDialogData.selectedDataJson': {
       handler(newVal, oldVal) {
         if (newVal.id !== undefined) {
-          this.dataJson.tempJson.template_id = newVal.id
+          this.dataJson.tempJson.templateId = newVal.id
         }
       },
       deep: true,
@@ -929,6 +929,10 @@ export default {
         this.popSettingsData.searchDialogData.selectedDataJson = {}
         this.initSelectOrResectButton()
         this.dataJson.tempJson.templateId = undefined
+        this.dataJson.tempJson.templateType = ''
+        this.dataJson.tempJson.templateName = ''
+        this.dataJson.tempJson.templateDescr = ''
+        this.dataJson.tempJson.templateContext = ''
       }
     },
     // 关闭对话框：确定
@@ -937,6 +941,10 @@ export default {
       this.popSettingsData.searchDialogData.dialogVisible = false
       this.initSelectOrResectButton()
       this.dataJson.tempJson.templateId = this.popSettingsData.searchDialogData.selectedDataJson.id
+      this.dataJson.tempJson.templateType = this.popSettingsData.searchDialogData.selectedDataJson.type
+      this.dataJson.tempJson.templateName = this.popSettingsData.searchDialogData.selectedDataJson.name
+      this.dataJson.tempJson.templateDescr = this.popSettingsData.searchDialogData.selectedDataJson.descr
+      this.dataJson.tempJson.templateContext = this.popSettingsData.searchDialogData.selectedDataJson.context
     },
     // 关闭对话框：取消
     handleResourceCloseCancle() {
