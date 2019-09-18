@@ -190,11 +190,10 @@
           :closable="false"
         />
         <br>
-        {{ popSettingsData.dialogFormVisible }}
         <el-row>
           <el-col :span="12">
             <el-form-item label="资源类型：" prop="templateType">
-              <el-input v-model="dataJson.tempJson.templateType" disabled>
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
                 <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
                   {{ popSettingsData.searchDialogData.selectOrResetName }}
                 </el-button>
@@ -203,15 +202,15 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="资源名称：" prop="templateName">
-              <el-input ref="refName" disabled />
+              <el-input ref="refName" v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="描述：" prop="templateDescr">
-          <el-input v-model.trim="dataJson.tempJson.templateDescr" disabled type="textarea" show-word-limit />
+          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled type="textarea" />
         </el-form-item>
         <el-form-item label="JSON配置信息：" prop="templateContext">
-          <el-input v-model.trim="dataJson.tempJson.templateContext" disabled :autosize="{ minRows: 4, maxRows: 10 }" clearable type="textarea" show-word-limit />
+          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" type="textarea" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -296,7 +295,7 @@ export default {
           size: 20,
           total: 0
         },
-        // table使用的json
+        // table使用的json，数据源
         listData: null,
         // 单条数据 json的，初始化原始数据
         tempJsonOriginal: {
@@ -431,6 +430,7 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
           this.popSettingsData.btnResetStatus = false
         } else if (this.popSettingsData.dialogFormVisible) {
+          // 弹出窗口
           // 有修改按钮高亮
           this.popSettingsData.btnDisabledStatus.disabledReset = false
           this.popSettingsData.btnDisabledStatus.disabledInsert = false
@@ -445,6 +445,10 @@ export default {
       handler(newVal, oldVal) {
         if (this.popSettingsData.dialogFormVisible) {
           this.initPopUpStatus()
+          // 修改的情况下
+          if (this.popSettingsData.dialogStatus === 'update') {
+            this.initResourceData()
+          }
         }
       }
     },
@@ -466,6 +470,17 @@ export default {
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
+    initResourceData() {
+      // 设置资源部分的数据，从表格上复制
+      this.popSettingsData.searchDialogData.selectedDataJson = {
+        id: this.dataJson.tempJson.templateId,
+        type: this.dataJson.tempJson.templateType,
+        name: this.dataJson.tempJson.templateName,
+        descr: this.dataJson.tempJson.templateDescr,
+        context: this.dataJson.tempJson.templateContext
+      }
+      this.initSelectOrResectButton()
+    },
     // 弹出框设置初始化
     initPopUpStatus() {
       this.popSettingsData.btnDisabledStatus.disabledReset = true
@@ -473,8 +488,9 @@ export default {
       this.popSettingsData.btnDisabledStatus.disabledUpdate = true
       this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
       this.popSettingsData.searchDialogData.selectedDataJson = {}
-      this.initSelectOrResect()
+      this.initSelectOrResectButton()
     },
+    // 选择资源窗口判断是否已经选择
     isResourceSelected() {
       if (this.popSettingsData.searchDialogData.selectedDataJson.id === undefined) {
         // 未选择
@@ -484,9 +500,8 @@ export default {
         return true
       }
     },
-    // 选择or重置
-    initSelectOrResect() {
-      debugger
+    // 选择or重置按钮的初始化
+    initSelectOrResectButton() {
       if (this.isResourceSelected() === false) {
         this.$nextTick(() => {
           this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
@@ -499,7 +514,7 @@ export default {
           this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_reset'
         })
         this.popSettingsData.searchDialogData.selectOrReset = true
-        this.popSettingsData.searchDialogData.selectOrResetName = '重置'
+        this.popSettingsData.searchDialogData.selectOrResetName = '清空'
         this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-circle-close'
       }
     },
@@ -670,7 +685,8 @@ export default {
     // 点击按钮 复制新增
     handleCopyInsert() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      this.dataJson.tempJson.id === undefined
+      this.dataJson.tempJson.id = undefined
+      this.dataJson.tempJson.templateId = undefined
       this.dataJson.tempJson.uId = ''
       this.dataJson.tempJson.uTime = ''
       // 修改
@@ -690,6 +706,7 @@ export default {
     },
     handleCurrentChange(row) {
       this.dataJson.currentJson = Object.assign({}, row) // copy obj
+      this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
       this.dataJson.currentJson.index = this.getRowIndex(row)
       if (this.dataJson.currentJson.id !== undefined) {
         // this.settings.btnShowStatus.doInsert = true
@@ -777,16 +794,40 @@ export default {
       switch (this.popSettingsData.dialogStatus) {
         case 'update':
           // 数据初始化
-          this.dataJson.tempJson.name = ''
-          this.dataJson.tempJson.descr = ''
+          this.initPopUpStatus()
+          // 复制数据
+          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 初始化数据
+          this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
             this.$refs['refName'].focus()
           })
           break
+        case 'copyInsert':
+          // 数据初始化
+          this.initPopUpStatus()
+          // 复制数据
+          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          this.dataJson.tempJson.templateId = undefined
+          this.dataJson.tempJson.templateType = ''
+          this.dataJson.tempJson.templateName = ''
+          this.dataJson.tempJson.templateDescr = ''
+          this.dataJson.tempJson.templateContext = ''
+          // 初始化数据
+          this.initResourceData()
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refType'].focus()
+          })
+          break
         default:
           // 数据初始化
+          this.initPopUpStatus()
+          // 复制数据
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 初始化数据
+          this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
             this.$refs['refType'].focus()
@@ -886,16 +927,16 @@ export default {
       } else {
         // 重置按钮
         this.popSettingsData.searchDialogData.selectedDataJson = {}
-        this.initSelectOrResect()
+        this.initSelectOrResectButton()
+        this.dataJson.tempJson.templateId = undefined
       }
     },
     // 关闭对话框：确定
     handleResourceCloseOk(val) {
       this.popSettingsData.searchDialogData.selectedDataJson = val
       this.popSettingsData.searchDialogData.dialogVisible = false
-      this.initSelectOrResect()
-      debugger
-      this.dataJson
+      this.initSelectOrResectButton()
+      this.dataJson.tempJson.templateId = this.popSettingsData.searchDialogData.selectedDataJson.id
     },
     // 关闭对话框：取消
     handleResourceCloseCancle() {
