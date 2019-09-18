@@ -202,7 +202,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="资源名称：" prop="templateName">
-              <el-input ref="refName" v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
             </el-form-item>
           </el-col>
         </el-row>
