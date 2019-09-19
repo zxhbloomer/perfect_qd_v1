@@ -58,5 +58,5 @@ export default {
 }
 </style>
 <style scoped>
-  @import '//at.alicdn.com/t/font_1423566_qb16l2aee3h.css';
+  @import '//at.alicdn.com/t/font_1423566_igs45ugc2o.css';
 </style>

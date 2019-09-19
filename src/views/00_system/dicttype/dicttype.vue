@@ -99,7 +99,7 @@
         status-icon
       >
         <el-form-item label="点击下载：">
-          <el-link type="primary" :href="popSettingsImport.templateFilePath"> 模版文件</el-link>
+          <el-link ref="refDownLoadOne" type="primary" :href="popSettingsImport.templateFilePath"> 模版文件下载</el-link>
         </el-form-item>
         <el-form-item label="选择导入文件：">
           <simple-upload
@@ -184,6 +184,7 @@
         <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
+    <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
   </div>
 </template>
 
@@ -311,7 +312,7 @@ export default {
         // 弹出窗口会否显示
         dialogFormVisible: false,
         // 模版文件地址
-        templateFilePath: '/api/v1/template.html?id=P00000030',
+        templateFilePath: process.env.VUE_APP_BASE_API + '/api/v1/template.html?id=P00000030',
         // 错误数据文件
         errorFileUrl: ''
       }
@@ -363,6 +364,10 @@ export default {
     this.getDataList()
     // 数据初始化
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+  },
+  mounted() {
+    // 描绘完成
+
   },
   methods: {
     // 下拉选项控件事件
@@ -709,6 +714,9 @@ export default {
     // 数据批量导入按钮
     handleOpenImportDialog() {
       this.popSettingsImport.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['refDownLoadOne'].$el.target = 'refIframe'
+      })
     },
     // 关闭弹出窗口
     handlCloseDialog() {
