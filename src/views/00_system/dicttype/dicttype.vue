@@ -8,7 +8,7 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典编码" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典类型" />
       </el-form-item>
       <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
@@ -62,7 +62,7 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" column-key="columnCode">
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
         <template slot-scope="scope">
           <el-link type="primary">{{ scope.row.code }}
             <svg-icon v-show="settings.tableHover.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
@@ -77,7 +77,7 @@
         </template>
       </el-table-column>
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
+      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
@@ -161,7 +161,7 @@
       >
         <el-row>
           <el-col :span="12">
-            <el-form-item label="字典编码：" prop="code">
+            <el-form-item label="字典类型：" prop="code">
               <el-input ref="refCode" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
@@ -216,7 +216,7 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/dicttype/dicttype'
-import resizeMixin from './dictypeResizeHandlerMixin'
+import resizeMixin from './dicttypeResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/SimpleUpload'
@@ -323,7 +323,7 @@ export default {
         // pop的check内容
         rules: {
           name: [{ required: true, message: '请输入字典名称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入字典编码', trigger: 'change' }]
+          code: [{ required: true, message: '请输入字典类型', trigger: 'change' }]
         }
       },
       // 导入窗口的状态
@@ -762,11 +762,11 @@ export default {
     handleCellMouseEnter(row, column, cell, event) {
       switch (column.columnKey) {
         case 'columnCode':
-          // 字典编码列时
+          // 字典类型列时
           this.settings.tableHover.columnTypeShowIcon = true
           break
         case 'columnName':
-          // 字典编码列时
+          // 字典名称列时
           this.settings.tableHover.columnNameShowIcon = true
           break
       }
@@ -775,11 +775,11 @@ export default {
     handleCellMouseLeave(row, column, cell, event) {
       switch (column.columnKey) {
         case 'columnCode':
-          // 字典编码列时
+          // 字典类型列时
           this.settings.tableHover.columnTypeShowIcon = false
           break
         case 'columnName':
-          // 字典编码列时
+          // 字典名称列时
           this.settings.tableHover.columnNameShowIcon = false
           break
       }

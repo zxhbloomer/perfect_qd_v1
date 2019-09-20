@@ -593,8 +593,6 @@ export default {
     handleInsert() {
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
-      // 数据初始化
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
       })
@@ -819,11 +817,11 @@ export default {
             this.$refs['refType'].focus()
           })
           break
-        default:
+        case 'insert':
           // 数据初始化
           this.initPopUpStatus()
           // 复制数据
-          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          this.dataJson.tempJson = {}
           // 初始化数据
           this.initResourceData()
           // 设置控件焦点focus

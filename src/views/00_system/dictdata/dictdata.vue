@@ -8,10 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.dict_Type_code" clearable placeholder="字典类型编码" />
+        <el-input v-model.trim="dataJson.searchForm.dict_type_code" clearable placeholder="字典类型编码" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.dict_Type_name" clearable placeholder="字典名称" />
+        <el-input v-model.trim="dataJson.searchForm.dict_type_name" clearable placeholder="字典名称" />
       </el-form-item>
       <el-form-item label="">
         <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
@@ -62,21 +62,13 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" column-key="columnCode">
-        <template slot-scope="scope">
-          <el-link type="primary">{{ scope.row.code }}
-            <svg-icon v-show="settings.tableHover.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
-        <template slot-scope="scope">
-          <el-link type="primary">{{ scope.row.name }}
-            <svg-icon v-show="settings.tableHover.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="dict_type_code" label="字典类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="dict_type_name" label="字典类型名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="字典编码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="label" label="字典标签" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="dict_value" label="字典键值" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sort" label="字典排序" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="descr" label="字典描述" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
@@ -159,6 +151,37 @@
         label-width="120px"
         status-icon
       >
+        <el-alert
+          title="字典类型选择"
+          type="info"
+          :closable="false"
+        />
+        <br>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="字典类型：" prop="dict_type_code">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.dict_type_id" disabled>
+                <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
+                  {{ popSettingsData.searchDialogData.selectOrResetName }}
+                </el-button>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="字典类型名称：" prop="dict_type_name">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.dict_type_name" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="字典类型描述：" prop="descr">
+          <el-input v-model.trim="dataJson.tempJson.dict_type_descr" type="textarea" disabled />
+        </el-form-item>
+        <el-alert
+          title="字典数据设置"
+          type="info"
+          :closable="false"
+        />
+        <br>
         <el-row>
           <el-col :span="12">
             <el-form-item label="字典编码：" prop="code">
@@ -166,8 +189,20 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="字典名称：" prop="name">
-              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="字典标签：" prop="label">
+              <el-input v-model.trim="dataJson.tempJson.label" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.label" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="字典键值：" prop="dict_value">
+              <el-input v-model.trim="dataJson.tempJson.dict_value" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.dict_value" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="字典排序：" prop="sort">
+              <el-input v-model.trim="dataJson.tempJson.sort" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.sort" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -238,8 +273,8 @@ export default {
             sort: '-uTime' // 排序
           },
           // 查询条件
-          dict_Type_code_name: '',
-          dict_Type_code: '',
+          dict_type_code_name: '',
+          dict_type_code: '',
           isdel: 'null',
           isenable: ''
         },
