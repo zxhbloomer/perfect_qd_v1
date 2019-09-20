@@ -27,7 +27,7 @@
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-search" @click="doResetSearch">重 置</el-button>
+        <el-button v-popover:popover type="primary" plain icon="perfect-icon-reset" @click="doResetSearch">重 置</el-button>
       </el-form-item>
     </el-form>
     <el-button-group>
