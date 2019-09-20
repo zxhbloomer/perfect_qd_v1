@@ -961,7 +961,7 @@ export default {
             <br/>灰色：未删除
             <br/>红色：已删除
             </div>
-            <svg-icon icon-class='perfect-icon_question1_btn' style='margin-left: 5px'/>
+            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
         </span>
       )

@@ -57,11 +57,25 @@
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
+      @cell-mouse-enter="handleCellMouseEnter"
+      @cell-mouse-leave="handleCellMouseLeave"
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典编码" column-key="columnCode">
+        <template slot-scope="scope">
+          <el-link type="primary">{{ scope.row.code }}
+            <svg-icon v-show="settings.tableHover.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
+        <template slot-scope="scope">
+          <el-link type="primary">{{ scope.row.name }}
+            <svg-icon v-show="settings.tableHover.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
@@ -274,7 +288,12 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000
+        duration: 4000,
+        // table的setting，表格的设置
+        tableHover: {
+          columnTypeShowIcon: false,
+          columnNameShowIcon: false
+        }
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -738,6 +757,50 @@ export default {
         return callback()
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
+    },
+    /** 当单元格 hover 进入时会触发该事件 */
+    handleCellMouseEnter(row, column, cell, event) {
+      switch (column.columnKey) {
+        case 'columnCode':
+          // 字典编码列时
+          this.settings.tableHover.columnTypeShowIcon = true
+          break
+        case 'columnName':
+          // 字典编码列时
+          this.settings.tableHover.columnNameShowIcon = true
+          break
+      }
+    },
+    /** 当单元格 hover 退出时会触发该事件 */
+    handleCellMouseLeave(row, column, cell, event) {
+      switch (column.columnKey) {
+        case 'columnCode':
+          // 字典编码列时
+          this.settings.tableHover.columnTypeShowIcon = false
+          break
+        case 'columnName':
+          // 字典编码列时
+          this.settings.tableHover.columnNameShowIcon = false
+          break
+      }
+    },
+    renderHeaderIsDel: function(h, { column }) {
+      return (
+        <span>{column.label}
+          <el-tooltip
+            class='item'
+            effect='dark'
+            placement='bottom'
+          >
+            <div slot='content'>
+            删除状态提示：
+            <br/>灰色：未删除
+            <br/>红色：已删除
+            </div>
+            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
+          </el-tooltip>
+        </span>
+      )
     }
   }
 }

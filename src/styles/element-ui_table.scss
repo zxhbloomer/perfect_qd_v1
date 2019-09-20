@@ -90,3 +90,10 @@
 .amap-copyright{
   z-index: 0!important;
 }
+
+/**
+ * 设置表头宽度
+ */
+.el-table--mini th, .el-table--mini td {
+  padding: 2px 0;
+}
