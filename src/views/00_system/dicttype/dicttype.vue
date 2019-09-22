@@ -30,16 +30,15 @@
         <el-button v-popover:popover type="primary" plain icon="perfect-icon-reset" @click="doResetSearch">重 置</el-button>
       </el-form-item>
     </el-form>
-    <el-button-group>
+    <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">数据导出</el-button>
     </el-button-group>
 
-    <el-button-group>
+    <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
-
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -51,33 +50,36 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'uTime', order: 'descending'}"
+      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
+      @row-dblclick="handleRowDbClick"
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
       @cell-mouse-enter="handleCellMouseEnter"
       @cell-mouse-leave="handleCellMouseLeave"
     >
-      <el-table-column type="selection" width="45" prop="id" />
-      <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
+      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" type="selection" width="45" prop="id" />
+      <el-table-column :key="Math.random()" type="index" width="45" />
+      <el-table-column v-if="meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" />
+      <el-table-column v-if="meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
+      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
         <template slot-scope="scope">
-          <el-link type="primary">{{ scope.row.code }}
-            <svg-icon v-show="settings.tableHover.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          <el-link type="primary" :disabled="meDialogSetting.dialogStatus">{{ scope.row.code }}
+            <svg-icon icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
         </template>
       </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
+      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
         <template slot-scope="scope">
-          <el-link type="primary">{{ scope.row.name }}
-            <svg-icon v-show="settings.tableHover.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          <el-link type="primary" :disabled="meDialogSetting.dialogStatus">{{ scope.row.name }}
+            <svg-icon icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
         </template>
       </el-table-column>
-      <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column :key="Math.random()" show-overflow-tooltip min-width="150" prop="descr" label="描述" />
+      <el-table-column :key="Math.random()" min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
@@ -87,12 +89,13 @@
               :active-value="true"
               :inactive-value="false"
               :width="30"
+              :disabled="meDialogSetting.dialogStatus"
               @change="handleDel(scope.row)"
             />
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
 
@@ -176,13 +179,13 @@
         </el-form-item>
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
-            <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
+            <el-form-item label="更新者：" prop="u_id">
+              <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
+            <el-form-item label="更新时间：" prop="u_time">
+              <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -235,7 +238,7 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: '-uTime' // 排序
+            sort: '-u_time' // 排序
           },
           // 查询条件
           name: '',
@@ -334,6 +337,11 @@ export default {
         templateFilePath: process.env.VUE_APP_BASE_API + '/api/v1/template.html?id=P00000030',
         // 错误数据文件
         errorFileUrl: ''
+      },
+      meDialogSetting: {
+        program: this.$store.getters.program,
+        selectedDataJson: this.$store.getters.selectedDataJson,
+        dialogStatus: false
       }
     }
   },
@@ -379,16 +387,29 @@ export default {
     }
   },
   created() {
-    // 初始化查询
-    this.getDataList()
-    // 数据初始化
-    this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+    this.initShow()
   },
   mounted() {
     // 描绘完成
 
   },
   methods: {
+    initShow() {
+      // 初始化查询
+      this.getDataList()
+      // 数据初始化
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+    },
+    // 弹出框设置初始化
+    initDialogStatus() {
+      if (this.$store.getters.program !== undefined &&
+          this.$store.getters.program !== null &&
+          this.$store.getters.program.status === 'open') {
+        this.meDialogSetting.dialogStatus = true
+      } else {
+        this.meDialogSetting.dialogStatus = false
+      }
+    },
     // 下拉选项控件事件
     handleSelectChange(val) {
     },
@@ -401,6 +422,14 @@ export default {
     handleRowClick(row) {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.rowIndex = this.getRowIndex(row)
+    },
+    // 行双点击，仅在dialog中有效
+    handleRowDbClick(row) {
+      this.dataJson.tempJson = Object.assign({}, row) // copy obj
+      this.dataJson.rowIndex = this.getRowIndex(row)
+      if (this.meDialogSetting.dialogStatus) {
+        this.$emit('rowDbClick', this.dataJson.tempJson)
+      }
     },
     handleSearch() {
       // 查询
@@ -569,6 +598,8 @@ export default {
         this.settings.btnShowStatus.showUpdate = false
         this.settings.btnShowStatus.showCopyInsert = false
       }
+      // 设置dialog的返回
+      this.$store.dispatch('popUpSearchDialog/selectedDataJson', Object.assign({}, row))
     },
     handleSortChange(column) {
       // 服务器端排序
@@ -631,7 +662,7 @@ export default {
         pageCondition: {
           current: 1,
           size: 20,
-          sort: '-uTime' // 排序
+          sort: '-u_time' // 排序
         },
         // 查询条件
         name: '',
@@ -794,8 +825,8 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-            <br/>灰色：未删除
-            <br/>红色：已删除
+              <br/>灰色：未删除
+              <br/>红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>

@@ -36,7 +36,7 @@
           <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="角色编码" />
         </el-form-item>
         <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.simpleName" clearable placeholder="简称" />
+          <el-input v-model.trim="dataJson.searchForm.simple_name" clearable placeholder="简称" />
         </el-form-item>
         <div style="text-align: right; margin: 0">
           <el-button type="text">重置</el-button>
@@ -79,7 +79,7 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'uTime', order: 'descending'}"
+      :default-sort="{prop: 'u_time', order: 'descending'}"
       :row-key="getRowKeys"
       style="width: 100%"
       @row-click="handleRowClick"
@@ -93,7 +93,7 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="type" label="角色类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="角色名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="270" :sort-orders="settings.sortOrders" prop="descr" label="描述" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simpleName" label="简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="170" :sort-orders="settings.sortOrders" prop="simple_name" label="简称" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
@@ -124,7 +124,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
       <el-table-column label="操作" width="120" fixed="right">
         <template slot-scope="scope">
           <el-button-group>
@@ -217,8 +217,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="简称：" prop="simpleName">
-              <el-input v-model.trim="dataJson.tempJson.simpleName" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simpleName" />
+            <el-form-item label="简称：" prop="simple_name">
+              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -227,13 +227,13 @@
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" clearable disabled />
+            <el-form-item label="更新者：" prop="u_id">
+              <el-input v-model.trim="dataJson.tempJson.u_id" clearable disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" clearable disabled />
+            <el-form-item label="更新时间：" prop="u_time">
+              <el-input v-model.trim="dataJson.tempJson.u_time" clearable disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -276,11 +276,11 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: '-uTime' // 排序
+            sort: '-u_time' // 排序
           },
           // 查询条件
           name: '',
-          simpleName: '',
+          simple_name: '',
           code: '',
           isdel: '',
           isenable: ''
@@ -300,7 +300,7 @@ export default {
           code: '',
           name: '',
           descr: '',
-          simpleName: '',
+          simple_name: '',
           dbversion: 0
         },
         // 单条数据 json
@@ -311,7 +311,7 @@ export default {
             code: 10,
             name: 10,
             descr: 200,
-            simpleName: 10
+            simple_name: 10
           }
         },
         // 当前表格中的索引，第几条
@@ -594,8 +594,8 @@ export default {
     // 点击按钮 复制新增
     handleCopyInsert() {
       this.dataJson.tempJson.id === undefined
-      this.dataJson.tempJson.uId = ''
-      this.dataJson.tempJson.uTime = ''
+      this.dataJson.tempJson.u_id = ''
+      this.dataJson.tempJson.u_time = ''
       // 修改
       this.popSettingsData.dialogStatus = 'copyInsert'
       this.popSettingsData.dialogFormVisible = true

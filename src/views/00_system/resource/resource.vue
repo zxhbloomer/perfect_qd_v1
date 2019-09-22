@@ -54,7 +54,7 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'uTime', order: 'descending'}"
+      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
       @row-dblclick="handleRowDbClick"
@@ -81,7 +81,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="uTime" label="更新时间" />
+      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
@@ -141,13 +141,13 @@
           </el-form-item>
           <el-row>
             <el-col :span="12">
-              <el-form-item label="更新者：" prop="uId">
-                <el-input v-model.trim="dataJson.tempJson.uId" disabled />
+              <el-form-item label="更新者：" prop="u_id">
+                <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="更新时间：" prop="uTime">
-                <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
+              <el-form-item label="更新时间：" prop="u_time">
+                <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
               </el-form-item>
             </el-col>
           </el-row>
@@ -201,7 +201,7 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: '-uTime' // 排序
+            sort: '-u_time' // 排序
           },
           // 查询条件
           name: '',
@@ -424,7 +424,7 @@ export default {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.rowIndex = this.getRowIndex(row)
     },
-    // 行双点击，尽在dialog中有效
+    // 行双点击，仅在dialog中有效
     handleRowDbClick(row) {
       this.dataJson.tempJson = Object.assign({}, row) // copy obj
       this.dataJson.rowIndex = this.getRowIndex(row)
@@ -661,7 +661,7 @@ export default {
         pageCondition: {
           current: 1,
           size: 20,
-          sort: '-uTime' // 排序
+          sort: '-u_time' // 排序
         },
         // 查询条件
         name: '',
@@ -785,8 +785,8 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-            <br/>灰色：未删除
-            <br/>红色：已删除
+              <br/>灰色：未删除
+              <br/>红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>

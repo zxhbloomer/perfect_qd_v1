@@ -84,7 +84,7 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'uTime', order: 'descending'}"
+      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
@@ -110,7 +110,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="100" prop="uTime" label="更新时间" />
+      <el-table-column sortable="custom" min-width="100" prop="u_time" label="更新时间" />
       <el-table-column min-width="100" prop="templateName" label="使用资源名称" />
       <el-table-column min-width="100" prop="templateDescr" label="资源描述" />
     </el-table>
@@ -172,13 +172,13 @@
         </el-form-item>
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
-            <el-form-item label="更新者：" prop="uId">
-              <el-input v-model.trim="dataJson.tempJson.uId" disabled />
+            <el-form-item label="更新者：" prop="u_id">
+              <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="更新时间：" prop="uTime">
-              <el-input v-model.trim="dataJson.tempJson.uTime" disabled />
+            <el-form-item label="更新时间：" prop="u_time">
+              <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -278,7 +278,7 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: '-uTime' // 排序
+            sort: '-u_time' // 排序
           },
           // 查询条件
           name: '',
@@ -303,7 +303,7 @@ export default {
           code: '',
           descr: '',
           dbversion: 0,
-          templateId: undefined
+          template_id: undefined
         },
         // 单条数据 json
         currentJson: null,
@@ -411,7 +411,7 @@ export default {
     'popSettingsData.searchDialogData.selectedDataJson': {
       handler(newVal, oldVal) {
         if (newVal.id !== undefined) {
-          this.dataJson.tempJson.templateId = newVal.id
+          this.dataJson.tempJson.template_id = newVal.id
         }
       },
       deep: true,
@@ -471,7 +471,7 @@ export default {
     initResourceData() {
       // 设置资源部分的数据，从表格上复制
       this.popSettingsData.searchDialogData.selectedDataJson = {
-        id: this.dataJson.tempJson.templateId,
+        id: this.dataJson.tempJson.template_id,
         type: this.dataJson.tempJson.templateType,
         name: this.dataJson.tempJson.templateName,
         descr: this.dataJson.tempJson.templateDescr,
@@ -682,9 +682,9 @@ export default {
     handleCopyInsert() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
       this.dataJson.tempJson.id = undefined
-      this.dataJson.tempJson.templateId = undefined
-      this.dataJson.tempJson.uId = ''
-      this.dataJson.tempJson.uTime = ''
+      this.dataJson.tempJson.template_id = undefined
+      this.dataJson.tempJson.u_id = ''
+      this.dataJson.tempJson.u_time = ''
       // 修改
       this.popSettingsData.dialogStatus = 'copyInsert'
       this.popSettingsData.dialogFormVisible = true
@@ -775,7 +775,7 @@ export default {
         pageCondition: {
           current: 1,
           size: 20,
-          sort: '-uTime' // 排序
+          sort: '-u_time' // 排序
         },
         // 查询条件
         name: '',
@@ -805,7 +805,7 @@ export default {
           this.initPopUpStatus()
           // 复制数据
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-          this.dataJson.tempJson.templateId = undefined
+          this.dataJson.tempJson.template_id = undefined
           this.dataJson.tempJson.templateType = ''
           this.dataJson.tempJson.templateName = ''
           this.dataJson.tempJson.templateDescr = ''
@@ -924,7 +924,7 @@ export default {
         // 重置按钮
         this.popSettingsData.searchDialogData.selectedDataJson = {}
         this.initSelectOrResectButton()
-        this.dataJson.tempJson.templateId = undefined
+        this.dataJson.tempJson.template_id = undefined
         this.dataJson.tempJson.templateType = ''
         this.dataJson.tempJson.templateName = ''
         this.dataJson.tempJson.templateDescr = ''
@@ -936,7 +936,7 @@ export default {
       this.popSettingsData.searchDialogData.selectedDataJson = val
       this.popSettingsData.searchDialogData.dialogVisible = false
       this.initSelectOrResectButton()
-      this.dataJson.tempJson.templateId = this.popSettingsData.searchDialogData.selectedDataJson.id
+      this.dataJson.tempJson.template_id = this.popSettingsData.searchDialogData.selectedDataJson.id
       this.dataJson.tempJson.templateType = this.popSettingsData.searchDialogData.selectedDataJson.type
       this.dataJson.tempJson.templateName = this.popSettingsData.searchDialogData.selectedDataJson.name
       this.dataJson.tempJson.templateDescr = this.popSettingsData.searchDialogData.selectedDataJson.descr
@@ -956,8 +956,8 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-            <br/>灰色：未删除
-            <br/>红色：已删除
+              <br/>灰色：未删除
+              <br/>红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
