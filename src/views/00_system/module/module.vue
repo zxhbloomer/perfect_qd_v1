@@ -40,7 +40,7 @@
           <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
         </el-form-item>
         <el-form-item label="">
-          <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple collapse-tags clearable>
+          <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple clearable>
             <el-option
               v-for="type in settings.selectOptions"
               :key="type.value"
@@ -956,8 +956,8 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-              <br/>灰色：未删除
-              <br/>红色：已删除
+            <br/>灰色：未删除
+            <br/>红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
