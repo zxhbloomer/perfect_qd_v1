@@ -540,8 +540,6 @@ export default {
     handleInsert() {
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
-      // 数据初始化
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
         this.$refs['dataSubmitForm'].clearValidate()
       })
