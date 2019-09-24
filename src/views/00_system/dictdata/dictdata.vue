@@ -60,7 +60,13 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="130" :sort-orders="settings.sortOrders" prop="dictTypeName" label="字典类型名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="label" label="字典标签" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="dict_value" label="字典键值" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="sort" label="字典排序" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="sort" label="字典排序">
+        <template slot-scope="scope">
+          <span>{{ scope.row.sort }}</span>
+          <el-button class="el-icon-top" type="text" style="font-size:16px" />
+          <el-button class="el-icon-bottom" type="text" style="font-size:16px" />
+        </template>
+      </el-table-column>
       <el-table-column show-overflow-tooltip sortable="custom" min-width="180" :sort-orders="settings.sortOrders" prop="descr" label="字典描述" />
       <el-table-column min-width="70" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
@@ -283,6 +289,14 @@ export default {
           dictTypeCode: '',
           isdel: 'null',
           isenable: ''
+        },
+        // 表格中的字典排序
+        sortSetting: {
+          // 按钮上
+          up: {
+            disabled: false
+          }
+          // 按钮下
         },
         // 分页控件的json
         paging: {
