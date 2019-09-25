@@ -33,7 +33,6 @@
     <el-button-group>
       <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
-
     <el-table
       ref="multipleTable"
       v-loading="settings.listLoading"
@@ -1044,11 +1043,7 @@ export default {
       // 2：计算sort
       this.doReIndexSort(scope.row.dict_type_id)
       // 3：提交更新
-      const updatedData = this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id))
-      // 4：返回替换json
-      this.doUpdateSortJson(updatedData, scope.row.dict_type_id)
-      // loading
-      this.settings.listLoading = false
+      this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id))
     },
     // 排序下
     handleSortDown(scope, index) {
@@ -1061,11 +1056,7 @@ export default {
       // 2：计算sort
       this.doReIndexSort(scope.row.dict_type_id)
       // 3：提交更新
-      const updatedData = this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id))
-      // 4：返回替换json
-      this.doUpdateSortJson(updatedData, scope.row.dict_type_id)
-      // loading
-      this.settings.listLoading = false
+      this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id), scope.row.dict_type_id)
     },
     // sort重新计算
     doReIndexSort(dict_type_id) {
@@ -1087,8 +1078,7 @@ export default {
       return rtnList
     },
     // 更新逻辑
-    doSortUpdate(listData) {
-      this.settings.listLoading = true
+    doSortUpdate(listData, dict_type_id) {
       saveListApi(listData).then((_data) => {
         this.$notify({
           title: '更新成功',
@@ -1096,8 +1086,10 @@ export default {
           type: 'success',
           duration: this.settings.duration
         })
+        // 返回替换json
+        this.doUpdateSortJson(_data.data, dict_type_id)
+        // loading
         this.settings.listLoading = false
-        return _data.data
       }, (_error) => {
         this.$notify({
           title: '更新错误',
