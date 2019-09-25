@@ -45,7 +45,6 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
@@ -56,19 +55,21 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="130" :sort-orders="settings.sortOrders" prop="dictTypeCode" label="字典类型" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="130" :sort-orders="settings.sortOrders" prop="dictTypeName" label="字典类型名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="label" label="字典标签" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="dict_value" label="字典键值" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="sort" label="字典排序">
+      <el-table-column show-overflow-tooltip min-width="130" prop="dictTypeCode" label="字典类型" />
+      <el-table-column show-overflow-tooltip min-width="130" prop="dictTypeName" label="字典类型名称" />
+      <el-table-column show-overflow-tooltip min-width="120" prop="label" label="字典标签" />
+      <el-table-column show-overflow-tooltip min-width="120" prop="dict_value" label="字典键值" />
+      <el-table-column show-overflow-tooltip min-width="120" prop="sort" label="字典排序">
         <template slot-scope="scope">
           <span>{{ scope.row.sort }}</span>
-          <el-button class="el-icon-top" type="text" style="font-size:16px" />
-          <el-button class="el-icon-bottom" type="text" style="font-size:16px" />
+          <div class="floatRight">
+            <el-button class="el-icon-top" type="text" style="font-size:16px" :disabled="scope.row.sort===scope.row.min_sort" />
+            <el-button class="el-icon-bottom" type="text" style="font-size:16px" :disabled="scope.row.sort===scope.row.max_sort" />
+          </div>
         </template>
       </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="180" :sort-orders="settings.sortOrders" prop="descr" label="字典描述" />
-      <el-table-column min-width="70" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column show-overflow-tooltip min-width="180" prop="descr" label="字典描述" />
+      <el-table-column min-width="70" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
@@ -83,7 +84,7 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="160" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
+      <el-table-column min-width="160" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <dicttype-dialog
@@ -282,21 +283,13 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: '-u_time' // 排序
+            sort: 'dictTypeName, dict_value' // 排序
           },
           // 查询条件
           dictTypeName: '',
           dictTypeCode: '',
           isdel: 'null',
           isenable: ''
-        },
-        // 表格中的字典排序
-        sortSetting: {
-          // 按钮上
-          up: {
-            disabled: false
-          }
-          // 按钮下
         },
         // 分页控件的json
         paging: {
@@ -747,7 +740,7 @@ export default {
         pageCondition: {
           current: 1,
           size: 20,
-          sort: '-u_time' // 排序
+          sort: 'dictTypeName, dict_value' // 排序
         },
         // 查询条件
         name: '',

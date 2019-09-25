@@ -260,7 +260,7 @@ import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, imp
 import resizeMixin from './roleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import SimpleUpload from '@/layout/components/SimpleUpload'
+import SimpleUpload from '@/layout/components/00_common/SimpleUpload'
 
 export default {
   name: 'P00000000', // 页面id，和router中的name需要一致，作为缓存

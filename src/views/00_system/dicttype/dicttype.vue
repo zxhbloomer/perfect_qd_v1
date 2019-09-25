@@ -60,26 +60,26 @@
       @cell-mouse-enter="handleCellMouseEnter"
       @cell-mouse-leave="handleCellMouseLeave"
     >
-      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" type="selection" width="45" prop="id" />
-      <el-table-column :key="Math.random()" type="index" width="45" />
-      <el-table-column v-if="meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" />
-      <el-table-column v-if="meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" />
-      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
+      <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
+      <el-table-column type="index" width="45" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型2" column-key="columnCode">
         <template slot-scope="scope">
-          <el-link type="primary" :disabled="meDialogSetting.dialogStatus">{{ scope.row.code }}
-            <svg-icon icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.code }}
+            <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
+          <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.code }} </span>
         </template>
       </el-table-column>
-      <el-table-column v-if="!meDialogSetting.dialogStatus" :key="Math.random()" show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称2" column-key="columnName">
         <template slot-scope="scope">
-          <el-link type="primary" :disabled="meDialogSetting.dialogStatus">{{ scope.row.name }}
-            <svg-icon icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.name }}
+            <svg-icon v-show="scope.row.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
+          <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.name }} </span>
         </template>
       </el-table-column>
-      <el-table-column :key="Math.random()" show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column :key="Math.random()" min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
+      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
             <el-switch
@@ -222,7 +222,7 @@ import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, imp
 import resizeMixin from './dicttypeResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import SimpleUpload from '@/layout/components/SimpleUpload'
+import SimpleUpload from '@/layout/components/00_common/SimpleUpload'
 
 export default {
   name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
@@ -291,12 +291,7 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000,
-        // table的setting，表格的设置
-        tableHover: {
-          columnTypeShowIcon: false,
-          columnNameShowIcon: false
-        }
+        duration: 4000
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -616,7 +611,12 @@ export default {
       // 查询逻辑
       this.settings.listLoading = true
       getListApi(this.dataJson.searchForm).then(response => {
-        this.dataJson.listData = response.data.records
+        // 增加对象属性，columnTypeShowIcon，columnNameShowIcon
+        const recorders = response.data.records
+        const newRecorders = recorders.map(v => {
+          return { ...v, columnTypeShowIcon: false, columnNameShowIcon: false }
+        })
+        this.dataJson.listData = newRecorders
         this.dataJson.paging = response.data
         this.dataJson.paging.records = {}
         this.settings.listLoading = false
@@ -794,11 +794,11 @@ export default {
       switch (column.columnKey) {
         case 'columnCode':
           // 字典类型列时
-          this.settings.tableHover.columnTypeShowIcon = true
+          row.columnTypeShowIcon = true
           break
         case 'columnName':
           // 字典名称列时
-          this.settings.tableHover.columnNameShowIcon = true
+          row.columnNameShowIcon = true
           break
       }
     },
@@ -807,11 +807,11 @@ export default {
       switch (column.columnKey) {
         case 'columnCode':
           // 字典类型列时
-          this.settings.tableHover.columnTypeShowIcon = false
+          row.columnTypeShowIcon = false
           break
         case 'columnName':
           // 字典名称列时
-          this.settings.tableHover.columnNameShowIcon = false
+          row.columnNameShowIcon = false
           break
       }
     },
@@ -825,8 +825,8 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-              <br/>灰色：未删除
-              <br/>红色：已删除
+            <br/>灰色：未删除
+            <br/>红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
