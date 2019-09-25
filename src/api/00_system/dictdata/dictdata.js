@@ -97,3 +97,15 @@ export function enableApi(data) {
     data
   })
 }
+
+/**
+ * 排序逻辑
+ * @param {*} data
+ */
+export function saveListApi(data) {
+  return request({
+    url: '/api/v1/dictdata/save_list',
+    method: 'post',
+    data
+  })
+}

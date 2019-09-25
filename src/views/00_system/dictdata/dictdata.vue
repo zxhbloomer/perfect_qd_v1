@@ -63,8 +63,8 @@
         <template slot-scope="scope">
           <span>{{ scope.row.sort }}</span>
           <div class="floatRight">
-            <el-button class="el-icon-top" type="text" style="font-size:16px" :disabled="scope.row.sort===scope.row.min_sort" />
-            <el-button class="el-icon-bottom" type="text" style="font-size:16px" :disabled="scope.row.sort===scope.row.max_sort" />
+            <el-button class="el-icon-top" type="text" style="font-size: 16px" :disabled="scope.row.sort===scope.row.min_sort" @click="handleSortUp(scope, scope.$index)" />
+            <el-button class="el-icon-bottom" type="text" style="font-size: 16px" :disabled="scope.row.sort===scope.row.max_sort" @click="handleSortDown(scope, scope.$index)" />
           </div>
         </template>
       </el-table-column>
@@ -261,7 +261,7 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/dictdata/dictdata'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi, saveListApi } from '@/api/00_system/dictdata/dictdata'
 import resizeMixin from './dictdataResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -283,7 +283,7 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: 'dictTypeName, dict_value' // 排序
+            sort: 'dictTypeCode, sort' // 排序
           },
           // 查询条件
           dictTypeName: '',
@@ -1032,6 +1032,95 @@ export default {
           </el-tooltip>
         </span>
       )
+    },
+    // 排序上
+    handleSortUp(scope, index) {
+      // loading
+      this.settings.listLoading = true
+      // 1：位置互换，数组对象中
+      const index1 = index
+      const index2 = index - 1
+      this.dataJson.listData.splice(index2, 1, ...this.dataJson.listData.splice(index1, 1, this.dataJson.listData[index2]))
+      // 2：计算sort
+      this.doReIndexSort(scope.row.dict_type_id)
+      // 3：提交更新
+      const updatedData = this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id))
+      // 4：返回替换json
+      this.doUpdateSortJson(updatedData, scope.row.dict_type_id)
+      // loading
+      this.settings.listLoading = false
+    },
+    // 排序下
+    handleSortDown(scope, index) {
+      // loading
+      this.settings.listLoading = true
+      // 1：位置互换，数组对象中
+      const index1 = index
+      const index2 = index + 1
+      this.dataJson.listData.splice(index2, 1, ...this.dataJson.listData.splice(index1, 1, this.dataJson.listData[index2]))
+      // 2：计算sort
+      this.doReIndexSort(scope.row.dict_type_id)
+      // 3：提交更新
+      const updatedData = this.doSortUpdate(this.getSortedDataList(scope.row.dict_type_id))
+      // 4：返回替换json
+      this.doUpdateSortJson(updatedData, scope.row.dict_type_id)
+      // loading
+      this.settings.listLoading = false
+    },
+    // sort重新计算
+    doReIndexSort(dict_type_id) {
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.dict_type_id === dict_type_id) {
+          // 开始排序
+          item.sort = index
+        }
+      })
+    },
+    // sort重新计算
+    getSortedDataList(dict_type_id) {
+      const rtnList = []
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.dict_type_id === dict_type_id) {
+          rtnList.push(item)
+        }
+      })
+      return rtnList
+    },
+    // 更新逻辑
+    doSortUpdate(listData) {
+      this.settings.listLoading = true
+      saveListApi(listData).then((_data) => {
+        this.$notify({
+          title: '更新成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        this.settings.listLoading = false
+        return _data.data
+      }, (_error) => {
+        this.$notify({
+          title: '更新错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      })
+    },
+    // 更新完毕后，把最新的数据更新回去
+    doUpdateSortJson(updatedData, dict_type_id) {
+      let startIndex = 0
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.dict_type_id === dict_type_id) {
+          // 位置互换，数组对象中
+          const index1 = index
+          const index2 = startIndex
+          arr.splice(index1, 1, ...updatedData.splice(index1, 1, updatedData[index2]))
+          startIndex++
+        }
+      })
     }
   }
 }

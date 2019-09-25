@@ -62,7 +62,7 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型2" column-key="columnCode">
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
         <template slot-scope="scope">
           <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.code }}
             <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
@@ -70,7 +70,7 @@
           <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.code }} </span>
         </template>
       </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称2" column-key="columnName">
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
         <template slot-scope="scope">
           <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.name }}
             <svg-icon v-show="scope.row.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
