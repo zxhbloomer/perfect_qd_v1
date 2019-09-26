@@ -8,9 +8,6 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <select-grid placeholder="请输入" />
-      </el-form-item>
-      <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.dictTypeCode" clearable placeholder="字典类型编码" />
       </el-form-item>
       <el-form-item label="">
@@ -270,11 +267,10 @@ import elDragDialog from '@/directive/el-drag-dialog'
 import SimpleUpload from '@/layout/components/00_common/SimpleUpload'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 import dicttypeDialog from '@/views/00_system/dicttype/dialog/dialog'
-import SelectGrid from '@/layout/components/00_common/SelectGrid'
 
 export default {
   name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload, dicttypeDialog, DeleteTypeNormal, SelectGrid },
+  components: { Pagination, SimpleUpload, dicttypeDialog, DeleteTypeNormal },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
