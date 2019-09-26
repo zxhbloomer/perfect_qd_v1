@@ -8,7 +8,7 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <select-grid />
+        <select-grid placeholder="请输入" />
       </el-form-item>
       <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.dictTypeCode" clearable placeholder="字典类型编码" />
@@ -1026,9 +1026,9 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-              <br/>
+            <br/>
             灰色：未删除
-              <br/>
+            <br/>
             红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
@@ -1117,6 +1117,9 @@ export default {
           startIndex++
         }
       })
+    },
+    closeEvent() {
+      alert(111)
     }
   }
 }
