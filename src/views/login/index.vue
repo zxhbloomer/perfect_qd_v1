@@ -147,6 +147,9 @@ export default {
     // 错误信息
     'checkJson.errorMsg': {
       handler(newVal, oldVal) {
+        if (newVal === undefined) {
+          return
+        }
         if (newVal.length === 0) {
           // 没有错误
           this.checkJson.errorStatus = false

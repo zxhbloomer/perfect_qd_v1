@@ -107,6 +107,11 @@ service.interceptors.response.use(
     } catch (error) {
       showMsg = error.message
     }
+    // 没有从服务器上获取到错误信息时，意味着服务器没有启动，或其他错误
+    if (showMsg === undefined) {
+      showMsg = '请联系管理员，服务器没有响应。'
+    }
+
     if (JSON.stringify(showMsg) !== '{}') {
       showMsg = '' + '' + JSON.stringify(showMsg, null, 2)
     }
