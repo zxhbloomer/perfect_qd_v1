@@ -63,7 +63,7 @@ export function exportSelectionApi(data) {
 }
 
 /**
- * 导出逻辑，部分导出
+ * 导入逻辑
  * @param {*} data
  */
 export function importExcelApi(data) {

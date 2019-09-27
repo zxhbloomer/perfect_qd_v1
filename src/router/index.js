@@ -163,6 +163,11 @@ export const constantRoutes = [
             meta: { title: '字典数据' }
           }
         ]
+      },
+      { path: 'config',
+        component: () => import('@/views/00_system/config/config'),
+        name: 'P00000060',
+        meta: { title: '系统参数', icon: '系统参数' }
       }
     ]
   },
