@@ -92,9 +92,18 @@ service.interceptors.response.use(
     // })
     // return Promise.reject(error)
     if (error.response) {
-      // switch (error.response.status) {
-      //   case 401:
-      //     // 返回 401 清除token信息并跳转到登录页面
+      switch (error.response.status) {
+        case 401:
+          // 返回 401 清除token信息并跳转到登录页面
+          // MessageBox.alert('很抱歉，登录已过期，请重新登录', '登录已过期', {
+          //   confirmButtonText: '重新登录',
+          // showClose: false,
+          //   type: 'error'
+          // }).then(() => {
+          //   next(`/login?redirect=${to.path}`)
+          //   NProgress.done()
+          // })
+      }
     }
     // commonFunction.showErrorMsg('发生了异常，请联系管理员！', error.response.data.data)
     let showMsg = ''
