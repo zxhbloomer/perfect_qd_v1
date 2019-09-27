@@ -11,7 +11,7 @@
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="参数名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.key" clearable placeholder="参数键名" />
+        <el-input v-model.trim="dataJson.searchForm.config_key" clearable placeholder="参数键名" />
       </el-form-item>
 
       <el-form-item>
@@ -50,7 +50,7 @@
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip min-width="130" prop="name" label="参数名称" />
-      <el-table-column show-overflow-tooltip min-width="130" prop="key" label="参数键名" />
+      <el-table-column show-overflow-tooltip min-width="130" prop="config_key" label="参数键名" />
       <el-table-column show-overflow-tooltip min-width="120" prop="value" label="参数键值" />
       <el-table-column show-overflow-tooltip min-width="120" prop="descr" label="描述" />
       <el-table-column min-width="160" prop="u_time" label="更新时间" />
@@ -77,24 +77,22 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="参数名称：" prop="name">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="参数键名：" prop="key">
-              <el-input v-model.trim="dataJson.tempJson.key" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.key" />
+            <el-form-item label="参数键名：" prop="config_key">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.config_key" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.config_key" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="参数键值：" prop="value">
-              <el-input v-model.trim="dataJson.tempJson.value" clearable :maxlength="dataJson.inputSettings.maxLength.value" />
-            </el-form-item>
-          </el-col>
+          <el-form-item label="参数键值：" prop="value">
+            <el-input v-model.trim="dataJson.tempJson.value" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.value" />
+          </el-form-item>
         </el-row>
         <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+          <el-input v-model.trim="dataJson.tempJson.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
@@ -168,13 +166,13 @@ export default {
           pageCondition: {
             current: 1,
             size: 20,
-            sort: 'dictTypeCode, sort' // 排序
+            sort: '-u_time' // 排序
           },
           // 查询条件
-          dictTypeName: '',
-          dictTypeCode: '',
-          isdel: 'null',
-          isenable: ''
+          name: '',
+          config_key: '',
+          value: '',
+          descr: ''
         },
         // 分页控件的json
         paging: {
@@ -188,7 +186,7 @@ export default {
         tempJsonOriginal: {
           id: undefined,
           name: '',
-          key: '',
+          config_key: '',
           value: '',
           descr: ''
         },
@@ -198,7 +196,7 @@ export default {
         inputSettings: {
           maxLength: {
             name: 20,
-            key: 20,
+            config_key: 20,
             value: 50,
             descr: 200
           }
@@ -221,14 +219,7 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000,
-        // table的setting，表格的设置
-        tableHover: {
-          columnTypeShowIcon: false,
-          columnNameShowIcon: false
-        },
-        // 资源类型下拉选项json
-        delOptions: [{}]
+        duration: 4000
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -257,9 +248,9 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          dictTypeCode: [{ required: true, message: '请输入字典类型', trigger: 'change' }],
-          dict_value: [{ required: true, message: '请输入字典键值', trigger: 'change' }],
-          label: [{ required: true, message: '请输入字典标签', trigger: 'change' }]
+          name: [{ required: true, message: '请输入参数名称', trigger: 'change' }],
+          config_key: [{ required: true, message: '请输入参数键名', trigger: 'change' }],
+          value: [{ required: true, message: '请输入参数键值', trigger: 'change' }]
         }
       }
     }
@@ -294,7 +285,7 @@ export default {
           this.initPopUpStatus()
           // 修改的情况下
           if (this.popSettingsData.dialogStatus === 'update') {
-            this.initSelectData()
+            // this.initSelectData()
           }
         }
       }
@@ -560,8 +551,6 @@ export default {
         case 'update':
           // 复制数据
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-          // 初始化数据
-          this.initSelectData()
           // 设置控件焦点focus
           this.$nextTick(() => {
             this.$refs['refDictValue'].focus()
@@ -574,8 +563,6 @@ export default {
           this.dataJson.tempJson.label = ''
           this.dataJson.tempJson.sort = ''
 
-          // 初始化数据
-          this.initSelectData()
           // 设置控件焦点focus
           this.$nextTick(() => {
             this.$refs['refDictValue'].focus()
@@ -700,14 +687,12 @@ export default {
           break
       }
     },
-
     // 弹出框设置初始化
     initPopUpStatus() {
       this.popSettingsData.btnDisabledStatus.disabledReset = true
       this.popSettingsData.btnDisabledStatus.disabledInsert = true
       this.popSettingsData.btnDisabledStatus.disabledUpdate = true
       this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
-      this.initSelectOrResectButton()
     }
 
   }
