@@ -77,7 +77,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="参数名称：" prop="name">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" :disabled="popSettingsData.dialogStatus==='update'" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -110,12 +110,12 @@
       <div slot="footer" class="dialog-footer">
         <el-divider />
         <div class="floatLeft">
-          <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset" @click="doReset()">重置</el-button>
+          <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset" :loading="settings.listLoading" @click="doReset()">重置</el-button>
         </div>
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " :loading="settings.listLoading" @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " :loading="settings.listLoading" @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " :loading="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
@@ -170,9 +170,7 @@ export default {
           },
           // 查询条件
           name: '',
-          config_key: '',
-          value: '',
-          descr: ''
+          config_key: ''
         },
         // 分页控件的json
         paging: {
@@ -381,7 +379,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refDictValue'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -457,7 +455,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refDictValue'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     handleCurrentChange(row) {
@@ -538,10 +536,8 @@ export default {
           sort: 'dictTypeName, dict_value' // 排序
         },
         // 查询条件
-        name: '',
-        simpleName: '',
-        isdel: 'null',
-        isenable: ''
+        name: null,
+        config_key: null
       }
     },
     // 重置按钮
@@ -553,7 +549,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refDictValue'].focus()
+            this.$refs['refUpdateFocus'].focus()
           })
           break
         case 'copyInsert':
@@ -565,7 +561,7 @@ export default {
 
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refDictValue'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
         default:
@@ -573,7 +569,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            // this.$refs['selectOne'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
       }
@@ -627,7 +623,9 @@ export default {
               duration: this.settings.duration
             })
             this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
+            this.$nextTick(() => {
+              this.settings.listLoading = false
+            })
           }, (_error) => {
             this.$notify({
               title: '更新错误',
