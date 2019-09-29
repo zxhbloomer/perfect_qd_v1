@@ -39,6 +39,7 @@
       border
       fit
       highlight-current-row
+      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
       @current-change="handleCurrentChange"
@@ -49,11 +50,11 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip min-width="130" prop="name" label="参数名称" />
-      <el-table-column show-overflow-tooltip min-width="130" prop="config_key" label="参数键名" />
-      <el-table-column show-overflow-tooltip min-width="120" prop="value" label="参数键值" />
-      <el-table-column show-overflow-tooltip min-width="120" prop="descr" label="描述" />
-      <el-table-column min-width="160" prop="u_time" label="更新时间" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="130" prop="name" label="参数名称" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="130" prop="config_key" label="参数键名" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="120" prop="value" label="参数键值" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="120" prop="descr" label="描述" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" min-width="160" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据编辑:新增、修改 -->
@@ -77,7 +78,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="参数名称：" prop="name">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" controls-position="right" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" :disabled="popSettingsData.dialogStatus==='update'" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -381,7 +382,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refDictValue'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -457,7 +458,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refDictValue'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     handleCurrentChange(row) {
@@ -553,7 +554,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refDictValue'].focus()
+            this.$refs['refUpdateFocus'].focus()
           })
           break
         case 'copyInsert':
@@ -565,7 +566,7 @@ export default {
 
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refDictValue'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
         default:
@@ -573,7 +574,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            // this.$refs['selectOne'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
       }

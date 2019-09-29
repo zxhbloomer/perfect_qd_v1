@@ -95,13 +95,17 @@ service.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // 返回 401 清除token信息并跳转到登录页面
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
           // MessageBox.alert('很抱歉，登录已过期，请重新登录', '登录已过期', {
           //   confirmButtonText: '重新登录',
-          // showClose: false,
+          //   showClose: false,
           //   type: 'error'
           // }).then(() => {
-          //   next(`/login?redirect=${to.path}`)
-          //   NProgress.done()
+          //   store.dispatch('user/resetToken').then(() => {
+          //     location.reload()
+          //   })
           // })
       }
     }
@@ -130,6 +134,10 @@ service.interceptors.response.use(
     }
     if (showMsg.endsWith('"')) {
       showMsg = showMsg.slice(0, showMsg.length - 1)
+    }
+
+    if (error.response === undefined) {
+      debugger
     }
 
     if (error.response.status !== 401) {
