@@ -1022,9 +1022,9 @@ export default {
           >
             <div slot='content'>
             删除状态提示：
-            <br/>
+              <br/>
             灰色：未删除
-            <br/>
+              <br/>
             红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>

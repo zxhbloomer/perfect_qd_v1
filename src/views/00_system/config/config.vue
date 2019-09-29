@@ -114,9 +114,9 @@
           <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset" :loading="settings.listLoading" @click="doReset()">重置</el-button>
         </div>
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " :loading="settings.listLoading" @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " :loading="settings.listLoading" @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " :loading="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showInsert" v-no-more-click plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " :loading="settings.listLoading" @click="doInsert()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" v-no-more-click plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " :loading="settings.listLoading" @click="doUpdate()">确 定</el-button>
+        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" v-no-more-click plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " :loading="settings.listLoading" @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
@@ -152,11 +152,12 @@ import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi } fr
 import resizeMixin from './configResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
+import noMoreClick from '@/directive/noMoreClick'
 
 export default {
   name: 'P00000060', // 页面id，和router中的name需要一致，作为缓存
   components: { Pagination },
-  directives: { elDragDialog },
+  directives: { elDragDialog, noMoreClick },
   mixins: [resizeMixin],
   data() {
     return {
@@ -491,6 +492,8 @@ export default {
         this.dataJson.listData = response.data.records
         this.dataJson.paging = response.data
         this.dataJson.paging.records = {}
+        this.settings.listLoading = false
+      }, (_error) => {
         this.settings.listLoading = false
       })
     },

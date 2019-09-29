@@ -120,6 +120,7 @@ service.interceptors.response.use(
     } catch (error) {
       showMsg = error.message
     }
+
     // 没有从服务器上获取到错误信息时，意味着服务器没有启动，或其他错误
     if (showMsg === undefined) {
       showMsg = '请联系管理员，服务器没有响应。'
@@ -137,18 +138,35 @@ service.interceptors.response.use(
     }
 
     if (error.response === undefined) {
-      debugger
+      // debugger
+    }
+    switch (error.response.status) {
+      case 503:
+        // MessageBox.confirm(showMsg, '错误信息', {
+        //   showCancelButton: false,
+        //   showClose: false,
+        //   confirmButtonText: '确定',
+        //   closeOnClickModal: false,
+        //   type: 'error'
+        // }).then(() => {
+        // })
+        MessageBox.alert(showMsg, '错误信息', {
+          confirmButtonText: '确定',
+          showClose: false,
+          type: 'error'
+        }).then(() => {
+        })
+        break
+      default:
+        MessageBox.confirm(showMsg, '错误信息', {
+          showCancelButton: false,
+          confirmButtonText: '确定',
+          type: 'error'
+        }).then(() => {
+        })
+        break
     }
 
-    if (error.response.status !== 401) {
-      MessageBox.confirm(showMsg, '错误信息', {
-        showCancelButton: false,
-        confirmButtonText: '确定',
-        type: 'error'
-      }).then(() => {
-
-      })
-    }
     return Promise.reject(error.response.data) // 返回接口返回的错误信息
   },
 )
