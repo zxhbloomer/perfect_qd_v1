@@ -1,14 +1,11 @@
 <template>
   <div class="dashboard-editor-container">
-    <github-corner class="github-corner" />
-
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
-
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
+    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:10px;">
       <line-chart :chart-data="lineChartData" />
     </el-row>
 
-    <el-row :gutter="32">
+    <el-row :gutter="10">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <raddar-chart />
@@ -26,7 +23,7 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="8">
+    <el-row :gutter="10">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         <transaction-table />
       </el-col>
@@ -41,7 +38,6 @@
 </template>
 
 <script>
-import GithubCorner from '@/components/GithubCorner'
 import PanelGroup from './components/PanelGroup'
 import LineChart from './components/LineChart'
 import RaddarChart from './components/RaddarChart'
@@ -73,7 +69,6 @@ const lineChartData = {
 export default {
   name: 'DashboardAdmin',
   components: {
-    GithubCorner,
     PanelGroup,
     LineChart,
     RaddarChart,
@@ -98,7 +93,7 @@ export default {
 
 <style lang="scss" scoped>
 .dashboard-editor-container {
-  padding: 32px;
+  padding: 10px;
   background-color: rgb(240, 242, 245);
   position: relative;
 
@@ -112,7 +107,7 @@ export default {
   .chart-wrapper {
     background: #fff;
     padding: 16px 16px 0;
-    margin-bottom: 32px;
+    margin-bottom: 10px;
   }
 }
 
