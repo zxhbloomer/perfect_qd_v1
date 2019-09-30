@@ -173,7 +173,7 @@ service.interceptors.response.use(
     // 4:reject error
     if (error.response === undefined) {
       return Promise.reject({ message: showMsg }) // 返回接口返回的错误信息
-    } else if (error.response.data.includes('ECONNREFUSED')) {
+    } else if (JSON.stringify(error.response.data).includes('ECONNREFUSED')) {
       return Promise.reject({ message: showMsg }) // 返回接口返回的错误信息
     } else {
       return Promise.reject(error.response.data) // 返回接口返回的错误信息

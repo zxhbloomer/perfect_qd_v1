@@ -223,9 +223,9 @@ export default {
         // background-color: #42b983;
         // color: #fff;
         // border-color: #42b983;
-        background-color: #eaedf1;
+        background-color: #bfbfbf;
         color: #23508e;
-        border-color: #eaedf1;
+        border-color: #bfbfbf;
         &::before {
           content: '';
           background: #fff;
