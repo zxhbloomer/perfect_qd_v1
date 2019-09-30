@@ -4,7 +4,7 @@ import axios from 'axios'
 const service = axios.create({
   baseURL: process.env.VUE_APP_FILE_SYSTEM_UPLOAD_URL, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 25000 // request timeout
+  timeout: 55000 // request timeout
 })
 
 // request interceptor

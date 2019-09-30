@@ -10,7 +10,7 @@ import fileDownload from 'js-file-download'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 25000 // request timeout
+  timeout: 55000 // request timeout
 })
 
 // request interceptor
@@ -84,46 +84,45 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
-    // upd by zxh
-    // Message({
-    //   message: error.message,
-    //   type: 'error',
-    //   duration: 5 * 1000
-    // })
-    // return Promise.reject(error)
-    if (error.response) {
+    // 1：定义message
+    let showMsg = ''
+
+    if (error.response === undefined) {
+      // debugger
+    }
+
+    // :2：处理错误区域
+    if (error.response === undefined) {
+      // 没有从服务器上获取到错误信息时，意味着服务器没有启动，或其他错误
+      if (error.code === 'ECONNABORTED') {
+        showMsg = '请联系管理员，服务器没有响应。'
+      }
+    } else {
+      // 服务器返回的异常
       switch (error.response.status) {
         case 401:
           // 返回 401 清除token信息并跳转到登录页面
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })
-          // MessageBox.alert('很抱歉，登录已过期，请重新登录', '登录已过期', {
-          //   confirmButtonText: '重新登录',
-          //   showClose: false,
-          //   type: 'error'
-          // }).then(() => {
-          //   store.dispatch('user/resetToken').then(() => {
-          //     location.reload()
-          //   })
-          // })
+          break
+        case 404:
+          try {
+            if (error.response.status === 404) {
+              showMsg = error.message
+            } else {
+              showMsg = error.response.data.message
+            }
+          } catch (error) {
+            showMsg = error.message
+          }
+          break
+        case 500:
+          if (error.response.data.includes('ECONNREFUSED')) {
+            showMsg = '请联系管理员，服务器没有响应。'
+          }
+          break
       }
-    }
-    // commonFunction.showErrorMsg('发生了异常，请联系管理员！', error.response.data.data)
-    let showMsg = ''
-    try {
-      if (error.response.status === 404) {
-        showMsg = error.message
-      } else {
-        showMsg = error.response.data.message
-      }
-    } catch (error) {
-      showMsg = error.message
-    }
-
-    // 没有从服务器上获取到错误信息时，意味着服务器没有启动，或其他错误
-    if (showMsg === undefined) {
-      showMsg = '请联系管理员，服务器没有响应。'
     }
 
     if (JSON.stringify(showMsg) !== '{}') {
@@ -137,37 +136,48 @@ service.interceptors.response.use(
       showMsg = showMsg.slice(0, showMsg.length - 1)
     }
 
-    if (error.response === undefined) {
-      // debugger
-    }
-    switch (error.response.status) {
-      case 503:
-        // MessageBox.confirm(showMsg, '错误信息', {
-        //   showCancelButton: false,
-        //   showClose: false,
-        //   confirmButtonText: '确定',
-        //   closeOnClickModal: false,
-        //   type: 'error'
-        // }).then(() => {
-        // })
-        MessageBox.alert(showMsg, '错误信息', {
-          confirmButtonText: '确定',
-          showClose: false,
-          type: 'error'
-        }).then(() => {
-        })
+    // 3：报message区域
+    switch (error.response) {
+      case undefined:
+        // 没有从服务器上获取到错误信息时，意味着服务器没有启动，或其他错误
+        if (error.code === 'ECONNABORTED') {
+          MessageBox.alert(showMsg, '错误信息', {
+            confirmButtonText: '确定',
+            showClose: false,
+            type: 'error'
+          }).then(() => {
+          })
+        }
         break
       default:
-        MessageBox.confirm(showMsg, '错误信息', {
-          showCancelButton: false,
-          confirmButtonText: '确定',
-          type: 'error'
-        }).then(() => {
-        })
+        switch (error.response.status) {
+          case 503:
+            MessageBox.alert(showMsg, '错误信息', {
+              confirmButtonText: '确定',
+              showClose: false,
+              type: 'error'
+            }).then(() => {
+            })
+            break
+          default:
+            MessageBox.confirm(showMsg, '错误信息', {
+              showCancelButton: false,
+              confirmButtonText: '确定',
+              type: 'error'
+            }).then(() => {
+            })
+            break
+        }
         break
     }
-
-    return Promise.reject(error.response.data) // 返回接口返回的错误信息
+    // 4:reject error
+    if (error.response === undefined) {
+      return Promise.reject({ message: showMsg }) // 返回接口返回的错误信息
+    } else if (error.response.data.includes('ECONNREFUSED')) {
+      return Promise.reject({ message: showMsg }) // 返回接口返回的错误信息
+    } else {
+      return Promise.reject(error.response.data) // 返回接口返回的错误信息
+    }
   },
 )
 

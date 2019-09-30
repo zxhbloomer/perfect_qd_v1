@@ -61,7 +61,7 @@
     <el-dialog
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
-      :visible.sync="popSettingsData.dialogFormVisible"
+      :visible="popSettingsData.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
@@ -568,9 +568,11 @@ export default {
             this.$refs['refInsertFocus'].focus()
           })
           break
-        default:
+        case 'insert':
           // 数据初始化
-          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          this.initPopUpStatus()
+          // 复制数据
+          this.dataJson.tempJson = {}
           // 设置控件焦点focus
           this.$nextTick(() => {
             this.$refs['refInsertFocus'].focus()

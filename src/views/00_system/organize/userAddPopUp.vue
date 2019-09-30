@@ -4,7 +4,7 @@
     <el-dialog
       v-el-drag-dialog
       :title="dialogName[dialogStatus]"
-      :visible.sync="dialogVisible"
+      :visible="dialogVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"

@@ -2,7 +2,7 @@
   <el-dialog
     v-el-drag-dialog
     title="资源选择对话框"
-    :visible.sync="visible"
+    :visible="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"

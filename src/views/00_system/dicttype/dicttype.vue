@@ -103,7 +103,7 @@
     <el-dialog
       v-el-drag-dialog
       title="数据批量导入"
-      :visible.sync="popSettingsImport.dialogFormVisible"
+      :visible="popSettingsImport.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
@@ -148,7 +148,7 @@
     <el-dialog
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
-      :visible.sync="popSettingsData.dialogFormVisible"
+      :visible="popSettingsData.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
@@ -824,9 +824,9 @@ export default {
             placement='bottom'
           >
             <div slot='content'>
-            删除状态提示：
-              <br/>灰色：未删除
-              <br/>红色：已删除
+            删除状态提示：<br/>
+            灰色：未删除  <br/>
+            红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>

@@ -98,7 +98,7 @@
       />
     </div>
     <!-- 新增/修改 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="formJson" status-icon label-position="right" label-width="100px" style="" size="medium">
         <el-form-item label="大分类" prop="type1">
           <el-input v-model="formJson.type1" />

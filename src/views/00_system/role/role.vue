@@ -139,7 +139,7 @@
     <el-dialog
       v-el-drag-dialog
       title="数据批量导入"
-      :visible.sync="popSettingsImport.dialogFormVisible"
+      :visible="popSettingsImport.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
@@ -184,7 +184,7 @@
     <el-dialog
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
-      :visible.sync="popSettingsData.dialogFormVisible"
+      :visible="popSettingsData.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
