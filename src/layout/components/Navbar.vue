@@ -87,11 +87,15 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  // upd by zxh
+  // background: #fff;
+  // box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  background: #3c8dbc;
 
   .hamburger-container {
-    line-height: 46px;
+    // upd by zxh
+    // line-height: 46px;
+    line-height: 50px;
     height: 100%;
     float: left;
     cursor: pointer;
@@ -126,7 +130,9 @@ export default {
       padding: 0 8px;
       height: 100%;
       font-size: 18px;
-      color: #5a5e66;
+      // upd by zxh
+      // color: #5a5e66;
+      color: #fff;
       vertical-align: text-bottom;
 
       &.hover-effect {
