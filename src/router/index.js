@@ -72,19 +72,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/',
-    component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        name: 'Dashboard',
-        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
     path: '/documentation',
     component: Layout,
     children: [
@@ -106,9 +93,22 @@ export const constantRoutes = [
   //   ]
   // },
   {
+    path: '/',
+    component: Layout,
+    redirect: '/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/index'),
+        name: 'Dashboard',
+        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
     path: '/sys',
     component: Layout,
-    redirect: 'noredirect',
+    redirect: 'noRedirect',
     name: 'M00000010', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
     alwaysShow: true,
     meta: {
@@ -144,7 +144,7 @@ export const constantRoutes = [
       {
         path: 'dic',
         component: subMenu,
-        redirect: 'noredirect',
+        redirect: 'noRedirect',
         name: 'M00000020', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
         alwaysShow: true,
         meta: {

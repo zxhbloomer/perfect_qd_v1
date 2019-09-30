@@ -459,6 +459,16 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.dictTypeCode !== undefined) {
+      this.dataJson.searchForm.dictTypeCode = this.$route.query.dictTypeCode
+    } else {
+      this.dataJson.searchForm.dictTypeCode = ''
+    }
+    if (this.$route.query.dictTypeName !== undefined) {
+      this.dataJson.searchForm.dictTypeName = this.$route.query.dictTypeName
+    } else {
+      this.dataJson.searchForm.dictTypeName = ''
+    }
     // 初始化查询
     this.getDataList()
     // 数据初始化
@@ -466,7 +476,6 @@ export default {
   },
   mounted() {
     // 描绘完成
-
   },
   methods: {
     // 下拉选项控件事件

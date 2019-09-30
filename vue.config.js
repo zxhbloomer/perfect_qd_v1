@@ -51,11 +51,13 @@ module.exports = {
     proxy: {
       '/perfect-manager': {
         target: 'http://127.0.0.1:8088/',
+        proxyTimeout: 55000,
         ws: true,
         changeOrigin: true
       },
       '/perfect-fs': {
         target: 'http://127.0.0.1:9091/',
+        proxyTimeout: 55000,
         ws: true,
         changeOrigin: true
       }

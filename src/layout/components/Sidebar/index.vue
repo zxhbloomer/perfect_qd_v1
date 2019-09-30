@@ -41,7 +41,9 @@ export default {
       return path
     },
     showLogo() {
-      return this.$store.state.settings.sidebarLogo
+      // upd by zxh
+      // return this.$store.state.settings.sidebarLogo
+      return true
     },
     variables() {
       return variables

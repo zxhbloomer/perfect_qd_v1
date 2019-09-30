@@ -64,7 +64,7 @@
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
         <template slot-scope="scope">
-          <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.code }}
+          <el-link v-if="!meDialogSetting.dialogStatus" type="primary" :href="'#/sys/dic/dictdata?dictTypeCode=' + scope.row.code">{{ scope.row.code }}
             <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
           <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.code }} </span>
@@ -72,7 +72,7 @@
       </el-table-column>
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
         <template slot-scope="scope">
-          <el-link v-if="!meDialogSetting.dialogStatus" type="primary">{{ scope.row.name }}
+          <el-link v-if="!meDialogSetting.dialogStatus" type="primary" :href="'#/sys/dic/dictdata?dictTypeName=' + scope.row.name">{{ scope.row.name }}
             <svg-icon v-show="scope.row.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
           </el-link>
           <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.name }} </span>
@@ -386,7 +386,6 @@ export default {
   },
   mounted() {
     // 描绘完成
-
   },
   methods: {
     initShow() {
