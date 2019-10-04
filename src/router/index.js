@@ -157,6 +157,11 @@ export const constantRoutes = [
         component: () => import('@/views/00_system/config/config'),
         name: 'P00000060',
         meta: { title: '系统参数', icon: '系统参数' }
+      },
+      { path: 'tentant',
+        component: () => import('@/views/00_system/tentant/tentant'),
+        name: 'P00000080',
+        meta: { title: '租户管理', icon: 'tentant' }
       }
     ]
   },
