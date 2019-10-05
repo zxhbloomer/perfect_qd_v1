@@ -16,7 +16,7 @@ export default {
     setUIheight() {
       try {
         // 定义高度
-        const elementHeight = document.documentElement.clientHeight - 85
+        const elementHeight = document.documentElement.clientHeight
         // 获取所有的ref，主要判断minus的refs
         const listRefsNames = Object.keys(this.$refs).map((key) => {
           return this.$refs[key]
@@ -27,9 +27,10 @@ export default {
             val = val + listRefsNames[i].$el.offsetHeight
           }
         }
-        const rtnVal = elementHeight - val - 20
+        const rtnVal = elementHeight - val - 20 - 145
         // 此处使用的是页面上的值
-        this.settings.tableHeight = rtnVal
+        this.settings.leftHeight = rtnVal
+        this.settings.rightHeight = rtnVal - 50
         return rtnVal
       } catch (error) {
         console.log('mixin error')

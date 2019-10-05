@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-form
       ref="minusForm"
       :inline="true"
@@ -9,9 +9,6 @@
     >
       <el-form-item label="">
         <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
-      </el-form-item>
-      <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
@@ -79,7 +76,7 @@
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
       element-loading-background="rgba(255, 255, 255, 0.5)"
-      :height="settings.tableHeight"
+      :height="height"
       stripe
       border
       fit
@@ -267,6 +264,12 @@ export default {
   name: 'P00000082', // 页面id，和router中的name需要一致，作为缓存
   components: { Pagination, resourceDialog },
   directives: { elDragDialog },
+  props: {
+    height: {
+      type: Number,
+      default: 200
+    }
+  },
   data() {
     return {
       dataJson: {
@@ -353,7 +356,6 @@ export default {
         },
         // loading 状态
         listLoading: true,
-        tableHeight: this.setUIheight(),
         duration: 4000
       },
       popSettingsData: {
