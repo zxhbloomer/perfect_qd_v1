@@ -2,7 +2,7 @@
   <div>
     <el-input
       ref="minusLeftFilterInput"
-      v-model="filterText"
+      v-model="dataJson.filterText"
       class="filterInput"
       placeholder="输入关键字进行过滤"
     >
@@ -11,7 +11,7 @@
     <div :style="{height: height + 'px'}" class="treeStyle generalDiv">
       <el-tree
         ref="treeObject"
-        :data="treeData"
+        :data="dataJson.treeData"
         :props="dataJson.defaultProps"
         :filter-node-method="filterNode"
         :expand-on-click-node="false"
@@ -137,8 +137,8 @@ export default {
   data() {
     return {
       dataJson: {
-        filterText: ''
-
+        filterText: '',
+        treeData: [{}]
       },
       // 页面设置json
       settings: {
@@ -172,9 +172,7 @@ export default {
       // 查询逻辑
       this.settings.listLoading = true
       getTreeListApi(this.dataJson.searchForm).then(response => {
-        this.dataJson.listData = response.data.records
-        this.dataJson.paging = response.data
-        this.dataJson.paging.records = {}
+        this.dataJson.treeData = response.data
         this.settings.listLoading = false
       })
     }
