@@ -8,7 +8,7 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="租户名称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
@@ -21,7 +21,7 @@
     <el-popover
       ref="popover"
       placement="top"
-      width="420"
+      width="520"
       title="高级查询"
     >
       <el-form
@@ -31,30 +31,18 @@
         class="floatRight"
       >
         <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.code" clearable placeholder="模块编号" />
-        </el-form-item>
-        <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
+          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="名称" />
         </el-form-item>
         <el-form-item label="">
-          <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple clearable>
-            <el-option
-              v-for="type in settings.selectOptions"
-              :key="type.value"
-              :label="type.label"
-              :value="type.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="">
-          <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
-            <el-option
-              v-for="item in settings.delOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+          <el-date-picker
+            v-model="dataJson.searchForm.datetimerange"
+            type="datetimerange"
+            :picker-options="settings.pickerOptions"
+            range-separator="至"
+            start-placeholder="生效开始日期"
+            end-placeholder="生效结束日期"
+            align="right"
+          />
         </el-form-item>
         <div style="text-align: right; margin: 0">
           <el-button type="text" @click="doResetSearch()">重置</el-button>
@@ -90,33 +78,14 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="模块类型" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="parentid" label="父节点id" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.isdel"
-            active-color="#ff4949"
-            inactive-color="#dcdfe6"
-            :active-value="true"
-            :inactive-value="false"
-            :width="30"
-            @change="handleDel(scope.row)"
-          />
-        </template>
-      </el-table-column>
       <el-table-column sortable="custom" min-width="100" prop="u_time" label="更新时间" />
-      <el-table-column min-width="100" prop="templateName" label="使用资源名称" />
-      <el-table-column min-width="100" prop="templateDescr" label="资源描述" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-    <resource-dialog
-      :visible="popSettingsData.searchDialogData.dialogVisible"
-      @closeMeOk="handleResourceCloseOk"
-      @closeMeCancle="handleResourceCloseCancle"
-    />
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
       v-el-drag-dialog
@@ -255,14 +224,13 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/module/module'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import resourceDialog from '@/views/00_system/resource/dialog/dialog'
 
 export default {
   name: 'P00000082', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, resourceDialog },
+  components: { Pagination },
   directives: { elDragDialog },
   props: {
     height: {
@@ -283,10 +251,7 @@ export default {
           },
           // 查询条件
           name: '',
-          code: '',
-          isdel: 'null',
-          isenable: '',
-          types: []
+          datetimerange: ''
         },
         // 分页控件的json
         paging: {
@@ -324,28 +289,34 @@ export default {
       },
       // 页面设置json
       settings: {
-        // 模块类型下拉选项json
-        selectOptions: [{
-          value: '10',
-          label: '页面'
-        }, {
-          value: '20',
-          label: '菜单'
-        }, {
-          value: '30',
-          label: 'task'
-        }],
-        // 资源类型下拉选项json
-        delOptions: [{
-          value: '0',
-          label: '未删除'
-        }, {
-          value: '1',
-          label: '已删除'
-        }, {
-          value: 'null',
-          label: '全部'
-        }],
+        // 日期类型下拉选项json
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+              picker.$emit('pick', [start, end])
+            }
+          }]
+        },
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态是否启用
@@ -729,7 +700,8 @@ export default {
       // 查询逻辑
       this.settings.listLoading = true
       getListApi(this.dataJson.searchForm).then(response => {
-        this.dataJson.listData = response.data.records
+        debugger
+        this.dataJson.listData = response.data
         this.dataJson.paging = response.data
         this.dataJson.paging.records = {}
         this.settings.listLoading = false
