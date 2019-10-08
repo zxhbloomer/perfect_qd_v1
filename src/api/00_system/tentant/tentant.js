@@ -18,7 +18,7 @@ export function getTreeListApi(query) {
  */
 export function getListApi(query) {
   return request({
-    url: '/api/v1/tentant/grid/list',
+    url: '/api/v1/tentant/list',
     method: 'post',
     data: query
   })

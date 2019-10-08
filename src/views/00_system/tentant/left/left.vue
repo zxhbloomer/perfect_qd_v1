@@ -6,7 +6,7 @@
       class="filterInput"
       placeholder="输入关键字进行过滤"
     >
-      <el-button slot="append" icon="el-icon-search" />
+      <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" />
     </el-input>
     <div :style="{height: height + 'px'}" class="treeStyle generalDiv">
       <el-tree
@@ -122,6 +122,14 @@
 
 </style>
 
+<style >
+  .buttonSearch{
+    color: #FFFFFF;
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
+</style>
+
 <script>
 import { getTreeListApi } from '@/api/00_system/tentant/tentant'
 
@@ -162,8 +170,15 @@ export default {
     this.getDataList()
   },
   mounted() {
+    this.initSearchButton()
   },
   methods: {
+    // 选择or重置按钮的初始化
+    initSearchButton() {
+      this.$nextTick(() => {
+        this.$refs.buttonSearch.$el.parentElement.className = ' buttonSearch ' + this.$refs.buttonSearch.$el.parentElement.className
+      })
+    },
     filterNode(value, data) {
       if (!value) return true
       return data.label.indexOf(value) !== -1

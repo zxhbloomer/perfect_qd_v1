@@ -94,7 +94,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="700px"
+      width="800px"
       top="5vh"
     >
       <el-form
@@ -106,76 +106,90 @@
         status-icon
       >
         <el-alert
-          title="模块基本信息"
+          title="上级租户信息：非必须选择，若没有选择，代表是根节点"
           type="info"
           :closable="false"
         />
         <br>
         <el-row>
-          <el-form-item label="模块类型：" prop="type">
-            <el-select ref="refType" v-model="dataJson.tempJson.type" placeholder="请选择" clearable :disabled="popSettingsData.dialogStatus==='update'" @change="handleSelectChange">
-              <el-option
-                v-for="item in settings.selectOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+          <el-col :span="12">
+            <el-form-item label="上级租户名称：" prop="parentid">
+              <el-cascader
+                ref="refInsertFocus"
+                placeholder="请选择"
+                :options="dataJson.cascader.data"
+                filterable
               />
-            </el-select>
-          </el-form-item>
-          <el-col :span="12">
-            <el-form-item label="模块编号：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="popSettingsData.dialogStatus==='update'" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="模块名称：" prop="name">
-              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" placeholder="请输入" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
-        </el-form-item>
-        <el-row v-show="popSettingsData.dialogStatus === 'update'">
-          <el-col :span="12">
-            <el-form-item label="更新者：" prop="u_id">
-              <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="更新时间：" prop="u_time">
-              <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
+            <el-form-item label="上级租户编码：" prop="parent_code">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.parent_code" disabled placeholder="请选择" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-alert
-          title="模块资源信息：非必须"
+          title="本租户信息"
           type="info"
           :closable="false"
         />
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="资源类型：" prop="templateType">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
-                <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
-                  {{ popSettingsData.searchDialogData.selectOrResetName }}
-                </el-button>
-              </el-input>
+            <el-form-item label="租户编码：" prop="code">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.code" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="资源名称：" prop="templateName">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
+            <el-form-item label="租户名称：" prop="name">
+              <el-input ref="refUpdateFocus" v-model="popSettingsData.searchDialogData.selectedDataJson.name" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="生效日期：" prop="enable_time">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.enable_time" placeholder="请选择" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="失效日期：" prop="disable_time">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.disable_time" placeholder="请选择" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="是否冻结：" prop="isfreeze">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.enable_time" placeholder="请输入" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否叶子节点：" prop="isleaf">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.disable_time" placeholder="请输入" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="级次：" prop="level">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.level" placeholder="系统自动指定" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="排序：" prop="sort">
+              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.sort" placeholder="系统自动指定" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="描述：" prop="templateDescr">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled type="textarea" />
+          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" type="textarea" placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="JSON配置信息：" prop="templateContext">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" type="textarea" />
-        </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -209,22 +223,24 @@
   .bg-purple-light {
     background: #e5e9f2;
   }
+  .el-alert--info.is-light{
+    background: #eee;
+  }
 </style>
 <style >
-  .el-input-group__append_select{
+  .buttonSearch{
     color: #FFFFFF;
     background-color: #1890ff;
     border-color: #1890ff;
   }
-  .el-input-group__append_reset{
+  .buttonReset{
     color: #FFFFFF;
     background-color: #F56C6C;
     border-color: #F56C6C;
   }
 </style>
-
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
+import { getTreeListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 
@@ -258,6 +274,11 @@ export default {
           current: 1,
           size: 20,
           total: 0
+        },
+        // 级联选择器数据
+        cascader: {
+          data: [{}],
+          value: ''
         },
         // table使用的json，数据源
         listData: null,
@@ -414,10 +435,6 @@ export default {
       handler(newVal, oldVal) {
         if (this.popSettingsData.dialogFormVisible) {
           this.initPopUpStatus()
-          // 修改的情况下
-          if (this.popSettingsData.dialogStatus === 'update') {
-            this.initResourceData()
-          }
         }
       }
     },
@@ -435,61 +452,11 @@ export default {
   created() {
     // 初始化查询
     this.getDataList()
+    this.getTreeDataList()
     // 数据初始化
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
   methods: {
-    initResourceData() {
-      // 设置资源部分的数据，从表格上复制
-      this.popSettingsData.searchDialogData.selectedDataJson = {
-        id: this.dataJson.tempJson.template_id,
-        type: this.dataJson.tempJson.templateType,
-        name: this.dataJson.tempJson.templateName,
-        descr: this.dataJson.tempJson.templateDescr,
-        context: this.dataJson.tempJson.templateContext
-      }
-      this.initSelectOrResectButton()
-    },
-    // 弹出框设置初始化
-    initPopUpStatus() {
-      this.popSettingsData.btnDisabledStatus.disabledReset = true
-      this.popSettingsData.btnDisabledStatus.disabledInsert = true
-      this.popSettingsData.btnDisabledStatus.disabledUpdate = true
-      this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
-      this.popSettingsData.searchDialogData.selectedDataJson = {}
-      this.initSelectOrResectButton()
-    },
-    // 选择资源窗口判断是否已经选择
-    isResourceSelected() {
-      if (this.popSettingsData.searchDialogData.selectedDataJson.id === undefined) {
-        // 未选择
-        return false
-      } else {
-        // 已经选择
-        return true
-      }
-    },
-    // 选择or重置按钮的初始化
-    initSelectOrResectButton() {
-      if (this.isResourceSelected() === false) {
-        this.$nextTick(() => {
-          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-        })
-        this.popSettingsData.searchDialogData.selectOrReset = false
-        this.popSettingsData.searchDialogData.selectOrResetName = '选择'
-        this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-search'
-      } else {
-        this.$nextTick(() => {
-          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_reset'
-        })
-        this.popSettingsData.searchDialogData.selectOrReset = true
-        this.popSettingsData.searchDialogData.selectOrResetName = '清空'
-        this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-circle-close'
-      }
-    },
-    // 下拉选项控件事件
-    handleSelectChange(val) {
-    },
     // 获取行索引
     getRowIndex(row) {
       const _index = this.dataJson.listData.lastIndexOf(row)
@@ -668,7 +635,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refType'].focus()
+        this.$refs['refInsertFocus'].$el.focus()
       })
     },
     handleCurrentChange(row) {
@@ -694,14 +661,21 @@ export default {
       }
       this.getDataList()
     },
+    getTreeDataList() {
+      // 级联查询逻辑
+      this.settings.listLoading = true
+      getTreeListApi(this.dataJson.searchForm).then(response => {
+        this.dataJson.cascader.data = response.data
+        this.settings.listLoading = false
+      })
+    },
     getDataList() {
       this.dataJson.searchForm.pageCondition.current = this.dataJson.paging.current
       this.dataJson.searchForm.pageCondition.size = this.dataJson.paging.size
       // 查询逻辑
       this.settings.listLoading = true
       getListApi(this.dataJson.searchForm).then(response => {
-        debugger
-        this.dataJson.listData = response.data
+        this.dataJson.listData = response.data.records
         this.dataJson.paging = response.data
         this.dataJson.paging.records = {}
         this.settings.listLoading = false
@@ -766,10 +740,9 @@ export default {
           // 复制数据
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 初始化数据
-          this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refName'].focus()
+            this.$refs['refUpdateFocus'].focus()
           })
           break
         case 'copyInsert':
@@ -783,10 +756,9 @@ export default {
           this.dataJson.tempJson.templateDescr = ''
           this.dataJson.tempJson.templateContext = ''
           // 初始化数据
-          this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refType'].focus()
+            this.$refs['refInsertFocus'].$el.focus()
           })
           break
         case 'insert':
@@ -795,10 +767,9 @@ export default {
           // 复制数据
           this.dataJson.tempJson = {}
           // 初始化数据
-          this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refType'].focus()
+            this.$refs['refInsertFocus'].$el.focus()
           })
           break
       }
@@ -886,38 +857,6 @@ export default {
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
     },
-    // 弹出搜索对话框
-    handleSelectOrReset() {
-      // this.$store.dispatch('popUpSearchDialog/show', true)
-      if (this.popSettingsData.searchDialogData.selectOrReset === false) {
-        // 选择按钮
-        this.popSettingsData.searchDialogData.dialogVisible = true
-      } else {
-        // 重置按钮
-        this.popSettingsData.searchDialogData.selectedDataJson = {}
-        this.initSelectOrResectButton()
-        this.dataJson.tempJson.template_id = undefined
-        this.dataJson.tempJson.templateType = ''
-        this.dataJson.tempJson.templateName = ''
-        this.dataJson.tempJson.templateDescr = ''
-        this.dataJson.tempJson.templateContext = ''
-      }
-    },
-    // 关闭对话框：确定
-    handleResourceCloseOk(val) {
-      this.popSettingsData.searchDialogData.selectedDataJson = val
-      this.popSettingsData.searchDialogData.dialogVisible = false
-      this.initSelectOrResectButton()
-      this.dataJson.tempJson.template_id = this.popSettingsData.searchDialogData.selectedDataJson.id
-      this.dataJson.tempJson.templateType = this.popSettingsData.searchDialogData.selectedDataJson.type
-      this.dataJson.tempJson.templateName = this.popSettingsData.searchDialogData.selectedDataJson.name
-      this.dataJson.tempJson.templateDescr = this.popSettingsData.searchDialogData.selectedDataJson.descr
-      this.dataJson.tempJson.templateContext = this.popSettingsData.searchDialogData.selectedDataJson.context
-    },
-    // 关闭对话框：取消
-    handleResourceCloseCancle() {
-      this.popSettingsData.searchDialogData.dialogVisible = false
-    },
     renderHeaderIsDel: function(h, { column }) {
       return (
         <span>{column.label}
@@ -935,6 +874,13 @@ export default {
           </el-tooltip>
         </span>
       )
+    },
+    // 弹出框设置初始化
+    initPopUpStatus() {
+      this.popSettingsData.btnDisabledStatus.disabledReset = true
+      this.popSettingsData.btnDisabledStatus.disabledInsert = true
+      this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+      this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
     }
   }
 }
