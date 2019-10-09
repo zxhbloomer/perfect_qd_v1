@@ -54,7 +54,7 @@
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="130" prop="config_key" label="参数键名" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="120" prop="value" label="参数键值" />
       <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="120" prop="descr" label="描述" />
-      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" min-width="160" prop="u_time" label="更新时间" />
+      <el-table-column sortable="custom" :sort-orders="settings.sortOrders" show-overflow-tooltip min-width="160" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据编辑:新增、修改 -->

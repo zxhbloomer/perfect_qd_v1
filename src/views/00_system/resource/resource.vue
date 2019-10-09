@@ -72,7 +72,7 @@
           <el-switch
             v-model="scope.row.isdel"
             active-color="#ff4949"
-            inactive-color="#dcdfe6"
+            inactive-color="#13ce66"
             :active-value="true"
             :inactive-value="false"
             :width="30"
@@ -785,7 +785,7 @@ export default {
           >
             <div slot='content'>
             删除状态提示：<br/>
-            灰色：未删除  <br/>
+            绿色：未删除  <br/>
             红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>

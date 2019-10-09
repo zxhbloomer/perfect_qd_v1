@@ -79,15 +79,39 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="租户编码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="code" label="租户编码" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="200" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="simple_name" label="租户简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
-      <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column sortable="custom" min-width="100" prop="u_time" label="更新时间" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="isenable" label="启用" :render-header="renderHeaderIsEnabled">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.isdel"
+            active-color="#ff4949"
+            inactive-color="#13ce66"
+            :active-value="true"
+            :inactive-value="false"
+            :width="30"
+            @change="handleDel(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="enable_time" label="生效日期" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="disable_time" label="失效日期" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="isfreeze" label="冻结" :render-header="renderHeaderIsFreeze">
+        <template slot-scope="scope">
+          <el-switch
+            v-model="scope.row.isdel"
+            active-color="#ff4949"
+            inactive-color="#13ce66"
+            :active-value="true"
+            :inactive-value="false"
+            :width="30"
+            @change="handleDel(scope.row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
@@ -908,24 +932,6 @@ export default {
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
     },
-    renderHeaderIsDel: function(h, { column }) {
-      return (
-        <span>{column.label}
-          <el-tooltip
-            class='item'
-            effect='dark'
-            placement='bottom'
-          >
-            <div slot='content'>
-            删除状态提示：<br/>
-            灰色：未删除  <br/>
-            红色：已删除
-            </div>
-            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
-          </el-tooltip>
-        </span>
-      )
-    },
     // 弹出框设置初始化
     initPopUpStatus() {
       this.popSettingsData.btnDisabledStatus.disabledReset = true
@@ -940,6 +946,42 @@ export default {
     handleCascaderChange(value) {
       const parentid = value[value.length - 1 ]
       this.dataJson.tempJson.parentid = parentid
+    },
+    renderHeaderIsEnabled: function(h, { column }) {
+      return (
+        <span>{column.label}
+          <el-tooltip
+            class='item'
+            effect='dark'
+            placement='bottom'
+          >
+            <div slot='content'>
+            删除状态提示：<br/>
+            绿色：未启用  <br/>
+            红色：已启用
+            </div>
+            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
+          </el-tooltip>
+        </span>
+      )
+    },
+    renderHeaderIsFreeze: function(h, { column }) {
+      return (
+        <span>{column.label}
+          <el-tooltip
+            class='item'
+            effect='dark'
+            placement='bottom'
+          >
+            <div slot='content'>
+            删除状态提示：<br/>
+            绿色：未启用  <br/>
+            红色：已启用
+            </div>
+            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
+          </el-tooltip>
+        </span>
+      )
     }
   }
 }

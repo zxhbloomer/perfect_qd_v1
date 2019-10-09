@@ -97,12 +97,12 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="35" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column min-width="60" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.isdel"
             active-color="#ff4949"
-            inactive-color="#dcdfe6"
+            inactive-color="#13ce66"
             :active-value="true"
             :inactive-value="false"
             :width="30"
@@ -110,9 +110,9 @@
           />
         </template>
       </el-table-column>
-      <el-table-column sortable="custom" min-width="100" prop="u_time" label="更新时间" />
-      <el-table-column min-width="100" prop="templateName" label="使用资源名称" />
-      <el-table-column min-width="100" prop="templateDescr" label="资源描述" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" prop="u_time" label="更新时间" />
+      <el-table-column show-overflow-tooltip min-width="120" prop="templateName" label="使用资源名称" />
+      <el-table-column show-overflow-tooltip min-width="120" prop="templateDescr" label="资源描述" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
     <resource-dialog
@@ -956,7 +956,7 @@ export default {
           >
             <div slot='content'>
             删除状态提示：<br/>
-            灰色：未删除  <br/>
+            绿色：未删除  <br/>
             红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
