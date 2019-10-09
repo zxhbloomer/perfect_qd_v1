@@ -6,7 +6,7 @@
       class="filterInput"
       placeholder="输入关键字进行过滤"
     >
-      <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" />
+      <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" @click="handleButtonSearch" />
     </el-input>
     <div :style="{height: height + 'px'}" class="mytree">
       <el-tree
@@ -118,7 +118,7 @@
     align-items: center;
     -ms-flex-pack: justify;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: 14px;
     padding-right: 8px
 }
 
@@ -173,7 +173,7 @@
   }
 
   .el-tree-node:before {
-    border-left: 1px dashed #4386c6;
+    border-left: 1px solid #4386c6;
     bottom: 0px;
     height: 100%;
     top: -26px;
@@ -181,10 +181,10 @@
   }
 
   .el-tree-node:after {
-    border-top: 1px dashed #4386c6;
+    border-top: 1px solid #4386c6;
     height: 20px;
     top: 12px;
-    width: 10px;
+    width: 8px;
   }
 }
 
@@ -200,6 +200,7 @@
 
 <script>
 import { getTreeListApi } from '@/api/00_system/tentant/tentant'
+import event from '@/utils/event'
 
 export default {
   name: 'P00000081', // 页面id，和router中的name需要一致，作为缓存
@@ -229,8 +230,10 @@ export default {
   computed: {
   },
   watch: {
-    filterText(val) {
-      this.$refs.treeObject.filter(val)
+    'dataJson.filterText': {
+      handler(newVal, oldVal) {
+        this.$refs.treeObject.filter(newVal)
+      }
     }
   },
   created() {
@@ -240,7 +243,7 @@ export default {
   mounted() {
     this.initSearchButton()
     // 和right开始绑定事件
-    this.$on('handleDataChange', this.handleDataChange)
+    event.$on('handleDataChange', this.handleDataChange)
   },
   methods: {
     // 选择or重置按钮的初始化
@@ -258,11 +261,26 @@ export default {
       this.settings.listLoading = true
       getTreeListApi(this.dataJson.searchForm).then(response => {
         this.dataJson.treeData = response.data
+        this.getListAfterProcess()
         this.settings.listLoading = false
       })
     },
+    // 兄弟组件发过来的调用请求
     handleDataChange() {
-      alert('handleDataChange')
+      // 查询
+      this.getDataList()
+    },
+    handleButtonSearch() {
+      // 查询
+      this.getDataList()
+    },
+    // 查询后处理
+    getListAfterProcess() {
+      if (Object.keys(this.dataJson.filterText).length !== 0) {
+        this.$nextTick(() => {
+          this.$refs.treeObject.filter(this.dataJson.filterText)
+        })
+      }
     }
   }
 }

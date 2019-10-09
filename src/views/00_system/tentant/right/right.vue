@@ -42,6 +42,7 @@
             start-placeholder="生效开始日期"
             end-placeholder="生效结束日期"
             align="right"
+            style="width: 100%"
           />
         </el-form-item>
         <div style="text-align: right; margin: 0">
@@ -78,9 +79,12 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="租户编码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="200" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="simple_name" label="租户简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column sortable="custom" min-width="100" prop="u_time" label="更新时间" />
@@ -138,47 +142,65 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="系统编码：" prop="serial_no">
+              <el-input v-model="dataJson.tempJson.serial_no" placeholder="系统自动指定" disabled="" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
             <el-form-item label="租户名称：" prop="name">
               <el-input ref="refUpdateFocus" v-model="dataJson.tempJson.name" placeholder="请输入" />
             </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="生效日期：" prop="enable_time">
-              <el-input v-model="dataJson.tempJson.enable_time" placeholder="请选择" />
-            </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="失效日期：" prop="disable_time">
-              <el-input v-model="dataJson.tempJson.disable_time" placeholder="请选择" />
+            <el-form-item label="租户简称：" prop="simple_name">
+              <el-input v-model="dataJson.tempJson.simple_name" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row>
+          <el-col :span="12">
+            <el-form-item label="生效日期区间：" prop="enable_time_range">
+              <!-- <el-input v-model="enable_time" placeholder="请选择" /> -->
+              <el-date-picker
+                v-model="dataJson.tempJson.enable_time_range"
+                type="datetimerange"
+                :picker-options="settings.pickerOptions"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                align="right"
+                style="width: 100%"
+              />
+
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="是否冻结：" prop="isfreeze">
-              <el-input v-model="dataJson.tempJson.enable_time" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否叶子节点：" prop="isleaf">
-              <el-input v-model="dataJson.tempJson.disable_time" placeholder="请输入" />
+              <el-switch
+                v-model="dataJson.tempJson.isfreeze"
+                style="display: block"
+                active-color="#ff4949"
+                inactive-color="#13ce66"
+                active-text="冻结"
+                inactive-text="正常"
+              />
             </el-form-item>
           </el-col>
         </el-row>
-
         <el-row>
           <el-col :span="12">
             <el-form-item label="级次：" prop="level">
-              <el-input v-model="dataJson.tempJson.level" placeholder="系统自动指定" />
+              <el-input v-model="dataJson.tempJson.level" placeholder="系统自动指定" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="排序：" prop="sort">
-              <el-input v-model="dataJson.tempJson.sort" placeholder="系统自动指定" />
+              <el-input v-model="dataJson.tempJson.sort" placeholder="系统自动指定" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -240,6 +262,8 @@
 import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
+import event from '@/utils/event'
+import { parseTime } from '@/utils'
 
 export default {
   name: 'P00000082', // 页面id，和router中的name需要一致，作为缓存
@@ -311,30 +335,47 @@ export default {
         // 日期类型下拉选项json
         pickerOptions: {
           shortcuts: [{
-            text: '最近一周',
+            text: '未来一周',
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              start.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
               picker.$emit('pick', [start, end])
             }
           }, {
-            text: '最近一个月',
+            text: '未来一个月',
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              start.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
               picker.$emit('pick', [start, end])
             }
           }, {
-            text: '最近三个月',
+            text: '未来三个月',
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+              start.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
             }
-          }]
+          }, {
+            text: '未来六个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '未来一年',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
+              picker.$emit('pick', [start, end])
+            }
+          }
+          ]
         },
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
@@ -378,7 +419,9 @@ export default {
         // pop的check内容
         rules: {
           code: [{ required: true, message: '请选择租户编码', trigger: 'change' }],
-          name: [{ required: true, message: '请输入租户名称', trigger: 'change' }]
+          name: [{ required: true, message: '请输入租户名称', trigger: 'change' }],
+          simple_name: [{ required: true, message: '请输入租户简称', trigger: 'change' }],
+          enable_time_range: [{ required: true, message: '请输入生效失效日期范围', trigger: 'change' }]
         },
         // 弹出的搜索框参数设置
         searchDialogData: {
@@ -396,6 +439,23 @@ export default {
   },
   // 监听器
   watch: {
+    // 日期范围
+    'dataJson.tempJson.enable_time_range': {
+      handler(newVal, oldVal) {
+        if (newVal === undefined || newVal === null) {
+          this.dataJson.tempJson.enable_time = ''
+          this.dataJson.tempJson.disable_time = ''
+          this.dataJson.tempJson.show_enable_time_range = ''
+          return
+        }
+        const start = parseTime(newVal[0])
+        const end = parseTime(newVal[1])
+        this.dataJson.tempJson.enable_time = start
+        this.dataJson.tempJson.disable_time = end
+        this.dataJson.tempJson.show_enable_time_range = start + ' 至 ' + end + '时间段内开始启用'
+      },
+      deep: true
+    },
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
@@ -498,6 +558,7 @@ export default {
             type: 'success',
             duration: this.settings.duration
           })
+          this.handleEmit()
           this.popSettingsData.dialogFormVisible = false
           this.settings.listLoading = false
         }, (_error) => {
@@ -527,7 +588,6 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 初始化弹出页面
       this.doReset()
-      this.handleEmit()
       this.popSettingsData.dialogFormVisible = true
     },
     // 点击按钮 更新
@@ -687,6 +747,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
+            this.handleEmit()
             this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
@@ -781,6 +842,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
+            this.handleEmit()
             this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
@@ -810,6 +872,7 @@ export default {
               type: 'success',
               duration: this.settings.duration
             })
+            this.handleEmit()
             this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
@@ -872,7 +935,7 @@ export default {
     },
     // 冒泡通知
     handleEmit() {
-      this.$emit('handleDataChange', 'xx')
+      event.$emit('handleDataChange')
     },
     handleCascaderChange(value) {
       const parentid = value[value.length - 1 ]
