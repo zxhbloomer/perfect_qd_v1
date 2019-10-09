@@ -118,8 +118,10 @@ service.interceptors.response.use(
           }
           break
         case 500:
-          if (error.response.data.includes('ECONNREFUSED')) {
+          if (JSON.stringify(error.response.data).includes('ECONNREFUSED')) {
             showMsg = '请联系管理员，服务器没有响应。'
+          } else {
+            showMsg = error.response.data.message
           }
           break
       }

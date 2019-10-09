@@ -78,8 +78,8 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="parentid" label="父节点id" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="租户编码" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="isenable" label="已启用" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
@@ -94,7 +94,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="800px"
+      width="1000px"
       top="5vh"
     >
       <el-form
@@ -112,21 +112,18 @@
         />
         <br>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="上级租户名称：" prop="parentid">
-              <el-cascader
-                ref="refInsertFocus"
-                placeholder="请选择"
-                :options="dataJson.cascader.data"
-                filterable
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="上级租户编码：" prop="parent_code">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.parent_code" disabled placeholder="请选择" />
-            </el-form-item>
-          </el-col>
+          <el-form-item label="上级租户名称：" prop="parent_name">
+            <el-cascader
+              ref="refInsertFocus"
+              v-model="dataJson.tempJson.parent_name"
+              placeholder="请选择"
+              :options="dataJson.cascader.data"
+              filterable
+              clearable
+              :props="{ checkStrictly: true, expandTrigger: 'hover'}"
+              @change="handleCascaderChange"
+            />
+          </el-form-item>
         </el-row>
         <el-alert
           title="本租户信息"
@@ -137,12 +134,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="租户编码：" prop="code">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.code" placeholder="请输入" />
+              <el-input v-model="dataJson.tempJson.code" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="租户名称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model="popSettingsData.searchDialogData.selectedDataJson.name" placeholder="请输入" />
+              <el-input ref="refUpdateFocus" v-model="dataJson.tempJson.name" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -150,12 +147,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="生效日期：" prop="enable_time">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.enable_time" placeholder="请选择" />
+              <el-input v-model="dataJson.tempJson.enable_time" placeholder="请选择" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="失效日期：" prop="disable_time">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.disable_time" placeholder="请选择" />
+              <el-input v-model="dataJson.tempJson.disable_time" placeholder="请选择" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -163,12 +160,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="是否冻结：" prop="isfreeze">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.enable_time" placeholder="请输入" />
+              <el-input v-model="dataJson.tempJson.enable_time" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="是否叶子节点：" prop="isleaf">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.disable_time" placeholder="请输入" />
+              <el-input v-model="dataJson.tempJson.disable_time" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -176,18 +173,18 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="级次：" prop="level">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.level" placeholder="系统自动指定" />
+              <el-input v-model="dataJson.tempJson.level" placeholder="系统自动指定" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="排序：" prop="sort">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.sort" placeholder="系统自动指定" />
+              <el-input v-model="dataJson.tempJson.sort" placeholder="系统自动指定" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item label="描述：" prop="templateDescr">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" type="textarea" placeholder="请输入" />
+          <el-input v-model.trim="dataJson.tempJson.descr" type="textarea" placeholder="请输入" />
         </el-form-item>
 
       </el-form>
@@ -212,7 +209,7 @@
   .floatLeft {
     float: left;
   }
-  .el-form-item .el-select {
+  .el-form-item .el-cascader {
     width: 100%;
   }
   .grid-content {
@@ -240,7 +237,7 @@
   }
 </style>
 <script>
-import { getTreeListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
+import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 
@@ -285,7 +282,8 @@ export default {
         // 单条数据 json的，初始化原始数据
         tempJsonOriginal: {
           id: undefined,
-          type: '',
+          parent_name: '',
+          parentid: '',
           name: '',
           code: '',
           descr: '',
@@ -379,9 +377,8 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          type: [{ required: true, message: '请选择模块类型', trigger: 'change' }],
-          code: [{ required: true, message: '请输入模块编号', trigger: 'change' }],
-          name: [{ required: true, message: '请输入模块名称', trigger: 'change' }]
+          code: [{ required: true, message: '请选择租户编码', trigger: 'change' }],
+          name: [{ required: true, message: '请输入租户名称', trigger: 'change' }]
         },
         // 弹出的搜索框参数设置
         searchDialogData: {
@@ -399,16 +396,6 @@ export default {
   },
   // 监听器
   watch: {
-    // 监听弹出窗口是否有返回值
-    'popSettingsData.searchDialogData.selectedDataJson': {
-      handler(newVal, oldVal) {
-        if (newVal.id !== undefined) {
-          this.dataJson.tempJson.template_id = newVal.id
-        }
-      },
-      deep: true,
-      immediate: true
-    },
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
@@ -452,7 +439,7 @@ export default {
   created() {
     // 初始化查询
     this.getDataList()
-    this.getTreeDataList()
+    this.getCascaderDataList()
     // 数据初始化
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
@@ -540,6 +527,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 初始化弹出页面
       this.doReset()
+      this.handleEmit()
       this.popSettingsData.dialogFormVisible = true
     },
     // 点击按钮 更新
@@ -661,10 +649,10 @@ export default {
       }
       this.getDataList()
     },
-    getTreeDataList() {
+    getCascaderDataList() {
       // 级联查询逻辑
       this.settings.listLoading = true
-      getTreeListApi(this.dataJson.searchForm).then(response => {
+      getCascaderListApi().then(response => {
         this.dataJson.cascader.data = response.data
         this.settings.listLoading = false
       })
@@ -881,6 +869,14 @@ export default {
       this.popSettingsData.btnDisabledStatus.disabledInsert = true
       this.popSettingsData.btnDisabledStatus.disabledUpdate = true
       this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+    },
+    // 冒泡通知
+    handleEmit() {
+      this.$emit('handleDataChange', 'xx')
+    },
+    handleCascaderChange(value) {
+      const parentid = value[value.length - 1 ]
+      this.dataJson.tempJson.parentid = parentid
     }
   }
 }

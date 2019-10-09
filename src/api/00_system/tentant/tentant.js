@@ -4,6 +4,18 @@ import request from '@/utils/request'
  * 查询逻辑
  * @param {*} data
  */
+export function getCascaderListApi(query) {
+  return request({
+    url: '/api/v1/tentant/cascader/list',
+    method: 'post',
+    data: query
+  })
+}
+
+/**
+ * 查询逻辑
+ * @param {*} data
+ */
 export function getTreeListApi(query) {
   return request({
     url: '/api/v1/tentant/tree/list',
@@ -30,7 +42,7 @@ export function getListApi(query) {
  */
 export function updateApi(data) {
   return request({
-    url: '/api/v1/module/save',
+    url: '/api/v1/tentant/save',
     method: 'post',
     data
   })
@@ -42,7 +54,7 @@ export function updateApi(data) {
  */
 export function insertApi(data) {
   return request({
-    url: '/api/v1/module/insert',
+    url: '/api/v1/tentant/insert',
     method: 'post',
     data
   })
@@ -54,7 +66,7 @@ export function insertApi(data) {
  */
 export function exportAllApi(data) {
   return request({
-    url: '/api/v1/module/export_all',
+    url: '/api/v1/tentant/export_all',
     method: 'post',
     data,
     responseType: 'arraybuffer'
@@ -67,34 +79,10 @@ export function exportAllApi(data) {
  */
 export function exportSelectionApi(data) {
   return request({
-    url: '/api/v1/module/export_selection',
+    url: '/api/v1/tentant/export_selection',
     method: 'post',
     data,
     responseType: 'arraybuffer'
-  })
-}
-
-/**
- * 导入逻辑
- * @param {*} data
- */
-export function importExcelApi(data) {
-  return request({
-    url: '/api/v1/module/import',
-    method: 'post',
-    data
-  })
-}
-
-/**
- * 删除逻辑
- * @param {*} data
- */
-export function deleteApi(data) {
-  return request({
-    url: '/api/v1/module/delete',
-    method: 'post',
-    data
   })
 }
 
@@ -104,7 +92,7 @@ export function deleteApi(data) {
  */
 export function enableApi(data) {
   return request({
-    url: '/api/v1/module/enable',
+    url: '/api/v1/tentant/enable',
     method: 'post',
     data
   })

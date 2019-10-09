@@ -8,16 +8,18 @@
     >
       <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" />
     </el-input>
-    <div :style="{height: height + 'px'}" class="treeStyle generalDiv">
+    <div :style="{height: height + 'px'}" class="mytree">
       <el-tree
         ref="treeObject"
         :data="dataJson.treeData"
         :props="dataJson.defaultProps"
         :filter-node-method="filterNode"
         :expand-on-click-node="false"
+        :indent="0"
         highlight-current
         node-key="id"
         default-expand-all
+        class="tree"
       >
         <span slot-scope="{ node, data }" class="custom-tree-node">
           <span>{{ node.label }}</span>
@@ -67,58 +69,124 @@
 </template>
 
 <style scoped>
-  .treeStyle {
-    overflow: auto;
-    border: 1px solid #ebeef5;
+.treeStyle {
+  overflow: auto;
+  border: 1px solid #ebeef5;
+}
+.filterInput {
+  margin-bottom: 10px;
+}
+
+.leaf {
+    width: 20px;
+    background: #ddd
+}
+
+.folder {
+    width: 20px;
+    background: #888
+}
+
+.custom-tree-container {
+    display: -ms-flexbox;
+    display: flex;
+    margin: -24px
+}
+
+.block {
+    -ms-flex: 1;
+    flex: 1;
+    padding: 8px 24px 24px
+}
+
+.block>p {
+    text-align: center;
+    margin: 0;
+    line-height: 4
+}
+
+.block:first-child {
+    border-right: 1px solid #eff2f6
+}
+
+.custom-tree-node {
+    -ms-flex: 1;
+    flex: 1;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    font-size: 12px;
+    padding-right: 8px
+}
+
+.el-tree-node:focus > .el-tree-node__content {
+  background-color: transparent !important;
+}
+</style>
+
+<style lang="scss" scoped>
+.mytree /deep/{
+    .el-tree > .el-tree-node:after {
+    border-top: none;
   }
-  .filterInput {
-    margin-bottom: 10px;
+  .el-tree-node {
+    position: relative;
+    padding-left: 12px;
+  }
+  //节点有间隙，隐藏掉展开按钮就好了,如果觉得空隙没事可以删掉
+  .el-tree-node__expand-icon.is-leaf{
+    display: none;
+  }
+  .el-tree-node__children {
+    padding-left: 12px;
   }
 
-  .leaf {
-      width: 20px;
-      background: #ddd
+  .el-tree-node :last-child:before {
+    height: 38px;
   }
 
-  .folder {
-      width: 20px;
-      background: #888
+  .el-tree > .el-tree-node:before {
+    border-left: none;
   }
 
-  .custom-tree-container {
-      display: -ms-flexbox;
-      display: flex;
-      margin: -24px
+  .el-tree > .el-tree-node:after {
+    border-top: none;
   }
 
-  .block {
-      -ms-flex: 1;
-      flex: 1;
-      padding: 8px 24px 24px
+  .el-tree-node:before {
+    content: "";
+    left: 2px;
+    position: absolute;
+    right: auto;
+    border-width: 1px;
   }
 
-  .block>p {
-      text-align: center;
-      margin: 0;
-      line-height: 4
+  .el-tree-node:after {
+    content: "";
+    left: 2px;
+    position: absolute;
+    right: auto;
+    border-width: 1px;
   }
 
-  .block:first-child {
-      border-right: 1px solid #eff2f6
+  .el-tree-node:before {
+    border-left: 1px dashed #4386c6;
+    bottom: 0px;
+    height: 100%;
+    top: -26px;
+    width: 1px;
   }
 
-  .custom-tree-node {
-      -ms-flex: 1;
-      flex: 1;
-      display: -ms-flexbox;
-      display: flex;
-      -ms-flex-align: center;
-      align-items: center;
-      -ms-flex-pack: justify;
-      justify-content: space-between;
-      font-size: 12px;
-      padding-right: 8px
+  .el-tree-node:after {
+    border-top: 1px dashed #4386c6;
+    height: 20px;
+    top: 12px;
+    width: 10px;
   }
+}
 
 </style>
 
@@ -171,6 +239,8 @@ export default {
   },
   mounted() {
     this.initSearchButton()
+    // 和right开始绑定事件
+    this.$on('handleDataChange', this.handleDataChange)
   },
   methods: {
     // 选择or重置按钮的初始化
@@ -190,6 +260,9 @@ export default {
         this.dataJson.treeData = response.data
         this.settings.listLoading = false
       })
+    },
+    handleDataChange() {
+      alert('handleDataChange')
     }
   }
 }
