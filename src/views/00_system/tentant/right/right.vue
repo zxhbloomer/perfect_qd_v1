@@ -191,7 +191,7 @@
             <el-form-item label="生效日期区间：" prop="enable_time_range">
               <!-- <el-input v-model="enable_time" placeholder="请选择" /> -->
               <el-date-picker
-                v-model="dataJson.enable_time_range"
+                v-model="dataJson.tempJson.enable_time_range"
                 type="datetimerange"
                 :picker-options="settings.pickerOptions"
                 range-separator="至"
@@ -342,7 +342,6 @@ export default {
         },
         // 单条数据 json
         currentJson: null,
-        enable_time_range: [],
         tempJson: null,
         inputSettings: {
           maxLength: {
@@ -487,6 +486,7 @@ export default {
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
+        debugger
         if (this.popSettingsData.btnResetStatus === true) {
           // 点击了重置按钮
           this.popSettingsData.btnDisabledStatus.disabledReset = true
@@ -505,16 +505,15 @@ export default {
             // 更新情况下
             // 设置值
             if (this.dataJson.tempJson.enable_time === undefined || this.dataJson.tempJson.enable_time === null || this.dataJson.tempJson.enable_time === []) {
-              this.dataJson.enable_time_range = []
+              this.dataJson.tempJson.enable_time_range = []
             } else {
               const start = new Date(this.dataJson.tempJson.enable_time)
               const end = new Date(this.dataJson.tempJson.disable_time)
-              this.dataJson.enable_time_range = [start, end]
+              this.dataJson.tempJson.enable_time_range = [start, end]
             }
           }
         }
       },
-      deep: true,
       immediate: true
     },
     // 弹出窗口初始化，按钮不可用
@@ -771,6 +770,7 @@ export default {
     },
     // 更新逻辑
     doUpdate() {
+      debugger
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
@@ -1000,7 +1000,7 @@ export default {
       )
     },
     dataPickChange(data) {
-      this.dataJson.enable_time_range = data
+      this.dataJson.tempJson.enable_time_range = data
       if (data === null) {
         this.dataJson.tempJson.enable_time = null
         this.dataJson.tempJson.disable_time = null
