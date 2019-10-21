@@ -483,6 +483,22 @@ export default {
     //   deep: true,
     //   immediate: true
     // },
+    'dataJson.tempJson.enable_time': {
+      handler(newVal, oldVal) {
+        if (newVal === undefined || newVal === null || newVal === []) {
+          // this.dataJson.tempJson.enable_time = ''
+          // this.dataJson.tempJson.disable_time = ''
+          // this.dataJson.tempJson.enable_time_range = []
+          return
+        } else {
+          const start = new Date(this.dataJson.tempJson.enable_time)
+          const end = new Date(this.dataJson.tempJson.disable_time)
+          this.dataJson.tempJson.enable_time_range = [start, end]
+        }
+      },
+      immediate: true,
+      deep: true
+    },
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
@@ -500,20 +516,10 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledInsert = false
           this.popSettingsData.btnDisabledStatus.disabledUpdate = false
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = false
-          if (this.popSettingsData.dialogStatus === 'update') {
-            // 更新情况下
-            // 设置值
-            if (this.dataJson.tempJson.enable_time === undefined || this.dataJson.tempJson.enable_time === null || this.dataJson.tempJson.enable_time === []) {
-              this.dataJson.tempJson.enable_time_range = []
-            } else {
-              const start = new Date(this.dataJson.tempJson.enable_time)
-              const end = new Date(this.dataJson.tempJson.disable_time)
-              this.dataJson.tempJson.enable_time_range = [start, end]
-            }
-          }
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     },
     // 弹出窗口初始化，按钮不可用
     'popSettingsData.dialogFormVisible': {
@@ -774,7 +780,7 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
-            this.dataJson.tempJson.dbversion = _data.data.dbversion
+            this.dataJson.tempJson = Object.assign({}, _data.data)
             // 设置到table中绑定的json数据源
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
             // 设置到currentjson中
