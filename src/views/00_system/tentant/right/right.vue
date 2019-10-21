@@ -486,7 +486,6 @@ export default {
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
-        debugger
         if (this.popSettingsData.btnResetStatus === true) {
           // 点击了重置按钮
           this.popSettingsData.btnDisabledStatus.disabledReset = true
@@ -770,7 +769,6 @@ export default {
     },
     // 更新逻辑
     doUpdate() {
-      debugger
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
