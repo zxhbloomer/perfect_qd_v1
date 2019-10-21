@@ -191,7 +191,7 @@
             <el-form-item label="生效日期区间：" prop="enable_time_range">
               <!-- <el-input v-model="enable_time" placeholder="请选择" /> -->
               <el-date-picker
-                v-model="dataJson.tempJson.enable_time_range"
+                v-model="dataJson.enable_time_range"
                 type="datetimerange"
                 :picker-options="settings.pickerOptions"
                 range-separator="至"
@@ -199,6 +199,8 @@
                 end-placeholder="结束日期"
                 align="right"
                 style="width: 100%"
+                clearable
+                @change="dataPickChange"
               />
 
             </el-form-item>
@@ -287,7 +289,7 @@ import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exp
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import event from '@/utils/event'
-import { parseTime } from '@/utils'
+// import { parseTime } from '@/utils'
 
 export default {
   name: 'P00000082', // 页面id，和router中的name需要一致，作为缓存
@@ -340,6 +342,7 @@ export default {
         },
         // 单条数据 json
         currentJson: null,
+        enable_time_range: [],
         tempJson: null,
         inputSettings: {
           maxLength: {
@@ -363,7 +366,7 @@ export default {
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
               picker.$emit('pick', [start, end])
             }
           }, {
@@ -371,7 +374,7 @@ export default {
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
               picker.$emit('pick', [start, end])
             }
           }, {
@@ -379,7 +382,7 @@ export default {
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
             }
           }, {
@@ -387,7 +390,7 @@ export default {
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
               picker.$emit('pick', [start, end])
             }
           }, {
@@ -395,7 +398,7 @@ export default {
             onClick(picker) {
               const end = new Date()
               const start = new Date()
-              start.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
               picker.$emit('pick', [start, end])
             }
           }
@@ -463,23 +466,24 @@ export default {
   },
   // 监听器
   watch: {
-    // 日期范围
-    'dataJson.tempJson.enable_time_range': {
-      handler(newVal, oldVal) {
-        if (newVal === undefined || newVal === null) {
-          this.dataJson.tempJson.enable_time = ''
-          this.dataJson.tempJson.disable_time = ''
-          this.dataJson.tempJson.show_enable_time_range = ''
-          return
-        }
-        const start = parseTime(newVal[0])
-        const end = parseTime(newVal[1])
-        this.dataJson.tempJson.enable_time = start
-        this.dataJson.tempJson.disable_time = end
-        this.dataJson.tempJson.show_enable_time_range = start + ' 至 ' + end + '时间段内开始启用'
-      },
-      deep: true
-    },
+    // // 日期范围
+    // 'dataJson.tempJson.enable_time_range': {
+    //   handler(newVal, oldVal) {
+    //     if (newVal === undefined || newVal === null || newVal === []) {
+    //       this.dataJson.tempJson.enable_time = ''
+    //       this.dataJson.tempJson.disable_time = ''
+    //       this.dataJson.tempJson.show_enable_time_range = ''
+    //       return
+    //     }
+    //     const start = parseTime(newVal[0])
+    //     const end = parseTime(newVal[1])
+    //     this.dataJson.tempJson.enable_time = start
+    //     this.dataJson.tempJson.disable_time = end
+    //     this.dataJson.tempJson.show_enable_time_range = start + ' 至 ' + end + '时间段内开始启用'
+    //   },
+    //   deep: true,
+    //   immediate: true
+    // },
     // 监听页面上面是否有修改，有修改按钮高亮
     'dataJson.tempJson': {
       handler(newVal, oldVal) {
@@ -497,9 +501,21 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledInsert = false
           this.popSettingsData.btnDisabledStatus.disabledUpdate = false
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = false
+          if (this.popSettingsData.dialogStatus === 'update') {
+            // 更新情况下
+            // 设置值
+            if (this.dataJson.tempJson.enable_time === undefined || this.dataJson.tempJson.enable_time === null || this.dataJson.tempJson.enable_time === []) {
+              this.dataJson.enable_time_range = []
+            } else {
+              const start = new Date(this.dataJson.tempJson.enable_time)
+              const end = new Date(this.dataJson.tempJson.disable_time)
+              this.dataJson.enable_time_range = [start, end]
+            }
+          }
         }
       },
-      deep: true
+      deep: true,
+      immediate: true
     },
     // 弹出窗口初始化，按钮不可用
     'popSettingsData.dialogFormVisible': {
@@ -633,7 +649,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refName'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -982,6 +998,16 @@ export default {
           </el-tooltip>
         </span>
       )
+    },
+    dataPickChange(data) {
+      this.dataJson.enable_time_range = data
+      if (data === null) {
+        this.dataJson.tempJson.enable_time = null
+        this.dataJson.tempJson.disable_time = null
+      } else {
+        this.dataJson.tempJson.enable_time = new Date(data[0])
+        this.dataJson.tempJson.disable_time = new Date(data[1])
+      }
     }
   }
 }
