@@ -57,6 +57,7 @@
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showAdmin" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleAdmin">管理员维护</el-button>
     </el-button-group>
 
     <el-table
@@ -409,7 +410,8 @@ export default {
         btnShowStatus: {
           showUpdate: false,
           showCopyInsert: false,
-          showExport: false
+          showExport: false,
+          showAdmin: false
         },
         // loading 状态
         listLoading: true,
@@ -738,10 +740,12 @@ export default {
         // this.settings.btnShowStatus.doInsert = true
         this.settings.btnShowStatus.showUpdate = true
         this.settings.btnShowStatus.showCopyInsert = true
+        this.settings.btnShowStatus.showAdmin = true
       } else {
         // this.settings.btnShowStatus.doInsert = false
         this.settings.btnShowStatus.showUpdate = false
         this.settings.btnShowStatus.showCopyInsert = false
+        this.settings.btnShowStatus.showAdmin = false
       }
     },
     handleSortChange(column) {
@@ -1012,6 +1016,10 @@ export default {
         this.dataJson.tempJson.enable_time = new Date(data[0])
         this.dataJson.tempJson.disable_time = new Date(data[1])
       }
+    },
+    // 管理员维护点击事件
+    handleAdmin() {
+      alert('TODO:xxx')
     }
   }
 }
