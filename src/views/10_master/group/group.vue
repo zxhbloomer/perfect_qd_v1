@@ -8,20 +8,13 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="字典类型" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="集团编号" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="集团全称" />
       </el-form-item>
       <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
-          <el-option
-            v-for="item in settings.delOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <delete-type-normal v-model="dataJson.searchForm.is_del" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
@@ -33,11 +26,8 @@
     <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
-    </el-button-group>
-
-    <el-button-group v-show="!meDialogSetting.dialogStatus">
-      <el-button type="primary" icon="el-icon-upload" @click="handleOpenImportDialog">数据批量导入</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -57,33 +47,18 @@
       @current-change="handleCurrentChange"
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
-      @cell-mouse-enter="handleCellMouseEnter"
-      @cell-mouse-leave="handleCellMouseLeave"
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="字典类型" column-key="columnCode">
-        <template slot-scope="scope">
-          <el-link v-if="!meDialogSetting.dialogStatus" type="primary" :href="'#/sys/dic/dictdata?dictTypeCode=' + scope.row.code">{{ scope.row.code }}
-            <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
-          </el-link>
-          <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.code }} </span>
-        </template>
-      </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="字典名称" column-key="columnName">
-        <template slot-scope="scope">
-          <el-link v-if="!meDialogSetting.dialogStatus" type="primary" :href="'#/sys/dic/dictdata?dictTypeName=' + scope.row.name">{{ scope.row.name }}
-            <svg-icon v-show="scope.row.columnNameShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
-          </el-link>
-          <span v-if="meDialogSetting.dialogStatus"> {{ scope.row.name }} </span>
-        </template>
-      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="集团编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="集团全称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="集团简称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
-          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
+          <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
             <el-switch
-              v-model="scope.row.isdel"
+              v-model="scope.row.is_del"
               active-color="#ff4949"
               inactive-color="#dcdfe6"
               :active-value="true"
@@ -98,51 +73,6 @@
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-
-    <!-- pop窗口 数据批量导入：模版导出、excel导入-->
-    <el-dialog
-      v-el-drag-dialog
-      title="数据批量导入"
-      :visible="popSettingsImport.dialogFormVisible"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-      width="620px"
-    >
-      <el-form
-        ref="dataForm"
-        label-position="rigth"
-        label-width="120px"
-        status-icon
-      >
-        <el-form-item label="点击下载：">
-          <el-link ref="refDownLoadOne" type="primary" :href="popSettingsImport.templateFilePath"> 模版文件下载</el-link>
-        </el-form-item>
-        <el-form-item label="选择导入文件：">
-          <simple-upload
-            :accept="'.xls,.xlsx'"
-            @upload-success="handleUploadFileSuccess"
-            @upload-error="handleUploadFileError"
-          />
-          <el-link v-show="!(popSettingsImport.errorFileUrl =='')" type="danger" :href="popSettingsImport.errorFileUrl">
-            <i class="el-icon-view el-icon--right" />错误信息
-          </el-link>
-        </el-form-item>
-      </el-form>
-      <p><strong>说明：</strong></p>
-      <ul>
-        <li>请先下载模版文件，在模版文件中进行修改后再上传</li>
-        <li>支持上传的文件类型：xls、xlsx</li>
-        <li>请避免excel文件格式错误</li>
-        <li>文件中存在任何错误，整个文件上传都将失败</li>
-        <li>如果上传失败，会自动下载错误信息，请修改完毕后再次上传</li>
-      </ul>
-
-      <div slot="footer" class="dialog-footer">
-        <el-divider />
-        <el-button plain :disabled="settings.listLoading" @click="handlCloseDialog">关 闭</el-button>
-      </div>
-    </el-dialog>
 
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
@@ -162,15 +92,28 @@
         label-width="120px"
         status-icon
       >
+        <el-alert
+          title="基本信息"
+          type="info"
+          :closable="false"
+        />
+        <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="字典类型：" prop="code">
-              <el-input ref="refCode" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
+            <el-form-item label="集团编号：" prop="code">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="字典名称：" prop="name">
-              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="集团全称：" prop="name">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="集团简称：" prop="simple_name">
+              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -218,15 +161,15 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, importExcelApi, deleteApi } from '@/api/00_system/dicttype/dicttype'
-import resizeMixin from './dicttypeResizeHandlerMixin'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/group/group'
+import resizeMixin from './groupResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import SimpleUpload from '@/layout/components/00_common/SimpleUpload'
+import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 
 export default {
-  name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, SimpleUpload },
+  name: 'P00000100', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination, DeleteTypeNormal },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -243,8 +186,7 @@ export default {
           // 查询条件
           name: '',
           code: '',
-          isdel: 'null',
-          isenable: ''
+          is_del: '0' // 未删除
         },
         // 分页控件的json
         paging: {
@@ -270,7 +212,7 @@ export default {
             name: 20,
             code: 20,
             descr: 200,
-            dbversion: 0
+            simple_name: 20
           }
         },
         // 当前表格中的索引，第几条
@@ -320,8 +262,9 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          name: [{ required: true, message: '请输入字典名称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入字典类型', trigger: 'change' }]
+          name: [{ required: true, message: '请输入集团全称', trigger: 'change' }],
+          code: [{ required: true, message: '请输入集团编号', trigger: 'change' }],
+          simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
         }
       },
       // 导入窗口的状态
@@ -340,6 +283,16 @@ export default {
       }
     }
   },
+  computed: {
+    // 是否为更新模式
+    isUpdateModel() {
+      if (this.popSettingsData.dialogStatus === 'insert' || this.popSettingsData.dialogStatus === 'copyInsert') {
+        return false
+      } else {
+        return true
+      }
+    }
+  },
   // 监听器
   watch: {
     // 监听页面上面是否有修改，有修改按钮高亮
@@ -350,12 +303,14 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledReset = true
           this.popSettingsData.btnDisabledStatus.disabledInsert = true
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
           this.popSettingsData.btnResetStatus = false
         } else if (this.popSettingsData.dialogFormVisible) {
           // 有修改按钮高亮
           this.popSettingsData.btnDisabledStatus.disabledReset = false
           this.popSettingsData.btnDisabledStatus.disabledInsert = false
           this.popSettingsData.btnDisabledStatus.disabledUpdate = false
+          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = false
         }
       },
       deep: true
@@ -367,6 +322,7 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledReset = true
           this.popSettingsData.btnDisabledStatus.disabledInsert = true
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
+          this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
         }
       }
     },
@@ -388,6 +344,17 @@ export default {
     // 描绘完成
   },
   methods: {
+    initTempJsonOriginal() {
+      // 单条数据 json的，初始化原始数据
+      this.dataJson.tempJsonOriginal =
+      {
+        id: undefined,
+        name: '',
+        code: '',
+        descr: '',
+        dbversion: 0
+      }
+    },
     initShow() {
       // 初始化查询
       this.getDataList()
@@ -446,7 +413,7 @@ export default {
     // 删除操作
     handleDel(row) {
       let _message = ''
-      const _value = row.isdel
+      const _value = row.is_del
       const selectionJson = []
       selectionJson.push({ 'id': row.id })
       if (_value === true) {
@@ -482,7 +449,7 @@ export default {
           this.settings.listLoading = false
         })
       }).catch(action => {
-        row.isdel = !row.isdel
+        row.is_del = !row.is_del
       })
     },
     // 点击按钮 新增
@@ -490,6 +457,7 @@ export default {
       // 新增
       this.popSettingsData.dialogStatus = 'insert'
       // 数据初始化
+      this.initTempJsonOriginal()
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
       this.$nextTick(() => {
         this.$refs['dataSubmitForm'].clearValidate()
@@ -503,7 +471,7 @@ export default {
       this.popSettingsData.dialogFormVisible = true
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refCode'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     // 点击按钮 更新
@@ -525,7 +493,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refName'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -580,9 +548,33 @@ export default {
         this.settings.listLoading = false
       })
     },
+    // 点击按钮 复制新增
+    handleCopyInsert() {
+      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
+      this.dataJson.tempJson.id = undefined
+      this.dataJson.tempJson.template_id = undefined
+      this.dataJson.tempJson.u_id = ''
+      this.dataJson.tempJson.u_time = ''
+      // 修改
+      this.popSettingsData.dialogStatus = 'copyInsert'
+      this.popSettingsData.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
+      // 设置按钮
+      this.popSettingsData.btnShowStatus.showInsert = false
+      this.popSettingsData.btnShowStatus.showUpdate = false
+      this.popSettingsData.btnShowStatus.showCopyInsert = true
+      // 复制新增时focus
+      this.$nextTick(() => {
+        this.$refs['refInsertFocus'].focus()
+      })
+    },
     handleCurrentChange(row) {
       this.dataJson.currentJson = Object.assign({}, row) // copy obj
       this.dataJson.currentJson.index = this.getRowIndex(row)
+      this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
+
       if (this.dataJson.currentJson.id !== undefined) {
         // this.settings.btnShowStatus.doInsert = true
         this.settings.btnShowStatus.showUpdate = true
@@ -648,7 +640,7 @@ export default {
               type: 'error',
               duration: this.settings.duration
             })
-            this.popSettingsData.dialogFormVisible = false
+            // this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           })
         }
@@ -664,10 +656,10 @@ export default {
           sort: '-u_time' // 排序
         },
         // 查询条件
+        code: '',
         name: '',
-        simpleName: '',
-        isdel: 'null',
-        isenable: ''
+        simple_name: '',
+        is_del: 'null'
       }
     },
     // 重置按钮
@@ -676,11 +668,10 @@ export default {
       switch (this.popSettingsData.dialogStatus) {
         case 'update':
           // 数据初始化
-          this.dataJson.tempJson.name = ''
-          this.dataJson.tempJson.descr = ''
+          this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refName'].focus()
+            this.$refs['refUpdateFocus'].focus()
           })
           break
         default:
@@ -688,7 +679,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refCode'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
       }
@@ -721,50 +712,10 @@ export default {
               type: 'error',
               duration: this.settings.duration
             })
-            this.popSettingsData.dialogFormVisible = false
+            // this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           })
         }
-      })
-    },
-    // 文件上传成功
-    handleUploadFileSuccess(res) {
-      // 开始导出
-      importExcelApi(res.response.data).then(response => {
-        this.settings.listLoading = false
-        this.popSettingsImport.errorFileUrl = ''
-        if (response.code !== 0) {
-          this.popSettingsImport.errorFileUrl = response.data.fsType2Url
-          this.showErrorMsg('您上传的excel数据有错误，请点击错误信息进行查看！')
-        } else if (response.code === 0) {
-          const successList = '成功导入 ' + response.data.length + ' 条数据'
-          this.$alert(successList, '导入成功', {
-            confirmButtonText: '关闭',
-            type: 'success'
-          }).then(() => {
-            this.popSettingsImport.dialogFormVisible = false
-          })
-        }
-      }, (_error) => {
-        // this.showErrorMsg('发生了异常，请联系管理员！', _error.data)
-        console.log('发生了异常，请联系管理员！:' + JSON.stringify(_error))
-      })
-    },
-    // 文件上传失败
-    handleUploadFileError() {
-      console.debug('文件上传失败')
-      this.$notify({
-        title: '导入错误',
-        message: '文件上传发生错误！',
-        type: 'error',
-        duration: 0
-      })
-    },
-    // 数据批量导入按钮
-    handleOpenImportDialog() {
-      this.popSettingsImport.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['refDownLoadOne'].$el.target = 'refIframe'
       })
     },
     // 关闭弹出窗口
@@ -787,32 +738,6 @@ export default {
         return callback()
       }
       return callback(new Error('现在只支持json配置，请选择“json配置”'))
-    },
-    /** 当单元格 hover 进入时会触发该事件 */
-    handleCellMouseEnter(row, column, cell, event) {
-      switch (column.columnKey) {
-        case 'columnCode':
-          // 字典类型列时
-          row.columnTypeShowIcon = true
-          break
-        case 'columnName':
-          // 字典名称列时
-          row.columnNameShowIcon = true
-          break
-      }
-    },
-    /** 当单元格 hover 退出时会触发该事件 */
-    handleCellMouseLeave(row, column, cell, event) {
-      switch (column.columnKey) {
-        case 'columnCode':
-          // 字典类型列时
-          row.columnTypeShowIcon = false
-          break
-        case 'columnName':
-          // 字典名称列时
-          row.columnNameShowIcon = false
-          break
-      }
     },
     renderHeaderIsDel: function(h, { column }) {
       return (
