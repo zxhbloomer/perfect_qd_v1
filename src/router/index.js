@@ -162,6 +162,24 @@ export const constantRoutes = [
         component: () => import('@/views/00_system/tentant/tentant'),
         name: 'P00000080',
         meta: { title: '租户管理', icon: 'tentant' }
+      },
+      {
+        path: 'org',
+        component: subMenu,
+        redirect: 'noRedirect',
+        name: 'M00000020', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+        alwaysShow: true,
+        meta: {
+          title: '组织架构',
+          icon: '组织架构'
+        },
+        children: [
+          { path: 'group',
+            component: () => import('@/views/10_master/group/group'),
+            name: 'P00000100',
+            meta: { title: '集团信息' }
+          }
+        ]
       }
     ]
   },
