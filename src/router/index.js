@@ -167,7 +167,7 @@ export const constantRoutes = [
         path: 'org',
         component: subMenu,
         redirect: 'noRedirect',
-        name: 'M00000020', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+        name: 'M00000030', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
         alwaysShow: true,
         meta: {
           title: '组织架构',

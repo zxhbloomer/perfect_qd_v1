@@ -14,7 +14,7 @@
         <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="字典名称" />
       </el-form-item>
       <el-form-item label="">
-        <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
+        <el-select v-model="dataJson.searchForm.is_del" placeholder="请选择删除状态" clearable>
           <el-option
             v-for="item in settings.delOptions"
             :key="item.value"
@@ -81,9 +81,9 @@
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
-          <el-tooltip :content="'删除状态: ' + scope.row.isdel" placement="top">
+          <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
             <el-switch
-              v-model="scope.row.isdel"
+              v-model="scope.row.is_del"
               active-color="#ff4949"
               inactive-color="#dcdfe6"
               :active-value="true"
@@ -243,7 +243,7 @@ export default {
           // 查询条件
           name: '',
           code: '',
-          isdel: 'null',
+          is_del: 'null',
           isenable: ''
         },
         // 分页控件的json
@@ -446,7 +446,7 @@ export default {
     // 删除操作
     handleDel(row) {
       let _message = ''
-      const _value = row.isdel
+      const _value = row.is_del
       const selectionJson = []
       selectionJson.push({ 'id': row.id })
       if (_value === true) {
@@ -482,7 +482,7 @@ export default {
           this.settings.listLoading = false
         })
       }).catch(action => {
-        row.isdel = !row.isdel
+        row.is_del = !row.is_del
       })
     },
     // 点击按钮 新增
@@ -666,7 +666,7 @@ export default {
         // 查询条件
         name: '',
         simpleName: '',
-        isdel: 'null',
+        is_del: 'null',
         isenable: ''
       }
     },
