@@ -174,12 +174,14 @@ export const constantRoutes = [
           icon: '组织架构'
         },
         children: [
-          { path: 'group',
+          {
+            path: 'group',
             component: () => import('@/views/10_master/group/group'),
             name: 'P00000100',
             meta: { title: '集团信息' }
           },
-          { path: 'company',
+          {
+            path: 'company',
             component: () => import('@/views/10_master/company/company'),
             name: 'P00000110',
             meta: { title: '企业信息' }

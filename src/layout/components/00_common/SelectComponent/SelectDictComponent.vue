@@ -1,6 +1,6 @@
 <template>
   <el-select
-    placeholder="请选择删除状态"
+    :placeholder="myPlaceholder"
     :loading="dataJson.settings.listLoading"
     loading-text="拼命加载..."
     clearable
@@ -17,15 +17,25 @@
 </template>
 
 <script>
-import { getDeleteTypeNormalApi } from '@/api/00_common/commonComponent'
+import { getDictDataApi } from '@/api/00_common/commonComponent'
 
 export default {
-  name: 'SelectComponentDeleteTypeNormal',
+  name: 'SelectDictComponent',
   props: {
-    // 接受参数
+    // 返回和设定的值
     value: {
       type: [Number, String],
       default: null
+    },
+    // placeholder
+    myPlaceholder: {
+      type: String,
+      default: ''
+    },
+    // 查询的参数
+    para: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -33,6 +43,9 @@ export default {
       dataJson: {
         // 资源类型下拉选项json
         selectOptions: [{}],
+        searchForm: {
+          para: ''
+        },
         settings: {
           // 页面设置json
           // loading 状态
@@ -44,7 +57,6 @@ export default {
   },
   // 监听器
   watch: {
-
   },
   created() {
     // 初始化查询
@@ -52,16 +64,16 @@ export default {
   },
   mounted() {
     // 描绘完成
-
   },
   methods: {
     // 初始化
     init() {
       this.dataJson.settings.listLoading = true
+      this.dataJson.searchForm.para = ''
       this.getRemoteData()
     },
     getRemoteData() {
-      getDeleteTypeNormalApi().then((_data) => {
+      getDictDataApi(this.dataJson.searchForm).then((_data) => {
         this.dataJson.selectOptions = _data.data
         this.dataJson.settings.listLoading = false
       }, (_error) => {

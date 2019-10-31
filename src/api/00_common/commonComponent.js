@@ -11,6 +11,18 @@ export function getDeleteTypeNormalApi() {
   })
 }
 
+/**
+ * 根据参数，取所有的下拉选项的数据bean
+ * @param {*} data
+ */
+export function getDictDataApi(data) {
+  return request({
+    url: '/api/v1/common/component/select/bypara/list',
+    method: 'post',
+    data
+  })
+}
+
 // /**
 //  * 获取所有的下拉选项的数据bean
 //  */

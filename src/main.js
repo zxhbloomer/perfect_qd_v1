@@ -34,7 +34,10 @@ if (process.env.NODE_ENV === 'production') {
 
 // add by zxh
 import commonFunction from './common/commonFunction'
+import constants from './common/constants/constants'
+
 Vue.use(commonFunction)
+Vue.prototype.CONSTANTS = constants
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'mini' // set element-ui default size

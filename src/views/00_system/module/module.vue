@@ -40,24 +40,19 @@
           <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
         </el-form-item>
         <el-form-item label="">
-          <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple clearable>
+          <!-- <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple clearable>
             <el-option
               v-for="type in settings.selectOptions"
               :key="type.value"
               :label="type.label"
               :value="type.value"
             />
-          </el-select>
+          </el-select> -->
+          <!-- <select-dicts v-model="dataJson.searchForm.types" :para="dataJson.searchForm.dicType" :placeholder="请选择模块类型" /> -->
+          <select-dicts v-model="dataJson.searchForm.types" :para="CONSTANTS.DICT_TYPE_MODULE_TYPE" init-placeholder="请选择模块类型" />
         </el-form-item>
         <el-form-item label="">
-          <el-select v-model="dataJson.searchForm.isdel" placeholder="请选择删除状态" clearable>
-            <el-option
-              v-for="item in settings.delOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+          <delete-type-normal v-model="dataJson.searchForm.isdel" />
         </el-form-item>
         <div style="text-align: right; margin: 0">
           <el-button type="text" @click="doResetSearch()">重置</el-button>
@@ -263,10 +258,12 @@ import resizeMixin from './moduleResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import resourceDialog from '@/views/00_system/resource/dialog/dialog'
+import SelectDicts from '@/layout/components/00_common/SelectComponent/SelectDictsComponent'
+import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 
 export default {
   name: 'P00000040', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, resourceDialog },
+  components: { Pagination, resourceDialog, SelectDicts, DeleteTypeNormal },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -319,7 +316,8 @@ export default {
         // 当前表格中的索引，第几条
         rowIndex: 0,
         // 当前选中的行（checkbox）
-        multipleSelection: []
+        multipleSelection: [],
+        dicType: 'module_type'
       },
       // 页面设置json
       settings: {
@@ -333,17 +331,6 @@ export default {
         }, {
           value: '30',
           label: 'task'
-        }],
-        // 资源类型下拉选项json
-        delOptions: [{
-          value: '0',
-          label: '未删除'
-        }, {
-          value: '1',
-          label: '已删除'
-        }, {
-          value: 'null',
-          label: '全部'
         }],
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
