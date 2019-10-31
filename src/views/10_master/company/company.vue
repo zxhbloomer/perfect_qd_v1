@@ -8,7 +8,7 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="企业名称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="企业全称" />
       </el-form-item>
       <el-form-item label="">
         <delete-type-normal v-model="dataJson.searchForm.is_del" />
@@ -17,9 +17,36 @@
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="perfect-icon-reset" @click="doResetSearch">重 置</el-button>
+        <el-button v-popover:popover type="primary" plain icon="el-icon-s-promotion">高级搜索</el-button>
       </el-form-item>
     </el-form>
+    <el-popover
+      ref="popover"
+      placement="top"
+      width="420"
+      title="高级查询"
+    >
+      <el-form
+        :inline="true"
+        :model="dataJson.searchForm"
+        label-position="getLabelPosition()"
+        class="floatRight"
+      >
+        <el-form-item v-show="false" label="">
+          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="企业全称" />
+        </el-form-item>
+        <el-form-item label="">
+          <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="法定代表人" />
+        </el-form-item>
+        <el-form-item label="">
+          <delete-type-normal v-model="dataJson.searchForm.is_del" />
+        </el-form-item>
+        <div style="text-align: right; margin: 0">
+          <el-button type="text" @click="doResetSearch()">重置</el-button>
+          <el-button type="primary" @click="handleSearch">提交</el-button>
+        </div>
+      </el-form>
+    </el-popover>
     <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
@@ -47,11 +74,12 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="社会信用代码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="企业全称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="code" label="社会信用代码" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="企业全称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="企业简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="juridical_name" label="法定代表人" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column min-width="50" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
             <el-switch
@@ -97,12 +125,12 @@
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="集团编号：" prop="code">
+            <el-form-item label="社会信用代码：" prop="code">
               <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="集团全称：" prop="name">
+            <el-form-item label="企业全称：" prop="name">
               <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
@@ -113,7 +141,43 @@
               <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="法定代表人：" prop="juridical_name">
+              <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" />
+            </el-form-item>
+          </el-col>
         </el-row>
+        <el-alert
+          title="地址信息"
+          type="info"
+          :closable="false"
+        />
+        <br>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="社会信用代码：" prop="code">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="企业全称：" prop="name">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="社会信用代码：" prop="code">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="企业全称：" prop="name">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="描述：" prop="descr">
           <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
         </el-form-item>
