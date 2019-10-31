@@ -156,7 +156,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="社会信用代码：" prop="code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+              <areas-select v-model="dataJson.xx" :level="2" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -227,15 +227,17 @@ import resizeMixin from './companyResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
+import AreasSelect from '@/layout/components/00_common/areas_select'
 
 export default {
   name: 'P00000100', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal },
+  components: { Pagination, DeleteTypeNormal, AreasSelect },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
     return {
       dataJson: {
+        xx: [],
         // 查询使用的json
         searchForm: {
           // 翻页条件

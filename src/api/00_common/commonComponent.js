@@ -23,15 +23,14 @@ export function getDictDataApi(data) {
   })
 }
 
-// /**
-//  * 获取所有的下拉选项的数据bean
-//  */
-// export function getAllComponentJsonApi() {
-//   getAllComponentApi().then((_data) => {
-//     debugger
-//     return _data.data
-//   }, (_error) => {
-//     debugger
-//     return {}
-//   })
-// }
+/**
+ *
+ * @param {*} data
+ */
+export function getAllProvinces(data) {
+  return request({
+    url: '/api/v1/common/areas/provinces/list',
+    method: 'post',
+    data
+  })
+}
