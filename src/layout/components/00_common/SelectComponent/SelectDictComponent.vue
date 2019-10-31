@@ -1,6 +1,6 @@
 <template>
   <el-select
-    :placeholder="myPlaceholder"
+    :placeholder="initPlaceholder"
     :loading="dataJson.settings.listLoading"
     loading-text="拼命加载..."
     clearable
@@ -28,7 +28,7 @@ export default {
       default: null
     },
     // placeholder
-    myPlaceholder: {
+    initPlaceholder: {
       type: String,
       default: ''
     },
@@ -73,6 +73,7 @@ export default {
       this.getRemoteData()
     },
     getRemoteData() {
+      this.dataJson.searchForm.para = this.para
       getDictDataApi(this.dataJson.searchForm).then((_data) => {
         this.dataJson.selectOptions = _data.data
         this.dataJson.settings.listLoading = false

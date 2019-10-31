@@ -88,9 +88,12 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="模块类型" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="type" label="模块类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="path" label="请求地址" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="route_name" label="路由名" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="meta_title" label="菜单名" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="60" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
@@ -115,7 +118,7 @@
       @closeMeOk="handleResourceCloseOk"
       @closeMeCancle="handleResourceCloseCancle"
     />
-    <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
+    <!-- pop窗口 数据编辑:新增、修改、-->
     <el-dialog
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
@@ -123,7 +126,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="700px"
+      width="800px"
       top="5vh"
     >
       <el-form
@@ -142,14 +145,7 @@
         <br>
         <el-row>
           <el-form-item label="模块类型：" prop="type">
-            <el-select ref="refType" v-model="dataJson.tempJson.type" placeholder="请选择" clearable :disabled="popSettingsData.dialogStatus==='update'" @change="handleSelectChange">
-              <el-option
-                v-for="item in settings.selectOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            <select-dict ref="refInsertFocus" v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_TYPE_MODULE_TYPE" init-placeholder="请选择模块类型" :disabled="popSettingsData.dialogStatus==='update'" />
           </el-form-item>
           <el-col :span="12">
             <el-form-item label="模块编号：" prop="code">
@@ -158,7 +154,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="模块名称：" prop="name">
-              <el-input ref="refName" v-model.trim="dataJson.tempJson.name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -177,34 +173,115 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-alert
-          title="模块资源信息：非必须"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="资源类型：" prop="templateType">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
-                <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
-                  {{ popSettingsData.searchDialogData.selectOrResetName }}
-                </el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="资源名称：" prop="templateName">
-              <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="描述：" prop="templateDescr">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled type="textarea" />
-        </el-form-item>
-        <el-form-item label="JSON配置信息：" prop="templateContext">
-          <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" type="textarea" />
-        </el-form-item>
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_TYPE_MODULE_TYPE_CONTENTS">
+          <el-alert
+            title="目录信息"
+            type="info"
+            :closable="false"
+          />
+          <br>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="请求地址：" prop="path">
+                <el-input v-model.trim="dataJson.tempJson.path" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.path" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="路由名：" prop="route_name">
+                <el-input v-model.trim="dataJson.tempJson.route_name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.route_name" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="菜单名：" prop="meta_title">
+                <el-input v-model.trim="dataJson.tempJson.meta_title" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.meta_title" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="菜单icon：" prop="meta_icon">
+                <el-input v-model.trim="dataJson.tempJson.meta_icon" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.meta_icon" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="模块：" prop="component">
+            <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" />
+          </el-form-item>
+        </div>
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_TYPE_MODULE_TYPE_MENU">
+          <el-alert
+            title="菜单信息"
+            type="info"
+            :closable="false"
+          />
+          <br>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="请求地址：" prop="path">
+                <el-input v-model.trim="dataJson.tempJson.path" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.path" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="路由名：" prop="route_name">
+                <el-input v-model.trim="dataJson.tempJson.route_name" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.route_name" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="菜单名：" prop="meta_title">
+                <el-input v-model.trim="dataJson.tempJson.meta_title" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.meta_title" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="菜单icon：" prop="meta_icon">
+                <el-input v-model.trim="dataJson.tempJson.meta_icon" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.meta_icon" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="不可关闭：" prop="affix">
+                <el-switch v-model="dataJson.tempJson.affix" active-text="不可关闭" inactive-text="可以关闭" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="模块：" prop="component">
+                <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_TYPE_MODULE_TYPE_PAGE">
+          <el-alert
+            title="模块资源信息：非必须"
+            type="info"
+            :closable="false"
+          />
+          <br>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="资源类型：" prop="templateType">
+                <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.type" disabled>
+                  <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogData.selectOrResetIcon" @click="handleSelectOrReset">
+                    {{ popSettingsData.searchDialogData.selectOrResetName }}
+                  </el-button>
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="资源名称：" prop="templateName">
+                <el-input v-model="popSettingsData.searchDialogData.selectedDataJson.name" disabled />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="描述：" prop="templateDescr">
+            <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.descr" disabled type="textarea" />
+          </el-form-item>
+          <el-form-item label="JSON配置信息：" prop="templateContext">
+            <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.context" disabled :autosize="{ minRows: 4, maxRows: 10 }" type="textarea" />
+          </el-form-item>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -259,11 +336,12 @@ import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import resourceDialog from '@/views/00_system/resource/dialog/dialog'
 import SelectDicts from '@/layout/components/00_common/SelectComponent/SelectDictsComponent'
+import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 
 export default {
   name: 'P00000040', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, resourceDialog, SelectDicts, DeleteTypeNormal },
+  components: { Pagination, resourceDialog, SelectDicts, DeleteTypeNormal, SelectDict },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -503,9 +581,6 @@ export default {
         this.popSettingsData.searchDialogData.selectOrResetIcon = 'el-icon-circle-close'
       }
     },
-    // 下拉选项控件事件
-    handleSelectChange(val) {
-    },
     // 获取行索引
     getRowIndex(row) {
       const _index = this.dataJson.listData.lastIndexOf(row)
@@ -524,16 +599,6 @@ export default {
       this.dataJson.multipleSelection = []
       this.$refs.multipleTable.clearSelection()
     },
-    // handleRowUpdate(row, _rowIndex) {
-    //   // 修改
-    //   this.dataJson.tempJson = Object.assign({}, row) // copy obj
-    //   this.dataJson.rowIndex = _rowIndex
-    //   this.popSettingsData.dialogStatus = 'update'
-    //   this.popSettingsData.dialogFormVisible = true
-    //   this.$nextTick(() => {
-    //     this.$refs['dataForm'].clearValidate()
-    //   })
-    // },
     // 删除操作
     handleDel(row) {
       let _message = ''
@@ -610,7 +675,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refName'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -784,7 +849,7 @@ export default {
           this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refName'].focus()
+            this.$refs['refUpdateFocus'].focus()
           })
           break
         case 'copyInsert':
@@ -801,7 +866,7 @@ export default {
           this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refType'].focus()
+            this.$refs['refInsertFocus'].$el.focus
           })
           break
         case 'insert':
@@ -813,7 +878,7 @@ export default {
           this.initResourceData()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refType'].focus()
+            this.$refs['refInsertFocus'].$el.focus
           })
           break
       }
