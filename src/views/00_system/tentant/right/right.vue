@@ -334,7 +334,7 @@ export default {
         tempJsonOriginal: {
           id: undefined,
           parent_name: '',
-          parentid: '',
+          parent_id: '',
           name: '',
           code: '',
           descr: '',
@@ -968,8 +968,8 @@ export default {
       event.$emit('handleDataChange')
     },
     handleCascaderChange(value) {
-      const parentid = value[value.length - 1 ]
-      this.dataJson.tempJson.parentid = parentid
+      const parent_id = value[value.length - 1 ]
+      this.dataJson.tempJson.parent_id = parent_id
     },
     renderHeaderIsEnabled: function(h, { column }) {
       return (

@@ -38,6 +38,9 @@
       highlight-current-row
       :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
+      default-expand-all
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      row-key="id"
       @row-click="handleRowClick"
       @row-dblclick="handleRowDbClick"
       @current-change="handleCurrentChange"
@@ -48,7 +51,7 @@
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="菜单名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sort" label="排序" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type" label="菜单类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type_name" label="菜单类型" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="可见" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'可见状态: ' + scope.row.visible" placement="top">
@@ -86,64 +89,69 @@
         label-width="120px"
         status-icon
       >
-        <el-alert title="基本信息" type="info" :closable="false" />
+        <el-alert title="上级菜单信息" type="info" :closable="false" />
         <br>
         <el-row>
           <el-col :span="12">
             <el-form-item label="上级菜单：" prop="parent_id">
-              <el-input v-model="popSettingsData.searchDialogDataOne.selectedDataJson.type" disabled>
+              <!-- <el-input v-model="popSettingsData.searchDialogDataOne.selectedDataJson.type" disabled>
                 <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogDataOne.selectOrResetIcon" @click="handleSelectOrReset">
                   {{ popSettingsData.searchDialogDataOne.selectOrResetName }}
                 </el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="菜单类型：" prop="type">
-              <select-dict v-model="dataJson.searchForm.visible" :para="CONSTANTS.DICT_MODULE_TYPE" init-placeholder="请选择菜单类型" />
+              </el-input> -->
+              <el-input v-model.trim="dataJson.tempJson.parent_id" clearable show-word-limit />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-alert title="菜单模块信息" type="info" :closable="false" />
+        <el-alert title="本菜单模块信息" type="info" :closable="false" />
         <br>
         <el-row>
           <el-col :span="12">
             <el-form-item label="菜单名称：" prop="name">
               <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit>
-                <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogDataTwo.selectOrResetIcon" @click="handleModuleDialogClick">
+                <el-button slot="append" ref="selectTwo" :icon="popSettingsData.searchDialogDataTwo.selectOrResetIcon" @click="handleModuleDialogClick">
                   {{ popSettingsData.searchDialogDataTwo.selectOrResetName }}
                 </el-button>
               </el-input>
             </el-form-item>
           </el-col>
+        </el-row>
+
+        <el-row>
           <el-col :span="12">
             <el-form-item label="请求地址：" prop="path">
-              <el-input v-model.trim="dataJson.tempJson.path" clearable show-word-limit />
+              <el-input v-model.trim="dataJson.tempJson.path" clearable show-word-limit disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="菜单类型：" prop="type">
+              <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_MODULE_TYPE" disabled />
             </el-form-item>
           </el-col>
         </el-row>
+
         <el-row>
           <el-col :span="12">
             <el-form-item label="模块名称：" prop="meta_title">
-              <el-input v-model.trim="dataJson.tempJson.meta_title" clearable show-word-limit />
+              <el-input v-model.trim="dataJson.tempJson.meta_title" clearable show-word-limit disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="模块icon：" prop="meta_icon">
-              <el-input v-model.trim="dataJson.tempJson.meta_icon" clearable show-word-limit />
+              <el-input v-model.trim="dataJson.tempJson.meta_icon" clearable show-word-limit disabled />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="路由名：" prop="route_name">
-              <el-input v-model.trim="dataJson.tempJson.route_name" clearable show-word-limit />
+              <el-input v-model.trim="dataJson.tempJson.route_name" clearable show-word-limit disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="模块：" prop="meta_icon">
-              <el-input v-model.trim="dataJson.tempJson.component" clearable show-word-limit />
+            <el-form-item label="模块路径：" prop="meta_icon">
+              <el-input v-model.trim="dataJson.tempJson.component" clearable show-word-limit disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -411,6 +419,29 @@ export default {
           this.settings.btnShowStatus.showExport = false
         }
       }
+    },
+    'popSettingsData.searchDialogDataTwo.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal === {}) {
+          this.dataJson.tempJson.type = ''
+          this.dataJson.tempJson.name = ''
+          this.dataJson.tempJson.path = ''
+          this.dataJson.tempJson.route_name = ''
+          this.dataJson.tempJson.meta_title = ''
+          this.dataJson.tempJson.meta_icon = ''
+          this.dataJson.tempJson.component = ''
+          this.dataJson.tempJson.affix = ''
+        } else {
+          this.dataJson.tempJson.type = this.popSettingsData.searchDialogDataTwo.selectedDataJson.type
+          this.dataJson.tempJson.name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.name
+          this.dataJson.tempJson.path = this.popSettingsData.searchDialogDataTwo.selectedDataJson.path
+          this.dataJson.tempJson.route_name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.route_name
+          this.dataJson.tempJson.meta_title = this.popSettingsData.searchDialogDataTwo.selectedDataJson.meta_title
+          this.dataJson.tempJson.meta_icon = this.popSettingsData.searchDialogDataTwo.selectedDataJson.meta_icon
+          this.dataJson.tempJson.component = this.popSettingsData.searchDialogDataTwo.selectedDataJson.component
+          this.dataJson.tempJson.affix = this.popSettingsData.searchDialogDataTwo.selectedDataJson.affix
+        }
+      }
     }
   },
   created() {
@@ -538,6 +569,8 @@ export default {
       // 控件focus
       this.$nextTick(() => {
         // this.$refs['selectOne'].focus()
+        // 初始化模块选择
+        this.initModuleSelectButton()
       })
     },
     // 点击按钮 更新
@@ -816,9 +849,9 @@ export default {
             placement='bottom'
           >
             <div slot='content'>
-            删除状态提示：<br/>
-            绿色：未删除  <br/>
-            红色：已删除
+            可见状态提示：<br/>
+            绿色：可见  <br/>
+            红色：不可见
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
@@ -826,75 +859,17 @@ export default {
       )
     },
     // --------------弹出查询框：--------------
-    initModuleData() {
-      // 设置资源部分的数据，从表格上复制
-      this.popSettingsData.searchDialogDataTwo.selectedDataJson = {
-        id: this.dataJson.tempJson.template_id,
-        type: this.dataJson.tempJson.templateType,
-        name: this.dataJson.tempJson.templateName,
-        descr: this.dataJson.tempJson.templateDescr,
-        context: this.dataJson.tempJson.templateContext
-      }
-      this.initSelectOrResectButton()
-    },
-    initSelectOrResectData() {
-      // 设置资源部分的数据，从表格上复制
-      this.popSettingsData.searchDialogDataOne.selectedDataJson = {
-        id: this.dataJson.tempJson.template_id,
-        type: this.dataJson.tempJson.templateType,
-        name: this.dataJson.tempJson.templateName,
-        descr: this.dataJson.tempJson.templateDescr,
-        context: this.dataJson.tempJson.templateContext
-      }
-      this.initSelectOrResectButton()
-    },
-    // 选择or重置按钮的初始化
-    initSelectOrResectButton() {
-      if (this.isResourceSelected() === false) {
-        this.$nextTick(() => {
-          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-        })
-        this.popSettingsData.searchDialogDataOne.selectOrReset = false
-        this.popSettingsData.searchDialogDataOne.selectOrResetName = '选择'
-        this.popSettingsData.searchDialogDataOne.selectOrResetIcon = 'el-icon-search'
-      } else {
-        this.$nextTick(() => {
-          this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_reset'
-        })
-        this.popSettingsData.searchDialogDataOne.selectOrReset = true
-        this.popSettingsData.searchDialogDataOne.selectOrResetName = '清空'
-        this.popSettingsData.searchDialogDataOne.selectOrResetIcon = 'el-icon-circle-close'
-      }
-    },
-    // 选择资源窗口判断是否已经选择
-    isResourceSelected() {
-      if (this.popSettingsData.searchDialogDataOne.selectedDataJson.id === undefined) {
-        // 未选择
-        return false
-      } else {
-        // 已经选择
-        return true
-      }
-    },
-    // 弹出搜索对话框
-    handleSelectOrReset() {
-      // this.$store.dispatch('popUpSearchDialog/show', true)
-      if (this.popSettingsData.searchDialogDataOne.selectOrReset === false) {
-        // 选择按钮
-        this.popSettingsData.searchDialogDataOne.dialogVisible = true
-      } else {
-        // 重置按钮
-        this.popSettingsData.searchDialogDataOne.selectedDataJson = {}
-        this.initSelectOrResectButton()
-        this.dataJson.tempJson.template_id = undefined
-        this.dataJson.tempJson.templateType = ''
-        this.dataJson.tempJson.templateName = ''
-        this.dataJson.tempJson.templateDescr = ''
-        this.dataJson.tempJson.templateContext = ''
-      }
-    },
 
     // --------------弹出查询框：模块页面--------------
+    // 选择or重置按钮的初始化
+    initModuleSelectButton() {
+      this.$nextTick(() => {
+        this.$refs.selectTwo.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+      })
+      this.popSettingsData.searchDialogDataTwo.selectOrReset = false
+      this.popSettingsData.searchDialogDataTwo.selectOrResetName = '选择'
+      this.popSettingsData.searchDialogDataTwo.selectOrResetIcon = 'el-icon-search'
+    },
     handleModuleDialogClick() {
       if (this.popSettingsData.searchDialogDataTwo.selectOrReset === false) {
         // 选择按钮
