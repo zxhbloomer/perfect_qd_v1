@@ -40,15 +40,6 @@
           <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
         </el-form-item>
         <el-form-item label="">
-          <!-- <el-select v-model="dataJson.searchForm.types" placeholder="请选择模块类型" multiple clearable>
-            <el-option
-              v-for="type in settings.selectOptions"
-              :key="type.value"
-              :label="type.label"
-              :value="type.value"
-            />
-          </el-select> -->
-          <!-- <select-dicts v-model="dataJson.searchForm.types" :para="dataJson.searchForm.dicType" :placeholder="请选择模块类型" /> -->
           <select-dicts v-model="dataJson.searchForm.types" :para="CONSTANTS.DICT_TYPE_MODULE_TYPE" init-placeholder="请选择模块类型" />
         </el-form-item>
         <el-form-item label="">
@@ -88,7 +79,7 @@
     >
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="type" label="模块类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="type_name" label="模块类型" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="path" label="请求地址" />
@@ -145,11 +136,11 @@
         <br>
         <el-row>
           <el-form-item label="模块类型：" prop="type">
-            <select-dict ref="refInsertFocus" v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_TYPE_MODULE_TYPE" init-placeholder="请选择模块类型" :disabled="popSettingsData.dialogStatus==='update'" />
+            <select-dict ref="refInsertFocus" v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_TYPE_MODULE_TYPE" init-placeholder="请选择模块类型" />
           </el-form-item>
           <el-col :span="12">
             <el-form-item label="模块编号：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="popSettingsData.dialogStatus==='update'" />
+              <el-input v-model.trim="dataJson.tempJson.code" placeholder="请输入" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -205,7 +196,7 @@
             </el-col>
           </el-row>
           <el-form-item label="模块：" prop="component">
-            <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" />
+            <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" :maxlength="dataJson.inputSettings.maxLength.component" />
           </el-form-item>
         </div>
         <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_TYPE_MODULE_TYPE_MENU">
@@ -247,14 +238,14 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="模块：" prop="component">
-                <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" />
+                <el-input v-model.trim="dataJson.tempJson.component" type="textarea" placeholder="请输入" :maxlength="dataJson.inputSettings.maxLength.component" />
               </el-form-item>
             </el-col>
           </el-row>
         </div>
         <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_TYPE_MODULE_TYPE_PAGE">
           <el-alert
-            title="模块资源信息：非必须"
+            title="页面资源信息：非必须"
             type="info"
             :closable="false"
           />
@@ -388,7 +379,11 @@ export default {
             name: 20,
             code: 20,
             descr: 200,
-            dbversion: 0
+            path: 10,
+            route_name: 20,
+            meta_title: 20,
+            meta_icon: 20,
+            component: 100
           }
         },
         // 当前表格中的索引，第几条
@@ -399,17 +394,6 @@ export default {
       },
       // 页面设置json
       settings: {
-        // 模块类型下拉选项json
-        selectOptions: [{
-          value: '10',
-          label: '页面'
-        }, {
-          value: '20',
-          label: '菜单'
-        }, {
-          value: '30',
-          label: 'task'
-        }],
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
         // 按钮状态是否启用
@@ -467,6 +451,16 @@ export default {
           // 点击确定以后返回的值
           selectedDataJson: {}
         }
+      }
+    }
+  },
+  computed: {
+    // 是否为更新模式
+    isUpdate() {
+      if (this.popSettingsData.dialogStatus === 'update') {
+        return true
+      } else {
+        return false
       }
     }
   },
@@ -749,7 +743,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 修改时控件focus
       this.$nextTick(() => {
-        this.$refs['refType'].focus()
+        this.$refs['refInsertFocus'].$el.focus
       })
     },
     handleCurrentChange(row) {
@@ -794,7 +788,7 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
-            this.dataJson.tempJson.dbversion = _data.data.dbversion
+            this.dataJson.tempJson = _data.data
             // 设置到table中绑定的json数据源
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
             // 设置到currentjson中

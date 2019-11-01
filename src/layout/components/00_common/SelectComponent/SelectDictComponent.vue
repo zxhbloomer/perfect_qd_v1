@@ -5,6 +5,7 @@
     loading-text="拼命加载..."
     clearable
     :value="value"
+    :disabled="disabled"
     @input="$emit('input', $event)"
   >
     <el-option
@@ -36,6 +37,11 @@ export default {
     para: {
       type: String,
       default: ''
+    },
+    // 查询的参数
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
