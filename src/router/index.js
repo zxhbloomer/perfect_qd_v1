@@ -163,6 +163,11 @@ export const constantRoutes = [
         name: 'P00000080',
         meta: { title: '租户管理', icon: 'tentant' }
       },
+      { path: 'sysmenu',
+        component: () => import('@/views/00_system/sysmenu/sysmenu'),
+        name: 'P00000120',
+        meta: { title: '菜单管理', icon: '菜单' }
+      },
       {
         path: 'org',
         component: subMenu,
