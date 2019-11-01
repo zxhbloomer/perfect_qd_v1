@@ -759,6 +759,8 @@ export default {
         this.settings.btnShowStatus.showUpdate = false
         this.settings.btnShowStatus.showCopyInsert = false
       }
+      // 设置dialog的返回
+      this.$store.dispatch('popUpSearchDialog/selectedDataJson', Object.assign({}, row))
     },
     handleSortChange(column) {
       // 服务器端排序

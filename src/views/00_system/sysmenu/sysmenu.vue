@@ -437,16 +437,6 @@ export default {
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
     },
-    // 弹出框设置初始化
-    initDialogStatus() {
-      if (this.$store.getters.program !== undefined &&
-          this.$store.getters.program !== null &&
-          this.$store.getters.program.status === 'open') {
-        this.meDialogSetting.dialogStatus = true
-      } else {
-        this.meDialogSetting.dialogStatus = false
-      }
-    },
     // 下拉选项控件事件
     handleSelectChange(val) {
     },
