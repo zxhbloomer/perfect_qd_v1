@@ -1,6 +1,5 @@
 <template>
   <el-dialog
-    ref="dialog"
     v-el-drag-dialog
     title="模块选择对话框"
     :visible="visible"
@@ -80,8 +79,6 @@ export default {
           this.$nextTick(() => {
             // this.$refs.dialogRef.initDialogStatus()
             // this.$refs.dialogRef.initShow()
-            debugger
-            this.$refs.dialog.clearSelection()
           })
         }
       },
@@ -92,9 +89,6 @@ export default {
   created() {
     // 设置当前打开的页面
 
-  },
-  mounted() {
-    // 描绘完成
   },
   methods: {
     handleRowDbClick(val) {

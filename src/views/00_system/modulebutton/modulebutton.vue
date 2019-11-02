@@ -8,10 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="名称" />
+        <el-input v-model.trim="dataJson.searchForm.module_code" clearable placeholder="模块编号" />
       </el-form-item>
       <el-form-item label="">
-        <select-dict v-model="dataJson.searchForm.visible" :para="CONSTANTS.DICT_SYS_VISIBLE_TYPE" init-placeholder="请选择菜单类型" />
+        <el-input v-model.trim="dataJson.searchForm.module_name" clearable placeholder="模块名称" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
@@ -21,9 +21,10 @@
       </el-form-item>
     </el-form>
     <el-button-group v-show="!meDialogSetting.dialogStatus">
-      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增菜单组</el-button>
+      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -38,9 +39,6 @@
       highlight-current-row
       :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
-      default-expand-all
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-      row-key="id"
       @row-click="handleRowClick"
       @row-dblclick="handleRowDbClick"
       @current-change="handleCurrentChange"
@@ -49,27 +47,15 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="菜单名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="module_code" label="模块编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="module_name" label="模块名称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="按钮编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="按钮名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sort" label="排序" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="type_name" label="菜单类型" />
-      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="可见" :render-header="renderHeaderIsDel">
-        <template slot-scope="scope">
-          <el-tooltip :content="'可见状态: ' + scope.row.visible" placement="top">
-            <el-switch
-              v-model="scope.row.visible"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              :disabled="meDialogSetting.dialogStatus"
-              @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="perms" label="权限标识" />
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
+    <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
 
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
@@ -79,7 +65,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="900px"
+      width="700px"
     >
       <el-form
         ref="dataSubmitForm"
@@ -89,86 +75,51 @@
         label-width="120px"
         status-icon
       >
-        <el-alert title="菜单组信息" type="info" :closable="false" />
+        <el-alert
+          title="基本信息"
+          type="info"
+          :closable="false"
+        />
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="菜单组编号：" prop="menu_group_code">
-              <el-input v-model.trim="dataJson.tempJson.menu_group_code" clearable show-word-limit />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="菜单组名称：" prop="menu_group_name">
-              <el-input v-model.trim="dataJson.tempJson.menu_group_name" clearable show-word-limit />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-alert title="上级菜单信息" type="info" :closable="false" />
-        <br>
-        <el-row>
-          <el-form-item label="上级菜单：" prop="parent_id">
-            <el-cascader
-              ref="refInsertFocus"
-              v-model="dataJson.tempJson.parent_id"
-              placeholder="请选择"
-              :options="dataJson.cascader.data"
-              filterable
-              clearable
-              :props="{ checkStrictly: true, expandTrigger: 'hover'}"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-row>
-
-        <el-alert title="本菜单模块信息" type="info" :closable="false" />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="菜单名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit>
-                <el-button slot="append" ref="selectTwo" :icon="popSettingsData.searchDialogDataTwo.selectOrResetIcon" @click="handleModuleDialogClick">
-                  {{ popSettingsData.searchDialogDataTwo.selectOrResetName }}
+            <el-form-item label="模块编号：" prop="module_code">
+              <el-input v-model.trim="dataJson.tempJson.module_code" clearable show-word-limit disabled>
+                <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleModuleDialogClick">
+                  选择
                 </el-button>
               </el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-
-        <el-row>
           <el-col :span="12">
-            <el-form-item label="请求地址：" prop="path">
-              <el-input v-model.trim="dataJson.tempJson.path" clearable show-word-limit disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="菜单类型：" prop="type">
-              <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_MODULE_TYPE" disabled />
+            <el-form-item label="模块名称：" prop="module_name">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.module_name" clearable show-word-limit disabled />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row>
           <el-col :span="12">
-            <el-form-item label="模块名称：" prop="meta_title">
-              <el-input v-model.trim="dataJson.tempJson.meta_title" clearable show-word-limit disabled />
+            <el-form-item label="按钮编号：" prop="code">
+              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="模块icon：" prop="meta_icon">
-              <el-input v-model.trim="dataJson.tempJson.meta_icon" clearable show-word-limit disabled />
+            <el-form-item label="按钮名称：" prop="name">
+              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
           </el-col>
         </el-row>
+
         <el-row>
           <el-col :span="12">
-            <el-form-item label="路由名：" prop="route_name">
-              <el-input v-model.trim="dataJson.tempJson.route_name" clearable show-word-limit disabled />
+            <el-form-item label="排序：" prop="sort">
+              <el-input v-model.trim="dataJson.tempJson.sort" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.sort" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="模块路径：" prop="meta_icon">
-              <el-input v-model.trim="dataJson.tempJson.component" clearable show-word-limit disabled />
+            <el-form-item label="权限标识：" prop="perms">
+              <el-input v-model.trim="dataJson.tempJson.perms" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.perms" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -197,11 +148,13 @@
         <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
+
     <module-dialog
       :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
       @closeMeOk="handleModuleCloseOk"
       @closeMeCancle="handleModuletCloseCancle"
     />
+
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
   </div>
 </template>
@@ -215,14 +168,6 @@
   }
   .el-form-item .el-select {
     width: 100%;
-  }
-  .grid-content {
-    border-radius: 2px;
-    min-height: 36px;
-    margin-bottom: 10px;
-  }
-  .bg-purple-light {
-    background: #e5e9f2;
   }
 </style>
 <style >
@@ -239,25 +184,20 @@
 </style>
 
 <script>
-import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/sysmenu/sysmenu'
-import resizeMixin from './sysmenuResizeHandlerMixin'
+import { getListApi, updateApi, insertApi, deleteApi } from '@/api/00_system/modulebutton/modulebutton'
+import resizeMixin from './modulebuttonResizeHandlerMixin'
+import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
 import moduleDialog from '@/views/00_system/module/dialog/dialog'
 
 export default {
-  name: 'P00000120', // 页面id，和router中的name需要一致，作为缓存
-  components: { SelectDict, moduleDialog },
+  name: 'P00000041', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination, moduleDialog },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
     return {
       dataJson: {
-        // 级联选择器数据
-        cascader: {
-          data: null,
-          value: ''
-        },
         // 查询使用的json
         searchForm: {
           // 翻页条件
@@ -269,7 +209,6 @@ export default {
           // 查询条件
           name: '',
           code: '',
-          visible: 'null',
           is_del: '0' // 未删除
         },
         // 分页控件的json
@@ -351,24 +290,11 @@ export default {
           simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
         },
         // 弹出的搜索框参数设置
-        searchDialogDataOne: {
-          // 弹出框显示参数
-          dialogVisible: false,
-          // 当前设置状态:false->选择（select）;true->重置(reset)----选择后置为true，修改时有数据置为true
-          selectOrReset: false,
-          selectOrResetName: '选择',
-          selectOrResetIcon: 'el-icon-search',
-          // 点击确定以后返回的值
-          selectedDataJson: {}
-        },
-        // 弹出的搜索框参数设置
         searchDialogDataTwo: {
           // 弹出框显示参数
           dialogVisible: false,
           // 当前设置状态:false->选择（select）;true->重置(reset)----选择后置为true，修改时有数据置为true
-          selectOrReset: false,
           selectOrResetName: '选择',
-          selectOrResetIcon: 'el-icon-search',
           // 点击确定以后返回的值
           selectedDataJson: {}
         }
@@ -445,30 +371,19 @@ export default {
     'popSettingsData.searchDialogDataTwo.selectedDataJson': {
       handler(newVal, oldVal) {
         if (newVal === {}) {
-          this.dataJson.tempJson.type = ''
-          this.dataJson.tempJson.name = ''
-          this.dataJson.tempJson.path = ''
-          this.dataJson.tempJson.route_name = ''
-          this.dataJson.tempJson.meta_title = ''
-          this.dataJson.tempJson.meta_icon = ''
-          this.dataJson.tempJson.component = ''
-          this.dataJson.tempJson.affix = ''
+          this.dataJson.tempJson.module_code = ''
+          this.dataJson.tempJson.module_name = ''
+          this.dataJson.tempJson.parent_id = ''
         } else {
-          this.dataJson.tempJson.type = this.popSettingsData.searchDialogDataTwo.selectedDataJson.type
-          this.dataJson.tempJson.name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.name
-          this.dataJson.tempJson.path = this.popSettingsData.searchDialogDataTwo.selectedDataJson.path
-          this.dataJson.tempJson.route_name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.route_name
-          this.dataJson.tempJson.meta_title = this.popSettingsData.searchDialogDataTwo.selectedDataJson.meta_title
-          this.dataJson.tempJson.meta_icon = this.popSettingsData.searchDialogDataTwo.selectedDataJson.meta_icon
-          this.dataJson.tempJson.component = this.popSettingsData.searchDialogDataTwo.selectedDataJson.component
-          this.dataJson.tempJson.affix = this.popSettingsData.searchDialogDataTwo.selectedDataJson.affix
+          this.dataJson.tempJson.module_code = this.popSettingsData.searchDialogDataTwo.selectedDataJson.code
+          this.dataJson.tempJson.module_name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.name
+          this.dataJson.tempJson.parent_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
         }
       }
     }
   },
   created() {
     this.initShow()
-    this.getCascaderDataList()
   },
   mounted() {
     // 描绘完成
@@ -490,6 +405,16 @@ export default {
       this.getDataList()
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+    },
+    // 弹出框设置初始化
+    initDialogStatus() {
+      if (this.$store.getters.program !== undefined &&
+          this.$store.getters.program !== null &&
+          this.$store.getters.program.status === 'open') {
+        this.meDialogSetting.dialogStatus = true
+      } else {
+        this.meDialogSetting.dialogStatus = false
+      }
     },
     // 下拉选项控件事件
     handleSelectChange(val) {
@@ -591,7 +516,9 @@ export default {
       this.popSettingsData.dialogFormVisible = true
       // 控件focus
       this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
+        // this.$refs['refInsertFocus'].focus()
+      })
+      this.$nextTick(() => {
         // 初始化模块选择
         this.initModuleSelectButton()
       })
@@ -615,7 +542,11 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 控件focus
       this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
+        this.$refs['refUpdateFocus'].focus()
+      })
+      this.$nextTick(() => {
+        // 初始化模块选择
+        this.initModuleSelectButton()
       })
     },
     // 导出按钮
@@ -648,28 +579,6 @@ export default {
         this.handleExportSelectionData()
       }
     },
-    // 全部数据导出
-    handleExportAllData() {
-      // loading
-      this.settings.listLoading = true
-      // 开始导出
-      exportAllApi(this.dataJson.searchForm).then(response => {
-        this.settings.listLoading = false
-      })
-    },
-    // 部分数据导出
-    handleExportSelectionData() {
-      // loading
-      this.settings.listLoading = true
-      const selectionJson = []
-      this.dataJson.multipleSelection.forEach(function(value, index, array) {
-        selectionJson.push({ 'id': value.id })
-      })
-      // 开始导出
-      exportSelectionApi(selectionJson).then(response => {
-        this.settings.listLoading = false
-      })
-    },
     // 点击按钮 复制新增
     handleCopyInsert() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
@@ -689,7 +598,11 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 复制新增时focus
       this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
+        // this.$refs['refInsertFocus'].focus()
+      })
+      this.$nextTick(() => {
+        // 初始化模块选择
+        this.initModuleSelectButton()
       })
     },
     handleCurrentChange(row) {
@@ -725,7 +638,7 @@ export default {
       this.settings.listLoading = true
       getListApi(this.dataJson.searchForm).then(response => {
         // 增加对象属性，columnTypeShowIcon，columnNameShowIcon
-        const recorders = response.data
+        const recorders = response.data.records
         const newRecorders = recorders.map(v => {
           return { ...v, columnTypeShowIcon: false, columnNameShowIcon: false }
         })
@@ -791,11 +704,9 @@ export default {
         case 'update':
           // 数据初始化
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-          // 初始化数据
-          this.handleSelectOrReset()
           // 设置控件焦点focus
           this.$nextTick(() => {
-            // this.$refs['selectOne'].focus()
+            // this.$refs['refUpdateFocus'].focus()
           })
           break
         default:
@@ -803,7 +714,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            // this.$refs['selectOne'].focus()
+            // this.$refs['refInsertFocus'].focus()
           })
           break
       }
@@ -872,49 +783,30 @@ export default {
             placement='bottom'
           >
             <div slot='content'>
-            可见状态提示：<br/>
-            绿色：可见  <br/>
-            红色：不可见
+            删除状态提示：<br/>
+            绿色：未删除  <br/>
+            红色：已删除
             </div>
             <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
           </el-tooltip>
         </span>
       )
     },
-    getCascaderDataList() {
-      // 级联查询逻辑
-      this.settings.listLoading = true
-      getCascaderListApi().then(response => {
-        this.dataJson.cascader.data = response.data
-        this.settings.listLoading = false
-      })
-    },
-    // --------------弹出查询框：--------------
-
     // --------------弹出查询框：模块页面--------------
-    // 选择or重置按钮的初始化
+    // 选择按钮的初始化
     initModuleSelectButton() {
       this.$nextTick(() => {
         this.$refs.selectTwo.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
       })
-      this.popSettingsData.searchDialogDataTwo.selectOrReset = false
-      this.popSettingsData.searchDialogDataTwo.selectOrResetName = '选择'
-      this.popSettingsData.searchDialogDataTwo.selectOrResetIcon = 'el-icon-search'
     },
     handleModuleDialogClick() {
-      if (this.popSettingsData.searchDialogDataTwo.selectOrReset === false) {
-        // 选择按钮
-        this.popSettingsData.searchDialogDataTwo.dialogVisible = true
-      } else {
-        // 重置按钮
-        this.popSettingsData.searchDialogDataTwo.selectedDataJson = {}
-      }
+      // 选择按钮
+      this.popSettingsData.searchDialogDataTwo.dialogVisible = true
     },
     // 关闭对话框：确定
     handleModuleCloseOk(val) {
       this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
-      this.initSelectOrResectButton()
     },
     // 关闭对话框：取消
     handleModuletCloseCancle() {

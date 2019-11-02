@@ -6,19 +6,7 @@ import request from '@/utils/request'
  */
 export function getListApi(query) {
   return request({
-    url: '/api/v1/menu/list',
-    method: 'post',
-    data: query
-  })
-}
-
-/**
- * 查询逻辑：级联
- * @param {*} data
- */
-export function getCascaderListApi(query) {
-  return request({
-    url: '/api/v1/menu/cascader/list',
+    url: '/api/v1/modulebutton/list',
     method: 'post',
     data: query
   })
@@ -30,7 +18,7 @@ export function getCascaderListApi(query) {
  */
 export function updateApi(data) {
   return request({
-    url: '/api/v1/menu/save',
+    url: '/api/v1/modulebutton/save',
     method: 'post',
     data
   })
@@ -42,20 +30,21 @@ export function updateApi(data) {
  */
 export function insertApi(data) {
   return request({
-    url: '/api/v1/menu/insert',
+    url: '/api/v1/modulebutton/insert',
     method: 'post',
     data
   })
 }
 
 /**
- * 可见不可见逻辑
+ * 删除逻辑
  * @param {*} data
  */
-export function visibleApi(data) {
+export function deleteApi(data) {
   return request({
-    url: '/api/v1/menu/visible',
+    url: '/api/v1/modulebutton/delete',
     method: 'post',
     data
   })
 }
+

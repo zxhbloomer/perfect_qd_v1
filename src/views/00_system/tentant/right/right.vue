@@ -325,7 +325,7 @@ export default {
         },
         // 级联选择器数据
         cascader: {
-          data: [{}],
+          data: null,
           value: ''
         },
         // table使用的json，数据源

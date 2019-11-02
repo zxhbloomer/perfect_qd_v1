@@ -125,11 +125,6 @@ export const constantRoutes = [
       //   name: 'P00000030',
       //   meta: { title: '字典管理', icon: '字典类型' }
       // },
-      { path: 'module',
-        component: () => import('@/views/00_system/module/module'),
-        name: 'P00000040',
-        meta: { title: '模块编辑', icon: '模块编辑' }
-      },
       {
         path: 'dic',
         component: subMenu,
@@ -150,6 +145,29 @@ export const constantRoutes = [
             component: () => import('@/views/00_system/dictdata/dictdata'),
             name: 'P00000050',
             meta: { title: '字典数据' }
+          }
+        ]
+      },
+      {
+        path: 'module',
+        component: subMenu,
+        redirect: 'noRedirect',
+        name: 'M00000021', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
+        alwaysShow: true,
+        meta: {
+          title: '模块管理',
+          icon: '模块编辑'
+        },
+        children: [
+          { path: 'page',
+            component: () => import('@/views/00_system/module/module'),
+            name: 'P00000040',
+            meta: { title: '模块编辑' }
+          },
+          { path: 'button',
+            component: () => import('@/views/00_system/modulebutton/modulebutton'),
+            name: 'P00000041',
+            meta: { title: '模块按钮' }
           }
         ]
       },
