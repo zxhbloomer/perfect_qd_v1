@@ -37,12 +37,24 @@ export function updateApi(data) {
 }
 
 /**
- * 插入api
+ * 新增菜单组
  * @param {*} data
  */
-export function insertApi(data) {
+export function addMenuGroupApi(data) {
   return request({
-    url: '/api/v1/menu/insert',
+    url: '/api/v1/menu/addmenugroup',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 新增菜单组
+ * @param {*} data
+ */
+export function addSubMenuApi(data) {
+  return request({
+    url: '/api/v1/menu/addsubmenu',
     method: 'post',
     data
   })
