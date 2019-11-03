@@ -7,6 +7,7 @@
     :value="value"
     multiple
     @input="$emit('input', $event)"
+    @change="handleChange"
   >
     <el-option
       v-for="item in dataJson.selectOptions"
@@ -80,6 +81,9 @@ export default {
         this.dataJson.settings.listLoading = false
       }, (_error) => {
       })
+    },
+    handleChange(val) {
+      this.$emit('change', val)
     }
   }
 }

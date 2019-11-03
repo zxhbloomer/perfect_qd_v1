@@ -10,6 +10,9 @@ const DICT_SYS_VISIBLE_TYPE_SHOW = '0'
 const DICT_SYS_VISIBLE_TYPE_HIDDEN = '1'
 const DICT_SYS_VISIBLE_TYPE_ALL = 'null'
 
+/** 按钮类型： */
+const DICT_BTN_NAME_TYPE = 'btn_name_type'
+
 export default {
   /** 模块类型 */
   DICT_MODULE_TYPE,
@@ -20,5 +23,7 @@ export default {
   DICT_SYS_VISIBLE_TYPE,
   DICT_SYS_VISIBLE_TYPE_SHOW,
   DICT_SYS_VISIBLE_TYPE_HIDDEN,
-  DICT_SYS_VISIBLE_TYPE_ALL
+  DICT_SYS_VISIBLE_TYPE_ALL,
+  /** 按钮类型： */
+  DICT_BTN_NAME_TYPE
 }

@@ -80,8 +80,6 @@ export default {
           this.$nextTick(() => {
             // this.$refs.dialogRef.initDialogStatus()
             // this.$refs.dialogRef.initShow()
-            debugger
-            this.$refs.dialog.clearSelection()
           })
         }
       },

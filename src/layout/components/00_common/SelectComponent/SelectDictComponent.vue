@@ -7,6 +7,7 @@
     :value="value"
     :disabled="disabled"
     @input="$emit('input', $event)"
+    @change="handleChange"
   >
     <el-option
       v-for="item in dataJson.selectOptions"
@@ -85,6 +86,16 @@ export default {
         this.dataJson.settings.listLoading = false
       }, (_error) => {
       })
+    },
+    handleChange(val) {
+      let selectedData
+      this.dataJson.selectOptions.forEach((k) => {
+        if (k.value === val) {
+          selectedData = k
+        }
+      })
+
+      this.$emit('change', val, selectedData)
     }
   }
 }

@@ -24,7 +24,7 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-circle-close" :loading="settings.listLoading" @click="handleRealyDelete">物理删除</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -37,23 +37,29 @@
       border
       fit
       highlight-current-row
-      :default-sort="{prop: 'u_time', order: 'descending'}"
       style="width: 100%"
       @row-click="handleRowClick"
       @row-dblclick="handleRowDbClick"
       @current-change="handleCurrentChange"
-      @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="module_code" label="模块编号" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="module_name" label="模块名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="code" label="按钮编号" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="按钮名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sort" label="排序" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="perms" label="权限标识" />
-      <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
+      <el-table-column show-overflow-tooltip min-width="100" prop="module_code" label="模块编号" />
+      <el-table-column show-overflow-tooltip min-width="80" prop="module_name" label="模块名称" />
+      <el-table-column show-overflow-tooltip min-width="80" prop="code" label="按钮编号" />
+      <el-table-column show-overflow-tooltip min-width="80" prop="name" label="按钮名称" />
+      <el-table-column show-overflow-tooltip min-width="80" prop="sort" label="排序">
+        <template slot-scope="scope">
+          <span>{{ scope.row.sort }}</span>
+          <div class="floatRight">
+            <el-button class="el-icon-top" type="text" style="font-size: 16px" :disabled="scope.row.sort===scope.row.min_sort" @click="handleSortUp(scope, scope.$index)" />
+            <el-button class="el-icon-bottom" type="text" style="font-size: 16px" :disabled="scope.row.sort===scope.row.max_sort" @click="handleSortDown(scope, scope.$index)" />
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column show-overflow-tooltip min-width="80" prop="perms" label="权限标识" />
+      <el-table-column min-width="150" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
 
@@ -84,7 +90,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="模块编号：" prop="module_code">
-              <el-input v-model.trim="dataJson.tempJson.module_code" clearable show-word-limit disabled>
+              <el-input v-model.trim="dataJson.tempJson.module_code" disabled>
                 <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleModuleDialogClick">
                   选择
                 </el-button>
@@ -100,21 +106,8 @@
 
         <el-row>
           <el-col :span="12">
-            <el-form-item label="按钮编号：" prop="code">
-              <el-input v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="按钮名称：" prop="name">
-              <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="排序：" prop="sort">
-              <el-input v-model.trim="dataJson.tempJson.sort" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.sort" disabled />
+            <el-form-item label="按钮：" prop="code">
+              <select-dict v-model="dataJson.tempJson.code" :para="CONSTANTS.DICT_BTN_NAME_TYPE" @change="handleChange" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -184,15 +177,16 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, deleteApi } from '@/api/00_system/modulebutton/modulebutton'
+import { getListApi, updateApi, insertApi, deleteApi, saveListApi, realDeleteSelectionApi } from '@/api/00_system/modulebutton/modulebutton'
 import resizeMixin from './modulebuttonResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import moduleDialog from '@/views/00_system/module/dialog/dialog'
+import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
 
 export default {
   name: 'P00000041', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, moduleDialog },
+  components: { Pagination, moduleDialog, SelectDict },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -203,8 +197,7 @@ export default {
           // 翻页条件
           pageCondition: {
             current: 1,
-            size: 20,
-            sort: '-u_time' // 排序
+            size: 20
           },
           // 查询条件
           name: '',
@@ -225,11 +218,14 @@ export default {
           name: '',
           code: '',
           descr: '',
+          module_code: '',
           dbversion: 0
         },
         // 单条数据 json
         currentJson: null,
-        tempJson: null,
+        tempJson: {
+          module_code: ''
+        },
         inputSettings: {
           maxLength: {
             name: 20,
@@ -245,13 +241,12 @@ export default {
       },
       // 页面设置json
       settings: {
-        // 表格排序规则
-        sortOrders: ['ascending', 'descending'],
         // 按钮状态
         btnShowStatus: {
           showUpdate: false,
           showCopyInsert: false,
-          showExport: false
+          showExport: false,
+          showDelete: false
         },
         // loading 状态
         listLoading: true,
@@ -285,9 +280,9 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          name: [{ required: true, message: '请输入集团全称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入集团编号', trigger: 'change' }],
-          simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
+          module_code: [{ required: true, message: '请选择模块编号', trigger: 'change' }],
+          code: [{ required: true, message: '请输入按钮', trigger: 'change' }],
+          perms: [{ required: true, message: '请输入集团全称', trigger: 'change' }]
         },
         // 弹出的搜索框参数设置
         searchDialogDataTwo: {
@@ -363,8 +358,10 @@ export default {
       handler(newVal, oldVal) {
         if (newVal.length > 0) {
           this.settings.btnShowStatus.showExport = true
+          this.settings.btnShowStatus.showDelete = true
         } else {
           this.settings.btnShowStatus.showExport = false
+          this.settings.btnShowStatus.showDelete = false
         }
       }
     },
@@ -375,6 +372,7 @@ export default {
           this.dataJson.tempJson.module_name = ''
           this.dataJson.tempJson.parent_id = ''
         } else {
+          debugger
           this.dataJson.tempJson.module_code = this.popSettingsData.searchDialogDataTwo.selectedDataJson.code
           this.dataJson.tempJson.module_name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.name
           this.dataJson.tempJson.parent_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
@@ -397,6 +395,7 @@ export default {
         name: '',
         code: '',
         descr: '',
+        module_code: '',
         dbversion: 0
       }
     },
@@ -549,36 +548,6 @@ export default {
         this.initModuleSelectButton()
       })
     },
-    // 导出按钮
-    handleExport() {
-      // 没有选择任何数据的情况
-      if (this.dataJson.multipleSelection.length <= 0) {
-        this.$alert('请在表格中选择数据进行导出', '空数据错误', {
-          confirmButtonText: '关闭',
-          type: 'error'
-        }).then(() => {
-          this.settings.btnShowStatus.showExport = false
-        })
-      } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
-        // 选择全部的时候
-        this.$confirm('请选择：当前页数据导出，全数据导出？', '确认信息', {
-          distinguishCancelAndClose: true,
-          confirmButtonText: '全数据导出',
-          cancelButtonText: '当前页数据导出'
-        }).then(() => {
-          this.handleExportAllData()
-        }).catch(action => {
-          // 右上角X
-          if (action !== 'close') {
-            // 当前页所选择的数据导出
-            this.handleExportSelectionData()
-          }
-        })
-      } else {
-        // 部分数据导出
-        this.handleExportSelectionData()
-      }
-    },
     // 点击按钮 复制新增
     handleCopyInsert() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
@@ -681,14 +650,42 @@ export default {
         }
       })
     },
+    // 复制新增逻辑
+    doCopyInsert() {
+      this.$refs['dataSubmitForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.dataJson.tempJson)
+          this.settings.listLoading = true
+          insertApi(tempData).then((_data) => {
+            this.dataJson.listData.push(_data.data)
+            this.$notify({
+              title: '更新成功',
+              message: _data.message,
+              type: 'success',
+              duration: this.settings.duration
+            })
+            this.popSettingsData.dialogFormVisible = false
+            this.settings.listLoading = false
+          }, (_error) => {
+            this.$notify({
+              title: '更新错误',
+              message: _error.message,
+              type: 'error',
+              duration: this.settings.duration
+            })
+            // this.popSettingsData.dialogFormVisible = false
+            this.settings.listLoading = false
+          })
+        }
+      })
+    },
     // 重置查询区域
     doResetSearch() {
       this.dataJson.searchForm = {
         // 翻页条件
         pageCondition: {
           current: 1,
-          size: 20,
-          sort: '-u_time' // 排序
+          size: 20
         },
         // 查询条件
         code: '',
@@ -811,6 +808,135 @@ export default {
     // 关闭对话框：取消
     handleModuletCloseCancle() {
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+    },
+    handleChange(val, label) {
+      this.dataJson.tempJson.name = label.name
+    },
+    // 排序上
+    handleSortUp(scope, index) {
+      // loading
+      this.settings.listLoading = true
+      // 1：位置互换，数组对象中
+      const index1 = index
+      const index2 = index - 1
+      this.dataJson.listData.splice(index2, 1, ...this.dataJson.listData.splice(index1, 1, this.dataJson.listData[index2]))
+      // 2：计算sort
+      this.doReIndexSort(scope.row.parent_id)
+      // 3：提交更新
+      this.doSortUpdate(this.getSortedDataList(scope.row.parent_id))
+    },
+    // 排序下
+    handleSortDown(scope, index) {
+      // loading
+      this.settings.listLoading = true
+      // 1：位置互换，数组对象中
+      const index1 = index
+      const index2 = index + 1
+      this.dataJson.listData.splice(index2, 1, ...this.dataJson.listData.splice(index1, 1, this.dataJson.listData[index2]))
+      // 2：计算sort
+      this.doReIndexSort(scope.row.parent_id)
+      // 3：提交更新
+      this.doSortUpdate(this.getSortedDataList(scope.row.parent_id), scope.row.parent_id)
+    },
+    // sort重新计算
+    doReIndexSort(parent_id) {
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.parent_id === parent_id) {
+          // 开始排序
+          item.sort = index
+        }
+      })
+    },
+    // sort重新计算
+    getSortedDataList(parent_id) {
+      const rtnList = []
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.parent_id === parent_id) {
+          rtnList.push(item)
+        }
+      })
+      return rtnList
+    },
+    // 更新逻辑
+    doSortUpdate(listData, parent_id) {
+      saveListApi(listData).then((_data) => {
+        this.$notify({
+          title: '更新成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        // 返回替换json
+        this.doUpdateSortJson(_data.data, parent_id)
+        // loading
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '更新错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      })
+    },
+    // 更新完毕后，把最新的数据更新回去
+    doUpdateSortJson(updatedData, parent_id) {
+      let startIndex = 0
+      this.dataJson.listData.forEach(function(item, index, arr) {
+        if (item.parent_id === parent_id) {
+          // 位置互换，数组对象中
+          const index1 = index
+          const index2 = startIndex
+          arr.splice(index1, 1, ...updatedData.splice(index1, 1, updatedData[index2]))
+          startIndex++
+        }
+      })
+    },
+    // 删除按钮
+    handleRealyDelete() {
+      // 没有选择任何数据的情况
+      if (this.dataJson.multipleSelection.length <= 0) {
+        this.$alert('请在表格中选择数据进行删除', '空数据错误', {
+          confirmButtonText: '关闭',
+          type: 'error'
+        }).then(() => {
+          this.settings.btnShowStatus.showDelete = false
+        })
+      } else {
+        // 部分数据导出
+        this.handleRealDeleteSelectionData()
+      }
+    },
+    // 部分数据导出
+    handleRealDeleteSelectionData() {
+      // loading
+      this.settings.listLoading = true
+      const selectionJson = []
+      this.dataJson.multipleSelection.forEach(function(value, index, array) {
+        selectionJson.push({ 'id': value.id })
+      })
+      // 开始导出
+      realDeleteSelectionApi(selectionJson).then((_data) => {
+        this.$notify({
+          title: '删除成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        this.getDataList()
+        // loading
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '删除错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        this.settings.listLoading = false
+      })
     }
   }
 }
