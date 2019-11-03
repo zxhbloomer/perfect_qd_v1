@@ -372,7 +372,6 @@ export default {
           this.dataJson.tempJson.module_name = ''
           this.dataJson.tempJson.parent_id = ''
         } else {
-          debugger
           this.dataJson.tempJson.module_code = this.popSettingsData.searchDialogDataTwo.selectedDataJson.code
           this.dataJson.tempJson.module_name = this.popSettingsData.searchDialogDataTwo.selectedDataJson.name
           this.dataJson.tempJson.parent_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
@@ -382,6 +381,11 @@ export default {
   },
   created() {
     this.initShow()
+    if (this.$route.query.module_code !== undefined) {
+      this.dataJson.searchForm.module_code = this.$route.query.module_code
+    } else {
+      this.dataJson.searchForm.module_code = ''
+    }
   },
   mounted() {
     // 描绘完成

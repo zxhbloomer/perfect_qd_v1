@@ -80,6 +80,15 @@
       <el-table-column type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="110" :sort-orders="settings.sortOrders" prop="type_name" label="模块类型" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="rowcount" label="按钮设置">
+        <template slot-scope="scope">
+          <span>已有（</span>
+          <el-link type="primary" :href="'#/sys/module/button?module_code=' + scope.row.code">{{ scope.row.rowcount }}
+            <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          </el-link>
+          <span>）</span>
+        </template>
+      </el-table-column>
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="模块编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="模块名称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="path" label="请求地址" />
