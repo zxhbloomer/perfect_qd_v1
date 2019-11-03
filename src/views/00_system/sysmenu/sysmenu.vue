@@ -932,13 +932,13 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           addSubMenuApi(tempData).then((_data) => {
-            this.dataJson.listData.push(_data.data)
             this.$notify({
               title: '更新成功',
               message: _data.message,
               type: 'success',
               duration: this.settings.duration
             })
+            this.getDataList()
             this.popSettingsData.dialogFormVisible = false
             this.settings.listLoading = false
           }, (_error) => {
