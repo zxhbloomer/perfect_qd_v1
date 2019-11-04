@@ -49,6 +49,7 @@
     >
       <el-table-column type="index" width="45" />
       <el-table-column show-overflow-tooltip min-width="150" prop="name" label="菜单名称" />
+      <el-table-column show-overflow-tooltip min-width="150" prop="code" label="菜单名称" />
       <el-table-column show-overflow-tooltip min-width="80" prop="sort" label="排序" />
       <el-table-column show-overflow-tooltip min-width="80" prop="type_name" label="菜单类型" />
       <el-table-column min-width="45" label="可见" :render-header="renderHeaderIsDel">
@@ -130,7 +131,7 @@
             <el-col :span="12">
               <el-form-item label="菜单名称：" prop="name">
                 <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit>
-                  <el-button slot="append" ref="selectTwo" :icon="popSettingsData.searchDialogDataTwo.selectOrResetIcon" @click="handleModuleDialogClick">
+                  <el-button slot="append" ref="selectOne" :icon="popSettingsData.searchDialogDataTwo.selectOrResetIcon" @click="handleModuleDialogClick">
                     {{ popSettingsData.searchDialogDataTwo.selectOrResetName }}
                   </el-button>
                 </el-input>
@@ -422,7 +423,7 @@ export default {
         textMap: {
           update: '修改',
           insert: '新增',
-          copyInsert: '复制新增'
+          copyInsert: '添加子菜单'
         },
         // 按钮状态
         btnShowStatus: {
@@ -733,11 +734,12 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+      // 初始化模块选择
+      this.initModuleSelectButton()
+
       // 控件focus
       this.$nextTick(() => {
         // this.$refs['selectOne'].focus()
-        // 初始化模块选择
-        this.initModuleSelectButton()
       })
     },
     // 点击按钮 更新
@@ -760,11 +762,12 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
+      // 初始化模块选择
+      this.initModuleSelectButton()
+
       // 控件focus
       this.$nextTick(() => {
         // this.$refs['selectOne'].focus()
-        // 初始化模块选择
-        this.initModuleSelectButton()
       })
     },
     // 点击按钮 复制新增
@@ -774,16 +777,15 @@ export default {
 
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
       this.dataJson.tempJson.parent_id = this.dataJson.tempJson.id
-
       this.dataJson.tempJson.id = undefined
       this.dataJson.tempJson.template_id = undefined
       this.dataJson.tempJson.u_id = ''
       this.dataJson.tempJson.u_time = ''
       this.dataJson.tempJson.code = ''
-      this.dataJson.tempJson.name = ''
+      this.dataJson.tempJson.son_count = this.dataJson.tempJson.son_count + 1
 
-      // 级联数据设置
-      this.dataJson.tempJson.depth_id = this.dataJson.tempJson.depth_id.add(this.dataJson.tempJson.id)
+      // 儿子个数增加
+      this.dataJson.tempJson.name = ''
 
       // 修改
       this.popSettingsData.dialogStatus = 'copyInsert'
@@ -795,6 +797,9 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = false
       this.popSettingsData.btnShowStatus.showCopyInsert = true
+      // 初始化模块选择
+      this.initModuleSelectButton()
+
       // 复制新增时focus
       this.$nextTick(() => {
         // this.$refs['selectOne'].focus()
@@ -968,7 +973,6 @@ export default {
         console.log(val, index, arr)
       })
       this.dataJson.multipleSelection = arr
-      debugger
     },
     // 资源类型check
     validateType(rule, value, callback) {
@@ -1010,7 +1014,7 @@ export default {
     // 选择or重置按钮的初始化
     initModuleSelectButton() {
       this.$nextTick(() => {
-        this.$refs.selectTwo.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+        this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
       })
       this.popSettingsData.searchDialogDataTwo.selectOrReset = false
       this.popSettingsData.searchDialogDataTwo.selectOrResetName = '选择'
@@ -1068,7 +1072,6 @@ export default {
     handleCascaderChange(val) {
       // 数组中最后一个才是parent_id
       this.dataJson.tempJson.parent_id = val[val.length - 1]
-      debugger
     },
     // 删除按钮
     handleRealyDelete() {
