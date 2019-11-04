@@ -71,3 +71,15 @@ export function visibleApi(data) {
     data
   })
 }
+
+/**
+ * 物理删除选择数据
+ * @param {*} data
+ */
+export function realDeleteSelectionApi(data) {
+  return request({
+    url: '/api/v1/menu/realdelete',
+    method: 'post',
+    data
+  })
+}

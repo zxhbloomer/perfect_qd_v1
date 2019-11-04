@@ -909,11 +909,11 @@ export default {
           this.settings.btnShowStatus.showDelete = false
         })
       } else {
-        // 部分数据导出
+        // 选中数据删除
         this.handleRealDeleteSelectionData()
       }
     },
-    // 部分数据导出
+    // 选中数据删除
     handleRealDeleteSelectionData() {
       // loading
       this.settings.listLoading = true
@@ -921,7 +921,7 @@ export default {
       this.dataJson.multipleSelection.forEach(function(value, index, array) {
         selectionJson.push({ 'id': value.id })
       })
-      // 开始导出
+      // 开始删除
       realDeleteSelectionApi(selectionJson).then((_data) => {
         this.$notify({
           title: '删除成功',
