@@ -105,7 +105,7 @@
             placeholder="请选择省市区"
             filterable
             clearable
-            :props="areas_props"
+            :options="dataJson.cascader.data"
             style="width: 100%"
             @change="handleCascaderChange"
           />
@@ -152,8 +152,8 @@
 </style>
 
 <script>
-import { getProvincerListApi, getCityListApi, getAreaListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/address/address'
-// import { getCascaderListApi } from '@/api/00_common/systemArea'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/address/address'
+import { getAreasCascaderApi, getProvincerListApi, getCityListApi, getAreaListApi } from '@/api/00_common/systemArea'
 import resizeMixin from './addressResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -170,10 +170,46 @@ export default {
       areas_props: {
         lazy: true,
         lazyLoad(node, resolve) {
-          switch (node.level) {
+          const { value, level } = node
+          switch (level) {
             case 0:
-              debugger
-              that.getProvincerList()
+              // 级联查询逻辑
+              that.settings.listLoading = true
+              getProvincerListApi().then(response => {
+                const nodes = response.data.map(item => ({
+                  value: item.code,
+                  label: item.name,
+                  leaf: false
+                }))
+                resolve(nodes)
+                that.settings.listLoading = false
+              })
+              break
+            case 1:
+              // 级联查询逻辑
+              that.settings.listLoading = true
+              getCityListApi({ province_code: value }).then(response => {
+                const nodes = response.data.map(item => ({
+                  value: item.code,
+                  label: item.name,
+                  leaf: false
+                }))
+                resolve(nodes)
+                that.settings.listLoading = false
+              })
+              break
+            case 2:
+              // 级联查询逻辑
+              that.settings.listLoading = true
+              getAreaListApi({ city_code: value }).then(response => {
+                const nodes = response.data.map(item => ({
+                  value: item.code,
+                  label: item.name,
+                  leaf: true
+                }))
+                resolve(nodes)
+                that.settings.listLoading = false
+              })
               break
             default:
           }
@@ -480,6 +516,9 @@ export default {
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
 
+      // 初始化级联数据
+      this.getCascaderDataList()
+
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refInsertFocus'].focus()
@@ -747,31 +786,10 @@ export default {
       // 数组中最后一个才是parent_id
       // this.dataJson.tempJson.parent_id = val[val.length - 1]
     },
-    // 省
-    getProvincerList() {
-      // 级联查询逻辑
-      debugger
-      this.settings.listLoading = true
-      debugger
-      getProvincerListApi().then(response => {
-        this.settings.listLoading = false
-        return response.data
-      })
-    },
-    // 省
-    getCityList() {
+    getCascaderDataList() {
       // 级联查询逻辑
       this.settings.listLoading = true
-      getCityListApi().then(response => {
-        this.dataJson.cascader.data = response.data
-        this.settings.listLoading = false
-      })
-    },
-    // 省
-    getAreaList() {
-      // 级联查询逻辑
-      this.settings.listLoading = true
-      getAreaListApi().then(response => {
+      getAreasCascaderApi().then(response => {
         this.dataJson.cascader.data = response.data
         this.settings.listLoading = false
       })

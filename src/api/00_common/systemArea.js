@@ -35,3 +35,15 @@ export function getAreaListApi(query) {
     data: query
   })
 }
+
+/**
+ * 查询逻辑：级联
+ * @param {*} data
+ */
+export function getAreasCascaderApi(query) {
+  return request({
+    url: '/api/v1/common/areas/area/casca',
+    method: 'post',
+    data: query
+  })
+}
