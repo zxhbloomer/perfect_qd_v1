@@ -208,6 +208,12 @@ export const constantRoutes = [
             component: () => import('@/views/10_master/company/company'),
             name: 'P00000110',
             meta: { title: '企业信息' }
+          },
+          {
+            path: 'address',
+            component: () => import('@/views/10_master/address/address'),
+            name: 'P00000130',
+            meta: { title: '地址簿' }
           }
         ]
       }

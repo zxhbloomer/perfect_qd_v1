@@ -61,18 +61,6 @@ export function addSubMenuApi(data) {
 }
 
 /**
- * 可见不可见逻辑
- * @param {*} data
- */
-export function visibleApi(data) {
-  return request({
-    url: '/api/v1/menu/visible',
-    method: 'post',
-    data
-  })
-}
-
-/**
  * 物理删除选择数据
  * @param {*} data
  */

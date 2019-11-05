@@ -52,22 +52,6 @@
       <el-table-column show-overflow-tooltip min-width="150" prop="code" label="菜单名称" />
       <el-table-column show-overflow-tooltip min-width="80" prop="sort" label="排序" />
       <el-table-column show-overflow-tooltip min-width="80" prop="type_name" label="菜单类型" />
-      <el-table-column min-width="45" label="可见" :render-header="renderHeaderIsDel">
-        <template slot-scope="scope">
-          <el-tooltip :content="'可见状态: ' + scope.row.visible" placement="top">
-            <el-switch
-              v-model="scope.row.visible"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              :disabled="meDialogSetting.dialogStatus"
-              @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
       <el-table-column min-width="150" prop="u_time" label="更新时间" />
     </el-table>
 
@@ -586,6 +570,23 @@ export default {
         }
       }
     },
+    // 当前行的选中
+    'dataJson.currentJson': {
+      handler(newVal, oldVal) {
+        if (this.dataJson.currentJson.id !== undefined) {
+          // this.settings.btnShowStatus.doInsert = true
+          this.settings.btnShowStatus.showUpdate = true
+          this.settings.btnShowStatus.showCopyInsert = true
+          this.settings.btnShowStatus.showExport = true
+        } else {
+          // this.settings.btnShowStatus.doInsert = false
+          this.settings.btnShowStatus.showUpdate = false
+          this.settings.btnShowStatus.showCopyInsert = false
+          this.settings.btnShowStatus.showExport = false
+        }
+      },
+      deep: true
+    },
     'popSettingsData.searchDialogDataTwo.selectedDataJson': {
       handler(newVal, oldVal) {
         if (newVal === {}) {
@@ -664,6 +665,7 @@ export default {
       // 清空选择
       this.dataJson.multipleSelection = []
       this.$refs.multipleTable.clearSelection()
+      this.dataJson.currentJson.id = undefined
     },
     handleRowUpdate(row, _rowIndex) {
       // 修改
@@ -810,17 +812,6 @@ export default {
       this.dataJson.currentJson.index = this.getRowIndex(row)
       this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
 
-      if (this.dataJson.currentJson.id !== undefined) {
-        // this.settings.btnShowStatus.doInsert = true
-        this.settings.btnShowStatus.showUpdate = true
-        this.settings.btnShowStatus.showCopyInsert = true
-        this.settings.btnShowStatus.showExport = true
-      } else {
-        // this.settings.btnShowStatus.doInsert = false
-        this.settings.btnShowStatus.showUpdate = false
-        this.settings.btnShowStatus.showCopyInsert = false
-        this.settings.btnShowStatus.showExport = false
-      }
       // 设置dialog的返回
       this.$store.dispatch('popUpSearchDialog/selectedDataJson', Object.assign({}, row))
     },

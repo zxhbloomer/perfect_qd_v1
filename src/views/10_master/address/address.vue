@@ -7,51 +7,15 @@
       label-position="getLabelPosition()"
       class="floatRight"
     >
-      <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="企业全称" />
-      </el-form-item>
-      <el-form-item label="">
-        <delete-type-normal v-model="dataJson.searchForm.is_del" />
-      </el-form-item>
       <el-form-item>
-        <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-s-promotion">高级搜索</el-button>
+        <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">刷 新</el-button>
       </el-form-item>
     </el-form>
-    <el-popover
-      ref="popover"
-      placement="top"
-      width="420"
-      title="高级查询"
-    >
-      <el-form
-        :inline="true"
-        :model="dataJson.searchForm"
-        label-position="getLabelPosition()"
-        class="floatRight"
-      >
-        <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="企业全称" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="法定代表人" />
-        </el-form-item>
-        <el-form-item label="">
-          <delete-type-normal v-model="dataJson.searchForm.is_del" />
-        </el-form-item>
-        <div style="text-align: right; margin: 0">
-          <el-button type="text" @click="doResetSearch()">重置</el-button>
-          <el-button type="primary" @click="handleSearch">提交</el-button>
-        </div>
-      </el-form>
-    </el-popover>
     <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">删 除</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -74,27 +38,11 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="code" label="社会信用代码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="企业全称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="企业简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="juridical_name" label="法定代表人" />
-      <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="50" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
-        <template slot-scope="scope">
-          <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
-            <el-switch
-              v-model="scope.row.is_del"
-              active-color="#ff4949"
-              inactive-color="#dcdfe6"
-              :active-value="true"
-              :inactive-value="false"
-              :width="30"
-              :disabled="meDialogSetting.dialogStatus"
-              @change="handleDel(scope.row)"
-            />
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="postal_code" label="邮编" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="link_man" label="联系人" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="phone" label="电话" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="is_default" label="默认" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="tag" label="标签" />
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
@@ -125,62 +73,44 @@
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+            <el-form-item label="邮编：" prop="postal_code">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.postal_code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.postal_code" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+            <el-form-item label="联系人：" prop="link_man">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.link_man" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.link_man" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="企业简称：" prop="simple_name">
-              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
+            <el-form-item label="电话：" prop="phone">
+              <el-input v-model.trim="dataJson.tempJson.phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.phone" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="法定代表人：" prop="juridical_name">
-              <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" />
+            <el-form-item label="默认地址：" prop="phone">
+              <el-switch
+                v-model="dataJson.tempJson.is_default"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+              />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-alert
-          title="地址信息"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <areas-select v-model="dataJson.xx" :level="2" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+        <el-form-item label="省市区：" prop="cascader_areas">
+          <el-cascader
+            v-model="dataJson.tempJson.cascader_areas"
+            placeholder="请选择省市区"
+            filterable
+            clearable
+            :props="areas_props"
+            style="width: 100%"
+            @change="handleCascaderChange"
+          />
         </el-form-item>
+
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
             <el-form-item label="更新者：" prop="u_id">
@@ -222,22 +152,39 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/company/company'
-import resizeMixin from './companyResizeHandlerMixin'
+import { getProvincerListApi, getCityListApi, getAreaListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/address/address'
+// import { getCascaderListApi } from '@/api/00_common/systemArea'
+import resizeMixin from './addressResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
-import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
-import AreasSelect from '@/layout/components/00_common/areas_select'
 
 export default {
-  name: 'P00000100', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, AreasSelect },
+  name: 'P00000130', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
+    const that = this
     return {
+      // 三级
+      areas_props: {
+        lazy: true,
+        lazyLoad(node, resolve) {
+          switch (node.level) {
+            case 0:
+              debugger
+              that.getProvincerList()
+              break
+            default:
+          }
+        }
+      },
       dataJson: {
-        xx: [],
+        // 级联选择器数据
+        cascader: {
+          data: null,
+          value: ''
+        },
         // 查询使用的json
         searchForm: {
           // 翻页条件
@@ -532,6 +479,7 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refInsertFocus'].focus()
@@ -556,7 +504,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = false
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refUpdateFocus'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     // 导出按钮
@@ -734,7 +682,7 @@ export default {
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
           // 设置控件焦点focus
           this.$nextTick(() => {
-            this.$refs['refUpdateFocus'].focus()
+            this.$refs['refInsertFocus'].focus()
           })
           break
         default:
@@ -794,31 +742,39 @@ export default {
     handleSelectionChange(val) {
       this.dataJson.multipleSelection = val
     },
-    // 资源类型check
-    validateType(rule, value, callback) {
-      // 现阶段只支持json配置
-      if (value === '10') {
-        return callback()
-      }
-      return callback(new Error('现在只支持json配置，请选择“json配置”'))
+    // 级联事件
+    handleCascaderChange(val) {
+      // 数组中最后一个才是parent_id
+      // this.dataJson.tempJson.parent_id = val[val.length - 1]
     },
-    renderHeaderIsDel: function(h, { column }) {
-      return (
-        <span>{column.label}
-          <el-tooltip
-            class='item'
-            effect='dark'
-            placement='bottom'
-          >
-            <div slot='content'>
-            删除状态提示：<br/>
-            绿色：未删除  <br/>
-            红色：已删除
-            </div>
-            <svg-icon icon-class='perfect-icon-question1_btn' style='margin-left: 5px'/>
-          </el-tooltip>
-        </span>
-      )
+    // 省
+    getProvincerList() {
+      // 级联查询逻辑
+      debugger
+      this.settings.listLoading = true
+      debugger
+      getProvincerListApi().then(response => {
+        this.settings.listLoading = false
+        return response.data
+      })
+    },
+    // 省
+    getCityList() {
+      // 级联查询逻辑
+      this.settings.listLoading = true
+      getCityListApi().then(response => {
+        this.dataJson.cascader.data = response.data
+        this.settings.listLoading = false
+      })
+    },
+    // 省
+    getAreaList() {
+      // 级联查询逻辑
+      this.settings.listLoading = true
+      getAreaListApi().then(response => {
+        this.dataJson.cascader.data = response.data
+        this.settings.listLoading = false
+      })
     }
   }
 }
