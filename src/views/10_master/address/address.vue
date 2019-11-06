@@ -100,6 +100,7 @@
         </el-row>
         <el-form-item label="省市区：" prop="cascader_areas">
           <el-cascader
+            ref="refCascader"
             v-model="dataJson.tempJson.cascader_areas"
             placeholder="请选择省市区"
             filterable
@@ -747,6 +748,7 @@ export default {
     },
     // 级联事件
     handleCascaderChange(val) {
+      this.dataJson.tempJson.cascader_text = this.$refs.refCascader.presentText
       this.dataJson.tempJson.province_code = val[0]
       this.dataJson.tempJson.city_code = val[1]
       this.dataJson.tempJson.area_code = val[2]

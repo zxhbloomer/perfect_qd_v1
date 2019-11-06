@@ -182,8 +182,8 @@
 
             <el-row>
               <el-col :span="12">
-                <el-form-item label="省市区：" prop="cascader_areas">
-                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.cascader_areas" disabled />
+                <el-form-item label="省市区：" prop="cascader_text">
+                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.cascader_text" disabled />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
