@@ -27,7 +27,12 @@ export default {
             val = val + listRefsNames[i].$el.offsetHeight
           }
         }
-        const rtnVal = elementHeight - val - 20
+        let rtnVal = elementHeight - val - 20
+        const programmer = this.$store.getters.program
+        // 判断是否是弹出框
+        if (programmer !== null && programmer !== undefined && programmer.status === 'open') {
+          rtnVal = rtnVal - 200
+        }
         // 此处使用的是页面上的值
         this.settings.tableHeight = rtnVal
         return rtnVal

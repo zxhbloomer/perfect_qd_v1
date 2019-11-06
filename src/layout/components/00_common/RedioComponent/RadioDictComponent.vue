@@ -1,5 +1,5 @@
 <template>
-  <el-radio-group :value="value" @input="handleChange">
+  <el-radio-group :value="value" :disabled="disabled" @input="handleChange">
     <el-radio-button
       v-for="item in dataJson.selectOptions"
       :key="item.value"

@@ -107,7 +107,7 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="700px"
+      width="800px"
     >
       <el-form
         ref="dataSubmitForm"
@@ -117,82 +117,106 @@
         label-width="120px"
         status-icon
       >
-        <el-alert
-          title="基本信息"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="企业简称：" prop="simple_name">
-              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="法定代表人：" prop="juridical_name">
-              <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-alert
-          title="地址信息"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <areas-select v-model="dataJson.xx" :level="2" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="社会信用代码：" prop="code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="企业全称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
 
-        <el-form-item label="描述：" prop="descr">
-          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
-        </el-form-item>
-        <el-row v-show="popSettingsData.dialogStatus === 'update'">
-          <el-col :span="12">
-            <el-form-item label="更新者：" prop="u_id">
-              <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
+        <el-tabs style="height: 400px;">
+          <br>
+          <el-tab-pane label="基本信息">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="社会信用代码：" prop="code">
+                  <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="企业全称：" prop="name">
+                  <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="企业简称：" prop="simple_name">
+                  <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="法定代表人：" prop="juridical_name">
+                  <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-tab-pane>
+
+          <el-tab-pane label="地址信息">
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="联系人：" prop="link_man">
+                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.link_man" disabled>
+                    <el-button slot="append" ref="selectOne" icon="el-icon-search" @click="handleModuleDialogClick">
+                      选择
+                    </el-button>
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="电话：" prop="phone">
+                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.phone" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="邮编：" prop="postal_code">
+                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.postal_code" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="默认地址：" prop="is_default">
+                  <el-switch
+                    v-model="popSettingsData.searchDialogDataOne.selectedDataJson.is_default"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="省市区：" prop="cascader_areas">
+                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.cascader_areas" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="标签：" prop="tag">
+                  <radio-dict v-model="popSettingsData.searchDialogDataOne.selectedDataJson.tag" :para="CONSTANTS.DICT_SYS_ADDRESS_TAG_TYPE" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-form-item label="详细地址：" prop="detail_address">
+              <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.detail_address" disabled />
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="更新时间：" prop="u_time">
-              <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
+
+          </el-tab-pane>
+          <el-tab-pane label="角色管理">角色管理</el-tab-pane>
+          <el-tab-pane label="其他信息">
+
+            <el-row v-show="popSettingsData.dialogStatus === 'update'">
+              <el-col :span="12">
+                <el-form-item label="更新者：" prop="u_id">
+                  <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="更新时间：" prop="u_time">
+                  <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+          </el-tab-pane>
+        </el-tabs>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -206,6 +230,13 @@
       </div>
     </el-dialog>
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
+
+    <address-dialog
+      :visible="popSettingsData.searchDialogDataOne.dialogVisible"
+      @closeMeOk="handleAddressCloseOk"
+      @closeMeCancle="handleAddressCloseCancle"
+    />
+
   </div>
 </template>
 
@@ -220,6 +251,18 @@
     width: 100%;
   }
 </style>
+<style >
+  .el-input-group__append_select{
+    color: #FFFFFF;
+    background-color: #1890ff;
+    border-color: #1890ff;
+  }
+  .el-input-group__append_reset{
+    color: #FFFFFF;
+    background-color: #F56C6C;
+    border-color: #F56C6C;
+  }
+</style>
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/company/company'
@@ -227,11 +270,12 @@ import resizeMixin from './companyResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
-import AreasSelect from '@/layout/components/00_common/areas_select'
+import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
+import addressDialog from '@/views/10_master/address/dialog/dialog'
 
 export default {
-  name: 'P00000100', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, AreasSelect },
+  name: 'P00000110', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination, DeleteTypeNormal, RadioDict, addressDialog },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -328,6 +372,13 @@ export default {
           name: [{ required: true, message: '请输入集团全称', trigger: 'change' }],
           code: [{ required: true, message: '请输入集团编号', trigger: 'change' }],
           simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
+        },
+        // 弹出的搜索框参数设置
+        searchDialogDataOne: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: {}
         }
       },
       // 导入窗口的状态
@@ -532,6 +583,8 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+      // 初始化模块选择
+      this.initAddressSelectButton()
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refInsertFocus'].focus()
@@ -554,6 +607,8 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
+      // 初始化模块选择
+      this.initAddressSelectButton()
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refUpdateFocus'].focus()
@@ -819,6 +874,27 @@ export default {
           </el-tooltip>
         </span>
       )
+    },
+    // --------------弹出查询框：地址簿页面--------------
+    // 选择or重置按钮的初始化
+    initAddressSelectButton() {
+      this.$nextTick(() => {
+        this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+      })
+    },
+    handleModuleDialogClick() {
+      // 选择按钮
+      this.popSettingsData.searchDialogDataOne.dialogVisible = true
+    },
+    // 关闭对话框：确定
+    handleAddressCloseOk(val) {
+      this.popSettingsData.searchDialogDataOne.selectedDataJson = val
+      this.popSettingsData.searchDialogDataOne.dialogVisible = false
+      this.initAddressSelectButton()
+    },
+    // 关闭对话框：取消
+    handleAddressCloseCancle() {
+      this.popSettingsData.searchDialogDataOne.dialogVisible = false
     }
   }
 }

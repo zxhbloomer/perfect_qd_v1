@@ -11,7 +11,7 @@
         <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">刷 新</el-button>
       </el-form-item>
     </el-form>
-    <el-button-group v-show="!meDialogSetting.dialogStatus">
+    <el-button-group>
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
@@ -91,7 +91,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="默认地址：" prop="phone">
+            <el-form-item label="默认地址：" prop="is_default">
               <el-switch
                 v-model="dataJson.tempJson.is_default"
               />
