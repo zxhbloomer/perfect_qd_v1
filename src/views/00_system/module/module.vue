@@ -40,7 +40,7 @@
           <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="模块名称" />
         </el-form-item>
         <el-form-item label="">
-          <select-dicts v-model="dataJson.searchForm.types" :para="CONSTANTS.DICT_MODULE_TYPE" init-placeholder="请选择模块类型" />
+          <select-dicts v-model="dataJson.searchForm.types" :para="CONSTANTS.DICT_SYS_MODULE_TYPE" init-placeholder="请选择模块类型" />
         </el-form-item>
         <el-form-item label="">
           <delete-type-normal v-model="dataJson.searchForm.is_del" />
@@ -146,7 +146,7 @@
         <br>
         <el-row>
           <el-form-item label="模块类型：" prop="type">
-            <select-dict ref="refInsertFocus" v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_MODULE_TYPE" init-placeholder="请选择模块类型" />
+            <select-dict ref="refInsertFocus" v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_SYS_MODULE_TYPE" init-placeholder="请选择模块类型" />
           </el-form-item>
           <el-col :span="12">
             <el-form-item label="模块编号：" prop="code">
@@ -174,7 +174,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_MODULE_TYPE_CONTENTS">
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_SYS_MODULE_TYPE_CONTENTS">
           <el-alert
             title="目录信息"
             type="info"
@@ -209,7 +209,7 @@
             <el-input v-model.trim="popSettingsData.searchDialogData.selectedDataJson.component" type="textarea" placeholder="请输入" :maxlength="dataJson.inputSettings.maxLength.component" />
           </el-form-item>
         </div>
-        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_MODULE_TYPE_MENU">
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_SYS_MODULE_TYPE_MENU">
           <el-alert
             title="菜单信息"
             type="info"
@@ -253,7 +253,7 @@
             </el-col>
           </el-row>
         </div>
-        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_MODULE_TYPE_PAGE">
+        <div v-show="dataJson.tempJson.type===CONSTANTS.DICT_SYS_MODULE_TYPE_PAGE">
           <el-alert
             title="页面资源信息：非必须"
             type="info"

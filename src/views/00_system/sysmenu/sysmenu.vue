@@ -131,7 +131,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="菜单类型：" prop="type">
-                <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_MODULE_TYPE" disabled />
+                <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_SYS_MODULE_TYPE" disabled />
               </el-form-item>
             </el-col>
           </el-row>
@@ -223,7 +223,7 @@
               </el-col>
               <el-col :span="12">
                 <el-form-item label="菜单类型：" prop="type">
-                  <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_MODULE_TYPE" disabled />
+                  <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_SYS_MODULE_TYPE" disabled />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -512,7 +512,7 @@ export default {
     },
     // 是否为目录节点
     isCONTENTSNode() {
-      if (this.dataJson.tempJson.type === this.CONSTANTS.DICT_MODULE_TYPE_CONTENTS) {
+      if (this.dataJson.tempJson.type === this.CONSTANTS.DICT_SYS_MODULE_TYPE_CONTENTS) {
         return true
       } else {
         return false
@@ -520,7 +520,7 @@ export default {
     },
     // 是否为菜单节点
     isMENUNode() {
-      if (this.dataJson.tempJson.type === this.CONSTANTS.DICT_MODULE_TYPE_MENU) {
+      if (this.dataJson.tempJson.type === this.CONSTANTS.DICT_SYS_MODULE_TYPE_MENU) {
         return true
       } else {
         return false

@@ -74,19 +74,19 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="邮编：" prop="postal_code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.postal_code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.postal_code" />
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.postal_code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.postal_code" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="联系人：" prop="link_man">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.link_man" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.link_man" />
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.link_man" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.link_man" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="电话：" prop="phone">
-              <el-input v-model.trim="dataJson.tempJson.phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.phone" />
+              <el-input v-model.trim="dataJson.tempJson.phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.phone" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -109,6 +109,9 @@
             style="width: 100%"
             @change="handleCascaderChange"
           />
+        </el-form-item>
+        <el-form-item label="详细地址：" prop="detail_address">
+          <el-input v-model.trim="dataJson.tempJson.detail_address" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.detail_address" placeholder="请输入" />
         </el-form-item>
 
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
