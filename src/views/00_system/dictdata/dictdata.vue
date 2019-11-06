@@ -269,7 +269,7 @@ import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/Sele
 import dicttypeDialog from '@/views/00_system/dicttype/dialog/dialog'
 
 export default {
-  name: 'P00000030', // 页面id，和router中的name需要一致，作为缓存
+  name: 'P00000050', // 页面id，和router中的name需要一致，作为缓存
   components: { Pagination, SimpleUpload, dicttypeDialog, DeleteTypeNormal },
   directives: { elDragDialog },
   mixins: [resizeMixin],

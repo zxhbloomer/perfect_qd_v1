@@ -15,7 +15,7 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">删 除</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleRealyDelete">删 除</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -38,11 +38,12 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="postal_code" label="邮编" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="link_man" label="联系人" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="phone" label="电话" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="postal_code" label="邮编" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="is_default" label="默认" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="tag" label="标签" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="tag_name" label="标签" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="detail_address" label="详细地址" />
       <el-table-column sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
     </el-table>
     <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
@@ -73,28 +74,26 @@
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="邮编：" prop="postal_code">
-              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.postal_code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.postal_code" placeholder="请输入" />
+            <el-form-item label="联系人：" prop="link_man">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.link_man" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.link_man" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="联系人：" prop="link_man">
-              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.link_man" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.link_man" placeholder="请输入" />
+            <el-form-item label="电话：" prop="phone">
+              <el-input v-model.trim="dataJson.tempJson.phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.phone" placeholder="请输入" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="电话：" prop="phone">
-              <el-input v-model.trim="dataJson.tempJson.phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.phone" placeholder="请输入" />
+            <el-form-item label="邮编：" prop="postal_code">
+              <el-input v-model.trim="dataJson.tempJson.postal_code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.postal_code" placeholder="请输入" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="默认地址：" prop="phone">
               <el-switch
                 v-model="dataJson.tempJson.is_default"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
               />
             </el-form-item>
           </el-col>
@@ -113,7 +112,9 @@
         <el-form-item label="详细地址：" prop="detail_address">
           <el-input v-model.trim="dataJson.tempJson.detail_address" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.detail_address" placeholder="请输入" />
         </el-form-item>
-
+        <el-form-item label="标签：" prop="tag">
+          <radio-dict v-model="dataJson.tempJson.tag" :para="CONSTANTS.DICT_SYS_ADDRESS_TAG_TYPE" @change="handleRadioDictChange" />
+        </el-form-item>
         <el-row v-show="popSettingsData.dialogStatus === 'update'">
           <el-col :span="12">
             <el-form-item label="更新者：" prop="u_id">
@@ -132,7 +133,7 @@
         <div class="floatLeft">
           <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset" @click="doReset()">重置</el-button>
         </div>
-        <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
+        <el-button plain @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
         <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " @click="doInsert()">确 定</el-button>
         <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " @click="doUpdate()">确 定</el-button>
         <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
@@ -155,15 +156,16 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/address/address'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, realDeleteSelectionApi } from '@/api/10_master/address/address'
 import { getAreasCascaderApi, getProvincerListApi, getCityListApi, getAreaListApi } from '@/api/00_common/systemArea'
 import resizeMixin from './addressResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
+import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
 
 export default {
   name: 'P00000130', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination },
+  components: { Pagination, RadioDict },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -258,10 +260,10 @@ export default {
         tempJson: null,
         inputSettings: {
           maxLength: {
-            name: 20,
-            code: 20,
-            descr: 200,
-            simple_name: 20
+            link_man: 20,
+            phone: 15,
+            postal_code: 8,
+            detail_address: 100
           }
         },
         // 当前表格中的索引，第几条
@@ -311,9 +313,9 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          name: [{ required: true, message: '请输入集团全称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入集团编号', trigger: 'change' }],
-          simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
+          link_man: [{ required: true, message: '请输入联系人', trigger: 'change' }],
+          cascader_areas: [{ required: true, message: '请输入省市区', trigger: 'change' }],
+          detail_address: [{ required: true, message: '详细地址', trigger: 'change' }]
         }
       },
       // 导入窗口的状态
@@ -401,7 +403,9 @@ export default {
         name: '',
         code: '',
         descr: '',
-        dbversion: 0
+        dbversion: 0,
+        tag: '0',
+        is_default: false
       }
     },
     initShow() {
@@ -409,6 +413,8 @@ export default {
       this.getDataList()
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+      // 初始化级联数据
+      this.getCascaderDataList()
     },
     // 弹出框设置初始化
     initDialogStatus() {
@@ -459,48 +465,6 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
     },
-    // 删除操作
-    handleDel(row) {
-      let _message = ''
-      const _value = row.is_del
-      const selectionJson = []
-      selectionJson.push({ 'id': row.id })
-      if (_value === true) {
-        _message = '是否要删除该条数据？'
-      } else {
-        _message = '是否要复原该条数据？'
-      }
-      // 选择全部的时候
-      this.$confirm(_message, '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }).then(() => {
-        // loading
-        this.settings.listLoading = true
-        deleteApi(selectionJson).then((_data) => {
-          this.$notify({
-            title: '更新成功',
-            message: _data.message,
-            type: 'success',
-            duration: this.settings.duration
-          })
-          this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        }, (_error) => {
-          this.$notify({
-            title: '更新错误',
-            message: _error.message,
-            type: 'error',
-            duration: this.settings.duration
-          })
-          this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        })
-      }).catch(action => {
-        row.is_del = !row.is_del
-      })
-    },
     // 点击按钮 新增
     handleInsert() {
       // 新增
@@ -518,9 +482,6 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
-
-      // 初始化级联数据
-      this.getCascaderDataList()
 
       // 控件focus
       this.$nextTick(() => {
@@ -786,14 +747,62 @@ export default {
     },
     // 级联事件
     handleCascaderChange(val) {
-      // 数组中最后一个才是parent_id
-      // this.dataJson.tempJson.parent_id = val[val.length - 1]
+      this.dataJson.tempJson.province_code = val[0]
+      this.dataJson.tempJson.city_code = val[1]
+      this.dataJson.tempJson.area_code = val[2]
     },
     getCascaderDataList() {
       // 级联查询逻辑
       this.settings.listLoading = true
       getAreasCascaderApi().then(response => {
         this.dataJson.cascader.data = response.data
+        this.settings.listLoading = false
+      })
+    },
+    handleRadioDictChange(val) {
+      this.dataJson.tempJson.tag = val
+    },
+    // 删除按钮
+    handleRealyDelete() {
+      // 没有选择任何数据的情况
+      if (this.dataJson.multipleSelection.length <= 0) {
+        this.$alert('请在表格中选择数据进行删除', '空数据错误', {
+          confirmButtonText: '关闭',
+          type: 'error'
+        }).then(() => {
+          this.settings.btnShowStatus.showDelete = false
+        })
+      } else {
+        // 选中数据删除
+        this.handleRealDeleteSelectionData()
+      }
+    },
+    // 选中数据删除
+    handleRealDeleteSelectionData() {
+      // loading
+      this.settings.listLoading = true
+      const selectionJson = []
+      this.dataJson.multipleSelection.forEach(function(value, index, array) {
+        selectionJson.push({ 'id': value.id })
+      })
+      // 开始删除
+      realDeleteSelectionApi(selectionJson).then((_data) => {
+        this.$notify({
+          title: '删除成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        this.getDataList()
+        // loading
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '删除错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
         this.settings.listLoading = false
       })
     }

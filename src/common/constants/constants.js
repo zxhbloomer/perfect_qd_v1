@@ -13,6 +13,9 @@ const DICT_SYS_VISIBLE_TYPE_ALL = 'null'
 /** 按钮类型： */
 const DICT_BTN_NAME_TYPE = 'btn_name_type'
 
+/** 地址簿_tag标签  */
+const DICT_SYS_ADDRESS_TAG_TYPE = 'sys_address_tag_type'
+
 export default {
   /** 模块类型 */
   DICT_SYS_MODULE_TYPE,
@@ -25,5 +28,8 @@ export default {
   DICT_SYS_VISIBLE_TYPE_HIDDEN,
   DICT_SYS_VISIBLE_TYPE_ALL,
   /** 按钮类型： */
-  DICT_BTN_NAME_TYPE
+  DICT_BTN_NAME_TYPE,
+  /** 地址簿_tag标签  */
+  DICT_SYS_ADDRESS_TAG_TYPE
+
 }

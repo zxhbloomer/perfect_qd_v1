@@ -40,7 +40,7 @@ export function insertApi(data) {
  * 删除逻辑
  * @param {*} data
  */
-export function deleteApi(data) {
+export function realDeleteSelectionApi(data) {
   return request({
     url: '/api/v1/mst/address/delete',
     method: 'post',
