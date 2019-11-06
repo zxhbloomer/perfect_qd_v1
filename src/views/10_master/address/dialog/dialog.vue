@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-el-drag-dialog
-    title="字典类型选择对话框"
+    title="地址簿对话框"
     :visible="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
@@ -10,7 +10,7 @@
     destroy-on-close
     top="5vh"
   >
-    <P00000030 ref="dialogRef" @rowDbClick="handleRowDbClick" />
+    <address-dialog ref="dialogRef" @rowDbClick="handleRowDbClick" />
     <div slot="footer" class="dialog-footer">
       <el-divider />
       <el-button plain @click="handleDoCancel()">取 消</el-button>
@@ -21,11 +21,11 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
-import P00000030 from '@/views/00_system/dicttype/dicttype'
+import addressDialog from '@/views/10_master/address/address'
 
 export default {
   name: 'COM000010',
-  components: { P00000030 },
+  components: { addressDialog },
   directives: { elDragDialog },
   props: {
     // 页面是否显示参数
