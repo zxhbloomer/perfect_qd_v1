@@ -19,6 +19,12 @@ const DICT_SYS_ADDRESS_TAG_TYPE = 'sys_address_tag_type'
 /** 企业类型  */
 const DICT_SYS_COMPANY_TYPE = 'sys_company_type'
 
+/** 性别  */
+const DICT_SYS_SEX_TYPE = 'sys_sex_type'
+
+/** 在职情况  */
+const DICT_USR_SERVICE_TYPE = 'usr_service_type'
+
 export default {
   /** 模块类型 */
   DICT_SYS_MODULE_TYPE,
@@ -35,5 +41,9 @@ export default {
   /** 地址簿_tag标签  */
   DICT_SYS_ADDRESS_TAG_TYPE,
   /** 企业类型  */
-  DICT_SYS_COMPANY_TYPE
+  DICT_SYS_COMPANY_TYPE,
+  /** 性别  */
+  DICT_SYS_SEX_TYPE,
+  /** 在职情况  */
+  DICT_USR_SERVICE_TYPE
 }
