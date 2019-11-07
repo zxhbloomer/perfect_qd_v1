@@ -51,7 +51,6 @@
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
       <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
     </el-button-group>
     <el-table
       ref="multipleTable"
@@ -164,7 +163,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="成立日期：" prop="setup_date">
-                  <el-date-picker v-model="dataJson.tempJson.setup_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                  <el-date-picker v-model="dataJson.tempJson.setup_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" @change="handleSetup_dateChange()" />
                 </el-form-item>
               </el-col>
               <el-col :span="12" />
@@ -172,7 +171,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="营业有效期 ：" prop="end_date">
-                  <el-date-picker ref="refEnd_date" v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" />
+                  <el-date-picker ref="refEnd_date" v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" @change="handleEnd_dateChange()" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -302,6 +301,7 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/company/company'
+import { getDataByid } from '@/api/10_master/address/address'
 import resizeMixin from './companyResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -509,6 +509,15 @@ export default {
           this.settings.btnShowStatus.showExport = false
         }
       }
+    },
+    'popSettingsData.searchDialogDataOne.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal !== {}) {
+          this.dataJson.tempJson.address_id = this.popSettingsData.searchDialogDataOne.selectedDataJson.id
+        } else {
+          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
+        }
+      }
     }
   },
   created() {
@@ -652,6 +661,9 @@ export default {
     // 点击按钮 更新
     handleUpdate() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
+      this.popSettingsData.searchDialogDataOne.selectedDataJson = {}
+      this.getAddressDataByid()
+
       if (this.dataJson.tempJson.id === undefined) {
         this.showErrorMsg('请选择一条数据')
         return
@@ -998,8 +1010,7 @@ export default {
         if (_data > Date.parse(this.dataJson.tempJson.end_date)) {
           return callback(new Error('输入的营业有效期应大于成立日期'))
         }
-        // 如果正常，调用其他validate
-        this.$refs.dataSubmitForm.validateField('end_date')
+
         return callback()
       }
     },
@@ -1009,10 +1020,21 @@ export default {
         if (_data <= Date.parse(this.dataJson.tempJson.setup_date)) {
           return callback(new Error('输入的营业有效期应大于成立日期'))
         }
-        // 如果正常，调用其他validate
-        this.$refs.dataSubmitForm.validateField('setup_date')
         return callback()
       }
+    },
+    handleSetup_dateChange() {
+      this.$refs.dataSubmitForm.validateField('setup_date')
+      this.$refs.dataSubmitForm.validateField('end_date')
+    },
+    handleEnd_dateChange() {
+      this.$refs.dataSubmitForm.validateField('setup_date')
+      this.$refs.dataSubmitForm.validateField('end_date')
+    },
+    getAddressDataByid() {
+      getDataByid({ id: this.dataJson.tempJson.address_id }).then(response => {
+        this.popSettingsData.searchDialogDataOne.selectedDataJson = Object.assign({}, response.data)
+      })
     }
   }
 }
