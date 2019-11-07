@@ -172,7 +172,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="营业有效期 ：" prop="end_date">
-                  <el-date-picker v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" />
+                  <el-date-picker ref="refEnd_date" v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -998,6 +998,8 @@ export default {
         if (_data > Date.parse(this.dataJson.tempJson.end_date)) {
           return callback(new Error('输入的营业有效期应大于成立日期'))
         }
+        // 如果正常，调用其他validate
+        this.$refs.dataSubmitForm.validateField('end_date')
         return callback()
       }
     },
@@ -1007,6 +1009,8 @@ export default {
         if (_data <= Date.parse(this.dataJson.tempJson.setup_date)) {
           return callback(new Error('输入的营业有效期应大于成立日期'))
         }
+        // 如果正常，调用其他validate
+        this.$refs.dataSubmitForm.validateField('setup_date')
         return callback()
       }
     }
