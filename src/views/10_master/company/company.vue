@@ -147,6 +147,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+
             <el-row>
               <el-col :span="12">
                 <el-form-item label="注册资本（万）：" prop="register_capital">
@@ -159,28 +160,27 @@
                 </el-form-item>
               </el-col>
             </el-row>
+
             <el-row>
               <el-col :span="12">
                 <el-form-item label="成立日期：" prop="setup_date">
-                  <el-date-picker v-model="dataJson.tempJson.setup_date" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                  <el-date-picker v-model="dataJson.tempJson.setup_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
                 </el-form-item>
               </el-col>
               <el-col :span="12" />
             </el-row>
-
             <el-row>
               <el-col :span="12">
                 <el-form-item label="营业有效期 ：" prop="end_date">
-                  <el-date-picker v-model="dataJson.tempJson.end_date" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                  <el-date-picker v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="营业有效期长期：" prop="long_term">
-                  <el-switch v-model="dataJson.tempJson.long_term" inactive-text="营业有效期" active-text="长期" />
+                  <el-switch v-model="dataJson.tempJson.long_term" inactive-text="营业有效期" active-text="长期" @change="handleLongTermChange" />
                 </el-form-item>
               </el-col>
             </el-row>
-
             <el-form-item label="描述：" prop="descr">
               <el-input v-model.trim="dataJson.tempJson.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
             </el-form-item>
@@ -236,10 +236,6 @@
             <el-form-item label="详细地址：" prop="detail_address">
               <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.detail_address" disabled />
             </el-form-item>
-
-          </el-tab-pane>
-          <el-tab-pane label="角色管理">角色管理</el-tab-pane>
-          <el-tab-pane label="其他信息">
 
             <el-row v-show="popSettingsData.dialogStatus === 'update'">
               <el-col :span="12">
@@ -417,8 +413,18 @@ export default {
           juridical_name: [{ required: true, message: '请输入法定代表人', trigger: 'change' }],
           register_capital: [{ required: true, message: '请输入注册资本（万）', trigger: 'change' }],
           type: [{ required: true, message: '请选择企业类型', trigger: 'change' }],
-          setup_date: [{ required: true, message: '请输入成立日期', trigger: 'change' }],
-          end_date: [{ required: true, message: '请输入营业有效期', trigger: 'change' }]
+          setup_date: [
+            { required: true, message: '请输入成立日期', trigger: 'change' },
+            { validator: this.validateSetup_date, trigger: 'change' }
+          ],
+          end_date: [
+            { required: true, message: '请输入营业有效期', trigger: 'change' },
+            { validator: this.validateEnd_date, trigger: 'change' }
+          ]
+        },
+        rules_disable: {
+          // 默认可用
+          end_date: false
         },
         // 错误数目
         badge: {
@@ -520,7 +526,8 @@ export default {
         name: '',
         code: '',
         descr: '',
-        dbversion: 0
+        dbversion: 0,
+        register_capital: 0
       }
     },
     initShow() {
@@ -971,6 +978,37 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
         this.doValidateAllRules()
       })
+    },
+    // 营业有效期长期
+    handleLongTermChange(val) {
+      if (val) {
+        // 营业有效期 不可用
+        this.popSettingsData.rules_disable.end_date = true
+        this.dataJson.tempJson.end_date = '9999/01/01'
+      } else {
+        this.popSettingsData.rules_disable.end_date = false
+        this.dataJson.tempJson.end_date = ''
+      }
+    },
+    // -------------------验证部分------------------
+    // 营业有效期需要大于成立日期
+    validateSetup_date(rule, value, callback) {
+      const _data = Date.parse(value)
+      if (!isNaN(Date.parse(value))) {
+        if (_data > Date.parse(this.dataJson.tempJson.end_date)) {
+          return callback(new Error('输入的营业有效期应大于成立日期'))
+        }
+        return callback()
+      }
+    },
+    validateEnd_date(rule, value, callback) {
+      const _data = Date.parse(value)
+      if (!isNaN(Date.parse(value))) {
+        if (_data <= Date.parse(this.dataJson.tempJson.setup_date)) {
+          return callback(new Error('输入的营业有效期应大于成立日期'))
+        }
+        return callback()
+      }
     }
   }
 }
