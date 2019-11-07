@@ -4,6 +4,7 @@
     :loading="dataJson.settings.listLoading"
     loading-text="拼命加载..."
     clearable
+    filterable
     :value="value"
     :disabled="disabled"
     @input="$emit('input', $event)"

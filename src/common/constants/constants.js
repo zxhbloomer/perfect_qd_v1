@@ -16,6 +16,9 @@ const DICT_BTN_NAME_TYPE = 'btn_name_type'
 /** 地址簿_tag标签  */
 const DICT_SYS_ADDRESS_TAG_TYPE = 'sys_address_tag_type'
 
+/** 企业类型  */
+const DICT_SYS_COMPANY_TYPE = 'sys_company_type'
+
 export default {
   /** 模块类型 */
   DICT_SYS_MODULE_TYPE,
@@ -30,6 +33,7 @@ export default {
   /** 按钮类型： */
   DICT_BTN_NAME_TYPE,
   /** 地址簿_tag标签  */
-  DICT_SYS_ADDRESS_TAG_TYPE
-
+  DICT_SYS_ADDRESS_TAG_TYPE,
+  /** 企业类型  */
+  DICT_SYS_COMPANY_TYPE
 }

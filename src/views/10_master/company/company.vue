@@ -114,37 +114,77 @@
         :rules="popSettingsData.rules"
         :model="dataJson.tempJson"
         label-position="rigth"
-        label-width="120px"
+        label-width="140px"
         status-icon
+        :validate-on-rule-change="false"
       >
 
         <el-tabs style="height: 400px;">
           <br>
-          <el-tab-pane label="基本信息">
+          <el-tab-pane>
+            <template slot="label">基本信息<el-badge v-show="popSettingsData.badge.countOne>0" :value="popSettingsData.badge.countOne" type="danger" /></template>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="社会信用代码：" prop="code">
-                  <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
+                  <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="企业全称：" prop="name">
-                  <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
+                  <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" placeholder="请输入" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
                 <el-form-item label="企业简称：" prop="simple_name">
-                  <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
+                  <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="法定代表人：" prop="juridical_name">
-                  <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" />
+                  <el-input v-model.trim="dataJson.tempJson.juridical_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.juridical_name" placeholder="请输入" />
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="注册资本（万）：" prop="register_capital">
+                  <el-input-number v-model.trim="dataJson.tempJson.register_capital" clearable show-word-limit controls-position="right" :min="0" :max="1000000" style="width: 100%" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="企业类型：" prop="type">
+                  <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_SYS_COMPANY_TYPE" init-placeholder="请选择企业类型" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="成立日期：" prop="setup_date">
+                  <el-date-picker v-model="dataJson.tempJson.setup_date" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12" />
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="营业有效期 ：" prop="end_date">
+                  <el-date-picker v-model="dataJson.tempJson.end_date" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="营业有效期长期：" prop="long_term">
+                  <el-switch v-model="dataJson.tempJson.long_term" inactive-text="营业有效期" active-text="长期" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-form-item label="描述：" prop="descr">
+              <el-input v-model.trim="dataJson.tempJson.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
+            </el-form-item>
+
           </el-tab-pane>
 
           <el-tab-pane label="地址信息">
@@ -272,16 +312,16 @@ import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
 import addressDialog from '@/views/10_master/address/dialog/dialog'
+import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
 
 export default {
   name: 'P00000110', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, RadioDict, addressDialog },
+  components: { Pagination, DeleteTypeNormal, RadioDict, addressDialog, SelectDict },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
     return {
       dataJson: {
-        xx: [],
         // 查询使用的json
         searchForm: {
           // 翻页条件
@@ -368,10 +408,24 @@ export default {
         dialogStatus: '',
         dialogFormVisible: false,
         // pop的check内容
-        rules: {
-          name: [{ required: true, message: '请输入集团全称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入集团编号', trigger: 'change' }],
-          simple_name: [{ required: true, message: '请输入集团简称', trigger: 'change' }]
+        rules: {},
+        // 基本信息栏目check
+        rulesOne: {
+          code: [{ required: true, message: '请输入社会信用代码', trigger: 'change' }],
+          name: [{ required: true, message: '请输入企业全称', trigger: 'change' }],
+          simple_name: [{ required: true, message: '请输入企业简称', trigger: 'change' }],
+          juridical_name: [{ required: true, message: '请输入法定代表人', trigger: 'change' }],
+          register_capital: [{ required: true, message: '请输入注册资本（万）', trigger: 'change' }],
+          type: [{ required: true, message: '请选择企业类型', trigger: 'change' }],
+          setup_date: [{ required: true, message: '请输入成立日期', trigger: 'change' }],
+          end_date: [{ required: true, message: '请输入营业有效期', trigger: 'change' }]
+        },
+        // 错误数目
+        badge: {
+          countOne: 0,
+          countTwo: 0,
+          countThree: 0,
+          countFour: 0
         },
         // 弹出的搜索框参数设置
         searchDialogDataOne: {
@@ -520,9 +574,8 @@ export default {
       this.dataJson.rowIndex = _rowIndex
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
+      // reset所有验证
+      this.doResetValidate()
     },
     // 删除操作
     handleDel(row) {
@@ -573,9 +626,8 @@ export default {
       // 数据初始化
       this.initTempJsonOriginal()
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
+      // reset所有验证
+      this.doResetValidate()
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = true
       this.popSettingsData.btnShowStatus.showUpdate = false
@@ -600,9 +652,8 @@ export default {
       // 修改
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
+      // reset所有验证
+      this.doResetValidate()
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
@@ -676,9 +727,8 @@ export default {
       // 修改
       this.popSettingsData.dialogStatus = 'copyInsert'
       this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
+      // reset所有验证
+      this.doResetValidate()
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = false
@@ -733,6 +783,8 @@ export default {
     },
     // 更新逻辑
     doUpdate() {
+      // 开始综合验证
+      this.doValidateByTabs()
       this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
@@ -787,29 +839,22 @@ export default {
         case 'update':
           // 数据初始化
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-          // 设置控件焦点focus
-          this.$nextTick(() => {
-            this.$refs['refUpdateFocus'].focus()
-          })
           break
         default:
           // 数据初始化
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-          // 设置控件焦点focus
-          this.$nextTick(() => {
-            this.$refs['refInsertFocus'].focus()
-          })
           break
       }
 
       // 去除validate信息
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
+      // reset所有验证
+      this.doResetValidate()
     },
     // 插入逻辑
     doInsert() {
-      this.$refs['dataSubmitForm'].validate((valid) => {
+      // 开始综合验证
+      this.doValidateByTabs()
+      this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -895,6 +940,37 @@ export default {
     // 关闭对话框：取消
     handleAddressCloseCancle() {
       this.popSettingsData.searchDialogDataOne.dialogVisible = false
+    },
+    // -------------------不同的页签，标签进行的验证------------------
+    // 所有的数据开始validate
+    doValidateAllRules() {
+      this.popSettingsData.rules = { ...this.popSettingsData.rulesOne }
+      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+    },
+    // 开始综合验证
+    doValidateByTabs() {
+      // 第一个tabs
+      this.popSettingsData.rules = this.popSettingsData.rulesOne
+      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
+        if (valid === false) {
+          this.popSettingsData.badge.countOne = Object.keys(validateItems).length
+        }
+      })
+
+      // 第二个tabs
+
+      // 所有的数据进行验证
+      this.doValidateAllRules()
+    },
+    // reset所有验证
+    doResetValidate() {
+      this.popSettingsData.badge.countOne = 0
+      this.popSettingsData.badge.countTwo = 0
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+        this.doValidateAllRules()
+      })
     }
   }
 }
