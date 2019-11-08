@@ -110,6 +110,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
+
             <el-row>
               <el-col :span="12">
                 <el-form-item label="员工姓名简称：" prop="simple_name">
@@ -238,7 +239,68 @@
           </el-tab-pane>
 
           <el-tab-pane label="账号信息">
-            账号信息
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="登陆用户名：" prop="login_name">
+                  <el-input v-model.trim="dataJson.tempJson.user.login_name" clearable show-word-limit :maxlength="dataJson.inputSettings.user.maxLength.login_name" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="登录用户类型：" prop="type">
+                  <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-form-item label="">
+                <el-date-picker
+                  v-model="dataJson.tempJson.user.datetimerange"
+                  type="datetimerange"
+                  :picker-options="settings.pickerOptions"
+                  range-separator="至"
+                  start-placeholder="生效开始日期"
+                  end-placeholder="生效结束日期"
+                  align="right"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="用户锁定时间：" prop="locked_time">
+                  <el-date-picker v-model="dataJson.tempJson.user.locked_time" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="是否锁定：" prop="is_lock">
+                  <el-switch
+                    v-model="dataJson.tempJson.user.is_lock"
+                    active-text="已锁定"
+                    inactive-text="未锁定"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="登录错误次数：" prop="err_count">
+                  <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="是否修改过密码：" prop="is_changed_pwd">
+                  <el-switch
+                    v-model="dataJson.tempJson.user.is_changed_pwd"
+                    active-text="已修改"
+                    inactive-text="未修改"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
           </el-tab-pane>
 
         </el-tabs>
@@ -336,9 +398,24 @@ export default {
         inputSettings: {
           maxLength: {
             name: 20,
-            code: 20,
-            descr: 200,
-            simple_name: 20
+            name_py: 20,
+            simple_name: 10,
+            simple_name_py: 15,
+            id_card: 25,
+            passport: 20,
+            nation: 20,
+            home_phone: 15,
+            office_phone: 15,
+            mobile_phone: 15,
+            mobile_phone_backup: 15,
+            email: 20,
+            email_backup: 20,
+            descr: 200
+          },
+          user: {
+            maxLength: {
+              name: 20
+            }
           }
         },
         // 当前表格中的索引，第几条
@@ -359,7 +436,52 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000
+        duration: 4000,
+        // 日期类型下拉选项json
+        pickerOptions: {
+          shortcuts: [{
+            text: '未来一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '未来一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '未来三个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '未来六个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '未来一年',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
+              picker.$emit('pick', [start, end])
+            }
+          }
+          ]
+        }
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -506,12 +628,16 @@ export default {
         code: '',
         descr: '',
         sex: '',
-        is_wed: ''
+        is_wed: '',
+        user: { }
       }
     },
     initShow() {
       // 初始化查询
       this.getDataList()
+
+      // 数据初始化
+      this.initTempJsonOriginal()
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
     },

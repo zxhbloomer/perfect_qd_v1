@@ -44,7 +44,8 @@ export function exportAllApi(data) {
   return request({
     url: '/api/v1/staff/export_all',
     method: 'post',
-    data
+    data,
+    responseType: 'arraybuffer'
   })
 }
 
@@ -56,7 +57,8 @@ export function exportSelectionApi(data) {
   return request({
     url: '/api/v1/staff/export_selection',
     method: 'post',
-    data
+    data,
+    responseType: 'arraybuffer'
   })
 }
 

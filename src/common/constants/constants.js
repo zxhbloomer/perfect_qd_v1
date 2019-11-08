@@ -31,6 +31,9 @@ const DICT_USR_DEGREE_TYPE = 'usr_degree_type'
 /** 婚否  */
 const DICT_USR_WED_TYPE = 'usr_wed_type'
 
+/** 登录用户类型  */
+const DICT_USR_LOGIN_TYPE = 'usr_login_type'
+
 export default {
   /** 模块类型 */
   DICT_SYS_MODULE_TYPE,
@@ -55,5 +58,7 @@ export default {
   /** 学历  */
   DICT_USR_DEGREE_TYPE,
   /** 婚否  */
-  DICT_USR_WED_TYPE
+  DICT_USR_WED_TYPE,
+  /** 登录用户类型  */
+  DICT_USR_LOGIN_TYPE
 }
