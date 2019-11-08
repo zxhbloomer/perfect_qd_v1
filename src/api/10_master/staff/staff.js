@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function getListApi(query) {
   return request({
-    url: '/api/v1/org/company/list',
+    url: '/api/v1/staff/list',
     method: 'post',
     data: query
   })
@@ -18,7 +18,7 @@ export function getListApi(query) {
  */
 export function updateApi(data) {
   return request({
-    url: '/api/v1/org/company/save',
+    url: '/api/v1/staff/save',
     method: 'post',
     data
   })
@@ -30,7 +30,7 @@ export function updateApi(data) {
  */
 export function insertApi(data) {
   return request({
-    url: '/api/v1/org/company/insert',
+    url: '/api/v1/staff/insert',
     method: 'post',
     data
   })
@@ -42,10 +42,9 @@ export function insertApi(data) {
  */
 export function exportAllApi(data) {
   return request({
-    url: '/api/v1/org/company/export_all',
+    url: '/api/v1/staff/export_all',
     method: 'post',
-    data,
-    responseType: 'arraybuffer'
+    data
   })
 }
 
@@ -55,20 +54,7 @@ export function exportAllApi(data) {
  */
 export function exportSelectionApi(data) {
   return request({
-    url: '/api/v1/org/company/export_selection',
-    method: 'post',
-    data,
-    responseType: 'arraybuffer'
-  })
-}
-
-/**
- * 导入逻辑
- * @param {*} data
- */
-export function importExcelApi(data) {
-  return request({
-    url: '/api/v1/org/company/import',
+    url: '/api/v1/staff/export_selection',
     method: 'post',
     data
   })
@@ -80,7 +66,7 @@ export function importExcelApi(data) {
  */
 export function deleteApi(data) {
   return request({
-    url: '/api/v1/org/company/delete',
+    url: '/api/v1/staff/delete',
     method: 'post',
     data
   })
@@ -92,7 +78,7 @@ export function deleteApi(data) {
  */
 export function enableApi(data) {
   return request({
-    url: '/api/v1/org/company/enable',
+    url: '/api/v1/staff/enable',
     method: 'post',
     data
   })

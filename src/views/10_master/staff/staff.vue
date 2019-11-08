@@ -89,7 +89,7 @@
         :rules="popSettingsData.rules"
         :model="dataJson.tempJson"
         label-position="rigth"
-        label-width="140px"
+        label-width="155px"
         status-icon
         :validate-on-rule-change="false"
       >
@@ -101,7 +101,7 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="员工姓名：" prop="name">
-                  <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" placeholder="请输入" />
+                  <el-input ref="refFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -125,8 +125,21 @@
 
             <el-row>
               <el-col :span="12">
-                <el-form-item label="性别：" prop="sex">
-                  <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_SYS_SEX_TYPE" init-placeholder="请选择性别" />
+                <el-form-item label="身份证号码：" prop="id_card">
+                  <el-input v-model.trim="dataJson.tempJson.id_card" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.id_card" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="护照号码：" prop="passport">
+                  <el-input v-model.trim="dataJson.tempJson.passport" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.passport" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="名族：" prop="nation">
+                  <el-input v-model.trim="dataJson.tempJson.nation" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.nation" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -138,81 +151,76 @@
 
             <el-row>
               <el-col :span="12">
-                <el-form-item label="邮箱地址：" prop="email">
-                  <el-input v-model.trim="dataJson.tempJson.email" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.email" placeholder="请输入" />
+                <el-form-item label="性别：" prop="sex">
+                  <radio-dict v-model="dataJson.tempJson.sex" :para="CONSTANTS.DICT_SYS_SEX_TYPE" @change="handleSexDictChange" />
                 </el-form-item>
               </el-col>
-              <el-form-item label="在职情况：" prop="sex">
-                <select-dict v-model="dataJson.tempJson.type" :para="CONSTANTS.DICT_USR_SERVICE_TYPE" init-placeholder="请选择在职情况" />
-              </el-form-item>
+              <el-col :span="12">
+                <el-form-item label="在职情况：" prop="service">
+                  <select-dict v-model="dataJson.tempJson.service" :para="CONSTANTS.DICT_USR_SERVICE_TYPE" init-placeholder="请选择在职情况" />
+                </el-form-item>
+              </el-col>
             </el-row>
+
             <el-row>
               <el-col :span="12">
-                <el-form-item label="营业有效期 ：" prop="end_date">
-                  <el-date-picker ref="refEnd_date" v-model="dataJson.tempJson.end_date" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="popSettingsData.rules_disable.end_date" @change="handleEnd_dateChange()" />
+                <el-form-item label="婚否 ：" prop="is_wed">
+                  <radio-dict v-model="dataJson.tempJson.is_wed" :para="CONSTANTS.DICT_USR_WED_TYPE" @change="handleWedDictChange" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="营业有效期长期：" prop="long_term">
-                  <el-switch v-model="dataJson.tempJson.long_term" inactive-text="营业有效期" active-text="长期" @change="handleLongTermChange" />
+                <el-form-item label="学历：" prop="degree">
+                  <select-dict v-model="dataJson.tempJson.degree" :para="CONSTANTS.DICT_USR_DEGREE_TYPE" init-placeholder="请选择学历情况" />
                 </el-form-item>
               </el-col>
             </el-row>
+
             <el-form-item label="描述：" prop="descr">
               <el-input v-model.trim="dataJson.tempJson.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
             </el-form-item>
 
           </el-tab-pane>
 
-          <el-tab-pane label="地址信息">
+          <el-tab-pane label="联系方式">
 
             <el-row>
               <el-col :span="12">
-                <el-form-item label="联系人：" prop="link_man">
-                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.link_man" disabled>
-                    <el-button slot="append" ref="selectOne" icon="el-icon-search" @click="handleModuleDialogClick">
-                      选择
-                    </el-button>
-                  </el-input>
+                <el-form-item label="家庭电话：" prop="home_phone">
+                  <el-input v-model.trim="dataJson.tempJson.home_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.home_phone" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="电话：" prop="phone">
-                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.phone" disabled />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="邮编：" prop="postal_code">
-                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.postal_code" disabled />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="默认地址：" prop="is_default">
-                  <el-switch
-                    v-model="popSettingsData.searchDialogDataOne.selectedDataJson.is_default"
-                  />
+                <el-form-item label="办公室电话：" prop="office_phone">
+                  <el-input v-model.trim="dataJson.tempJson.office_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.office_phone" placeholder="请输入" />
                 </el-form-item>
               </el-col>
             </el-row>
 
             <el-row>
               <el-col :span="12">
-                <el-form-item label="省市区：" prop="cascader_text">
-                  <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.cascader_text" disabled />
+                <el-form-item label="手机号码：" prop="mobile_phone">
+                  <el-input v-model.trim="dataJson.tempJson.mobile_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.mobile_phone" placeholder="请输入" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="标签：" prop="tag">
-                  <radio-dict v-model="popSettingsData.searchDialogDataOne.selectedDataJson.tag" :para="CONSTANTS.DICT_SYS_ADDRESS_TAG_TYPE" disabled />
+                <el-form-item label="手机备用号码：" prop="mobile_phone_backup">
+                  <el-input v-model.trim="dataJson.tempJson.mobile_phone_backup" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.mobile_phone_backup" placeholder="请输入" />
                 </el-form-item>
               </el-col>
             </el-row>
 
-            <el-form-item label="详细地址：" prop="detail_address">
-              <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.detail_address" disabled />
-            </el-form-item>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="邮箱地址：" prop="email">
+                  <el-input v-model.trim="dataJson.tempJson.email" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.email" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="邮箱备用地址：" prop="email_backup">
+                  <el-input v-model.trim="dataJson.tempJson.email_backup" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.email_backup" placeholder="请输入" />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
             <el-row v-show="popSettingsData.dialogStatus === 'update'">
               <el-col :span="12">
@@ -228,6 +236,11 @@
             </el-row>
 
           </el-tab-pane>
+
+          <el-tab-pane label="账号信息">
+            账号信息
+          </el-tab-pane>
+
         </el-tabs>
 
       </el-form>
@@ -243,13 +256,6 @@
       </div>
     </el-dialog>
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
-
-    <address-dialog
-      :visible="popSettingsData.searchDialogDataOne.dialogVisible"
-      @closeMeOk="handleAddressCloseOk"
-      @closeMeCancle="handleAddressCloseCancle"
-    />
-
   </div>
 </template>
 
@@ -285,12 +291,11 @@ import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
-import addressDialog from '@/views/10_master/address/dialog/dialog'
 import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
 
 export default {
   name: 'P00000140', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, RadioDict, addressDialog, SelectDict },
+  components: { Pagination, DeleteTypeNormal, RadioDict, SelectDict },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -385,20 +390,7 @@ export default {
         rules: {},
         // 基本信息栏目check
         rulesOne: {
-          code: [{ required: true, message: '请输入社会信用代码', trigger: 'change' }],
-          name: [{ required: true, message: '请输入企业全称', trigger: 'change' }],
-          simple_name: [{ required: true, message: '请输入企业简称', trigger: 'change' }],
-          juridical_name: [{ required: true, message: '请输入法定代表人', trigger: 'change' }],
-          register_capital: [{ required: true, message: '请输入注册资本（万）', trigger: 'change' }],
-          type: [{ required: true, message: '请选择企业类型', trigger: 'change' }],
-          setup_date: [
-            { required: true, message: '请输入成立日期', trigger: 'change' },
-            { validator: this.validateSetup_date, trigger: 'change' }
-          ],
-          end_date: [
-            { required: true, message: '请输入营业有效期', trigger: 'change' },
-            { validator: this.validateEnd_date, trigger: 'change' }
-          ]
+          name: [{ required: true, message: '请输入员工姓名', trigger: 'change' }]
         },
         rules_disable: {
           // 默认可用
@@ -513,8 +505,8 @@ export default {
         name: '',
         code: '',
         descr: '',
-        dbversion: 0,
-        register_capital: 0
+        sex: '',
+        is_wed: ''
       }
     },
     initShow() {
@@ -629,11 +621,9 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
-      // 初始化模块选择
-      this.initAddressSelectButton()
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refInsertFocus'].focus()
+        this.$refs['refFocus'].focus()
       })
     },
     // 点击按钮 更新
@@ -655,11 +645,9 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 初始化模块选择
-      this.initAddressSelectButton()
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refUpdateFocus'].focus()
+        this.$refs['refFocus'].focus()
       })
     },
     // 导出按钮
@@ -732,7 +720,7 @@ export default {
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 复制新增时focus
       this.$nextTick(() => {
-        this.$refs['refInsertFocus'].focus()
+        this.$refs['refFocus'].focus()
       })
     },
     handleCurrentChange(row) {
@@ -891,14 +879,6 @@ export default {
     handleSelectionChange(val) {
       this.dataJson.multipleSelection = val
     },
-    // 资源类型check
-    validateType(rule, value, callback) {
-      // 现阶段只支持json配置
-      if (value === '10') {
-        return callback()
-      }
-      return callback(new Error('现在只支持json配置，请选择“json配置”'))
-    },
     renderHeaderIsDel: function(h, { column }) {
       return (
         <span>{column.label}
@@ -916,27 +896,6 @@ export default {
           </el-tooltip>
         </span>
       )
-    },
-    // --------------弹出查询框：地址簿页面--------------
-    // 选择or重置按钮的初始化
-    initAddressSelectButton() {
-      this.$nextTick(() => {
-        this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-      })
-    },
-    handleModuleDialogClick() {
-      // 选择按钮
-      this.popSettingsData.searchDialogDataOne.dialogVisible = true
-    },
-    // 关闭对话框：确定
-    handleAddressCloseOk(val) {
-      this.popSettingsData.searchDialogDataOne.selectedDataJson = val
-      this.popSettingsData.searchDialogDataOne.dialogVisible = false
-      this.initAddressSelectButton()
-    },
-    // 关闭对话框：取消
-    handleAddressCloseCancle() {
-      this.popSettingsData.searchDialogDataOne.dialogVisible = false
     },
     // -------------------不同的页签，标签进行的验证------------------
     // 所有的数据开始validate
@@ -969,50 +928,17 @@ export default {
         this.doValidateAllRules()
       })
     },
-    // 营业有效期长期
-    handleLongTermChange(val) {
-      if (val) {
-        // 营业有效期 不可用
-        this.popSettingsData.rules_disable.end_date = true
-        this.dataJson.tempJson.end_date = '9999/01/01'
-      } else {
-        this.popSettingsData.rules_disable.end_date = false
-        this.dataJson.tempJson.end_date = ''
-      }
-    },
-    // -------------------验证部分------------------
-    // 营业有效期需要大于成立日期
-    validateSetup_date(rule, value, callback) {
-      const _data = Date.parse(value)
-      if (!isNaN(Date.parse(value))) {
-        if (_data > Date.parse(this.dataJson.tempJson.end_date)) {
-          return callback(new Error('输入的营业有效期应大于成立日期'))
-        }
-
-        return callback()
-      }
-    },
-    validateEnd_date(rule, value, callback) {
-      const _data = Date.parse(value)
-      if (!isNaN(Date.parse(value))) {
-        if (_data <= Date.parse(this.dataJson.tempJson.setup_date)) {
-          return callback(new Error('输入的营业有效期应大于成立日期'))
-        }
-        return callback()
-      }
-    },
-    handleSetup_dateChange() {
-      this.$refs.dataSubmitForm.validateField('setup_date')
-      this.$refs.dataSubmitForm.validateField('end_date')
-    },
-    handleEnd_dateChange() {
-      this.$refs.dataSubmitForm.validateField('setup_date')
-      this.$refs.dataSubmitForm.validateField('end_date')
-    },
+    // -------------------不同的页签，标签进行的验证------------------
     getAddressDataByid() {
       getDataByid({ id: this.dataJson.tempJson.address_id }).then(response => {
         this.popSettingsData.searchDialogDataOne.selectedDataJson = Object.assign({}, response.data)
       })
+    },
+    handleSexDictChange(val) {
+      this.dataJson.tempJson.sex = val
+    },
+    handleWedDictChange(val) {
+      this.dataJson.tempJson.is_wed = val
     }
   }
 }

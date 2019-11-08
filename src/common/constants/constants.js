@@ -25,6 +25,12 @@ const DICT_SYS_SEX_TYPE = 'sys_sex_type'
 /** 在职情况  */
 const DICT_USR_SERVICE_TYPE = 'usr_service_type'
 
+/** 学历  */
+const DICT_USR_DEGREE_TYPE = 'usr_degree_type'
+
+/** 婚否  */
+const DICT_USR_WED_TYPE = 'usr_wed_type'
+
 export default {
   /** 模块类型 */
   DICT_SYS_MODULE_TYPE,
@@ -45,5 +51,9 @@ export default {
   /** 性别  */
   DICT_SYS_SEX_TYPE,
   /** 在职情况  */
-  DICT_USR_SERVICE_TYPE
+  DICT_USR_SERVICE_TYPE,
+  /** 学历  */
+  DICT_USR_DEGREE_TYPE,
+  /** 婚否  */
+  DICT_USR_WED_TYPE
 }
