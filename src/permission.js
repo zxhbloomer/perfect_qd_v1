@@ -60,7 +60,7 @@ router.beforeEach(async(to, from, next) => {
       next()
     } else {
       // 没有在白名单中，进行重定向到login页面
-      MessageBox.alert('很抱歉，登录已过期，请重新登录', '登录已过期', {
+      MessageBox.alert('您的登录已经超时，请点击重新登录', '登录已过期', {
         confirmButtonText: '重新登录',
         showClose: false,
         type: 'error'

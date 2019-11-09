@@ -948,14 +948,6 @@ export default {
     handleSelectionChange(val) {
       this.dataJson.multipleSelection = val
     },
-    // 资源类型check
-    validateType(rule, value, callback) {
-      // 现阶段只支持json配置
-      if (value === '10') {
-        return callback()
-      }
-      return callback(new Error('现在只支持json配置，请选择“json配置”'))
-    },
     // 弹出框设置初始化
     initPopUpStatus() {
       this.popSettingsData.btnDisabledStatus.disabledReset = true

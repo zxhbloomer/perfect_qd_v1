@@ -246,14 +246,14 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="登录用户类型：" prop="type">
-                  <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" />
+                <el-form-item label="设置密码：" prop="">
+                  <el-button type="primary" icon="el-icon-unlock" @click="handelSetPassword">设置密码</el-button>
                 </el-form-item>
               </el-col>
             </el-row>
 
             <el-row>
-              <el-form-item label="">
+              <el-form-item label="生效日期区间：" prop="">
                 <el-date-picker
                   v-model="dataJson.tempJson.user.datetimerange"
                   type="datetimerange"
@@ -269,6 +269,25 @@
 
             <el-row>
               <el-col :span="12">
+                <el-form-item label="登录用户类型：" prop="type">
+                  <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="是否删除：" prop="is_del">
+                  <el-switch
+                    v-model="dataJson.tempJson.user.is_del"
+                    active-color="#ff4949"
+                    inactive-color="#dcdfe6"
+                    active-text="已删除"
+                    inactive-text="未删除"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
                 <el-form-item label="用户锁定时间：" prop="locked_time">
                   <el-date-picker v-model="dataJson.tempJson.user.locked_time" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
                 </el-form-item>
@@ -277,6 +296,8 @@
                 <el-form-item label="是否锁定：" prop="is_lock">
                   <el-switch
                     v-model="dataJson.tempJson.user.is_lock"
+                    active-color="#ff4949"
+                    inactive-color="#dcdfe6"
                     active-text="已锁定"
                     inactive-text="未锁定"
                   />
@@ -287,13 +308,34 @@
             <el-row>
               <el-col :span="12">
                 <el-form-item label="登录错误次数：" prop="err_count">
-                  <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled />
+                  <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled placeholder="[无]" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="是否禁用：" prop="是否禁用">
+                  <el-switch
+                    v-model="dataJson.tempJson.user.是否禁用"
+                    active-color="#ff4949"
+                    inactive-color="#dcdfe6"
+                    active-text="已禁用"
+                    inactive-text="未禁用"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="最后登陆时间：" prop="last_login_date">
+                  <el-input v-model.trim="dataJson.tempJson.user.last_login_date" disabled placeholder="[无]" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="是否修改过密码：" prop="is_changed_pwd">
                   <el-switch
                     v-model="dataJson.tempJson.user.is_changed_pwd"
+                    active-color="#ff4949"
+                    inactive-color="#dcdfe6"
                     active-text="已修改"
                     inactive-text="未修改"
                   />
@@ -301,6 +343,13 @@
               </el-col>
             </el-row>
 
+            <el-form-item label="描述：" prop="descr">
+              <el-input v-model.trim="dataJson.tempJson.user.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
+            </el-form-item>
+          </el-tab-pane>
+
+          <el-tab-pane label="权限信息">
+            权限信息
           </el-tab-pane>
 
         </el-tabs>
@@ -317,6 +366,13 @@
         <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
+
+    <psd-dialog
+      :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
+      @closeMeOk="handlePsdDialogCloseOk"
+      @closeMeCancle="handlePsdDialogCloseCancle"
+    />
+
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
   </div>
 </template>
@@ -354,10 +410,11 @@ import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
 import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
 import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
+import psdDialog from '@/views/10_master/staff/dialog/setPsdDialog'
 
 export default {
   name: 'P00000140', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, RadioDict, SelectDict },
+  components: { Pagination, DeleteTypeNormal, RadioDict, SelectDict, psdDialog },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -527,6 +584,13 @@ export default {
         },
         // 弹出的搜索框参数设置
         searchDialogDataOne: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: {}
+        },
+        // 弹出的框参数设置
+        searchDialogDataTwo: {
           // 弹出框显示参数
           dialogVisible: false,
           // 点击确定以后返回的值
@@ -1065,6 +1129,15 @@ export default {
     },
     handleWedDictChange(val) {
       this.dataJson.tempJson.is_wed = val
+    },
+    handelSetPassword() {
+      this.popSettingsData.searchDialogDataTwo.dialogVisible = true
+    },
+    handlePsdDialogCloseOk() {
+      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+    },
+    handlePsdDialogCloseCancle() {
+      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
     }
   }
 }
