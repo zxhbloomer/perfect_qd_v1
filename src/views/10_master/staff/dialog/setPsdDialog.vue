@@ -253,6 +253,7 @@ export default {
     handleDoOk() {
       this.$refs['refLoginForm'].validate((valid) => {
         if (valid) {
+          this.$store.dispatch('popUpSearchDialog/selectedDataJson', this.dataJson.loginForm.password)
           this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000010', status: 'closed' })
           this.$emit('closeMeOk', this.$store.getters.selectedDataJson)
         }

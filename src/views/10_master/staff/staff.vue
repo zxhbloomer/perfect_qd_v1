@@ -94,7 +94,7 @@
         :validate-on-rule-change="false"
       >
 
-        <el-tabs style="height: 400px;">
+        <el-tabs style="height: 450px;">
           <br>
           <el-tab-pane>
             <template slot="label">基本信息<el-badge v-show="popSettingsData.badge.countOne>0" :value="popSettingsData.badge.countOne" type="danger" /></template>
@@ -238,110 +238,121 @@
 
           </el-tab-pane>
 
-          <el-tab-pane label="账号信息">
+          <el-tab-pane>
+            <template slot="label">账号信息<el-badge v-show="popSettingsData.badge.countTwo>0" :value="popSettingsData.badge.countTwo" type="danger" /></template>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="登陆用户名：" prop="login_name">
-                  <el-input v-model.trim="dataJson.tempJson.user.login_name" clearable show-word-limit :maxlength="dataJson.inputSettings.user.maxLength.login_name" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="设置密码：" prop="">
-                  <el-button type="primary" icon="el-icon-unlock" @click="handelSetPassword">设置密码</el-button>
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-form-item label="生效日期区间：" prop="">
-                <el-date-picker
-                  v-model="dataJson.tempJson.user.datetimerange"
-                  type="datetimerange"
-                  :picker-options="settings.pickerOptions"
-                  range-separator="至"
-                  start-placeholder="生效开始日期"
-                  end-placeholder="生效结束日期"
-                  align="right"
-                  style="width: 100%"
-                />
-              </el-form-item>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="登录用户类型：" prop="type">
-                  <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="是否删除：" prop="is_del">
+                <el-form-item label="开启账号登录：" prop="is_enable">
                   <el-switch
-                    v-model="dataJson.tempJson.user.is_del"
-                    active-color="#ff4949"
-                    inactive-color="#dcdfe6"
-                    active-text="已删除"
-                    inactive-text="未删除"
+                    v-model="dataJson.tempJson.user.is_enable"
+                    active-text="开启"
+                    inactive-text="关闭"
                   />
                 </el-form-item>
               </el-col>
+              <el-col :span="12" />
             </el-row>
+            <div>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="登录用户名：" prop="login_name">
+                    <el-input v-model.trim="dataJson.tempJson.user.login_name" clearable show-word-limit :maxlength="dataJson.inputSettings.user.maxLength.login_name" placeholder="请输入" :disabled="!isAccountLoginType" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="设置密码：" prop="">
+                    <el-button type="primary" icon="el-icon-unlock" :disabled="!isAccountLoginType" @click="handelSetPassword">设置密码</el-button>
+                    <el-tag v-show="dataJson.tempJson.user.pwd !== ''" type="success" effect="dark">已设置密码</el-tag>
+                    <el-tag v-show="dataJson.tempJson.user.pwd === ''" type="danger" effect="dark">未设置密码</el-tag>
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="用户锁定时间：" prop="locked_time">
-                  <el-date-picker v-model="dataJson.tempJson.user.locked_time" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="是否锁定：" prop="is_lock">
-                  <el-switch
-                    v-model="dataJson.tempJson.user.is_lock"
-                    active-color="#ff4949"
-                    inactive-color="#dcdfe6"
-                    active-text="已锁定"
-                    inactive-text="未锁定"
+              <el-row>
+                <el-form-item label="生效日期区间：" prop="">
+                  <el-date-picker
+                    v-model="dataJson.tempJson.user.datetimerange"
+                    type="datetimerange"
+                    :picker-options="settings.pickerOptions"
+                    range-separator="至"
+                    start-placeholder="生效开始日期"
+                    end-placeholder="生效结束日期"
+                    align="right"
+                    style="width: 100%"
+                    :disabled="!isAccountLoginType"
                   />
                 </el-form-item>
-              </el-col>
-            </el-row>
+              </el-row>
 
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="登录错误次数：" prop="err_count">
-                  <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled placeholder="[无]" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="是否禁用：" prop="是否禁用">
-                  <el-switch
-                    v-model="dataJson.tempJson.user.是否禁用"
-                    active-color="#ff4949"
-                    inactive-color="#dcdfe6"
-                    active-text="已禁用"
-                    inactive-text="未禁用"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="登录用户类型：" prop="type">
+                    <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" :disabled="!isAccountLoginType" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="是否删除：" prop="is_del">
+                    <el-switch
+                      v-model="dataJson.tempJson.user.is_del"
+                      active-color="#ff4949"
+                      inactive-color="#dcdfe6"
+                      active-text="已删除"
+                      inactive-text="未删除"
+                      :disabled="!isAccountLoginType"
+                    />
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="最后登陆时间：" prop="last_login_date">
-                  <el-input v-model.trim="dataJson.tempJson.user.last_login_date" disabled placeholder="[无]" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="是否修改过密码：" prop="is_changed_pwd">
-                  <el-switch
-                    v-model="dataJson.tempJson.user.is_changed_pwd"
-                    active-color="#ff4949"
-                    inactive-color="#dcdfe6"
-                    active-text="已修改"
-                    inactive-text="未修改"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="用户锁定时间：" prop="locked_time">
+                    <el-date-picker v-model="dataJson.tempJson.user.locked_time" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="!isAccountLoginType" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="是否锁定：" prop="is_lock">
+                    <el-switch
+                      v-model="dataJson.tempJson.user.is_lock"
+                      active-color="#ff4949"
+                      inactive-color="#dcdfe6"
+                      active-text="已锁定"
+                      inactive-text="未锁定"
+                      :disabled="!isAccountLoginType"
+                    />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="登录错误次数：" prop="err_count">
+                    <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled placeholder="[无]" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="是否修改过密码：" prop="is_changed_pwd">
+                    <el-switch
+                      v-model="dataJson.tempJson.user.is_changed_pwd"
+                      active-color="#ff4949"
+                      inactive-color="#dcdfe6"
+                      active-text="已修改"
+                      inactive-text="未修改"
+                      :disabled="!isAccountLoginType"
+                    />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="最后登录时间：" prop="last_login_date">
+                    <el-input v-model.trim="dataJson.tempJson.user.last_login_date" disabled placeholder="[无]" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12" />
+              </el-row>
+            </div>
 
             <el-form-item label="描述：" prop="descr">
               <el-input v-model.trim="dataJson.tempJson.user.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
@@ -571,6 +582,9 @@ export default {
         rulesOne: {
           name: [{ required: true, message: '请输入员工姓名', trigger: 'change' }]
         },
+        rulesTwo: {
+          login_name: [{ required: true, message: '请输入登录用户名', trigger: 'change' }]
+        },
         rules_disable: {
           // 默认可用
           end_date: false
@@ -620,6 +634,13 @@ export default {
         return false
       } else {
         return true
+      }
+    },
+    isAccountLoginType() {
+      if (this.dataJson.tempJson.user.is_enable === {}) {
+        return false
+      } else {
+        return this.dataJson.tempJson.user.is_enable
       }
     }
   },
@@ -693,7 +714,10 @@ export default {
         descr: '',
         sex: '',
         is_wed: '',
-        user: { }
+        user: {
+          is_enable: false,
+          pwd: ''
+        }
       }
     },
     initShow() {
@@ -1105,6 +1129,15 @@ export default {
       })
 
       // 第二个tabs
+      if (this.isAccountLoginType) {
+        this.popSettingsData.rules = this.popSettingsData.rulesTwo
+        this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+        this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
+          if (valid === false) {
+            this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
+          }
+        })
+      }
 
       // 所有的数据进行验证
       this.doValidateAllRules()
@@ -1133,12 +1166,24 @@ export default {
     handelSetPassword() {
       this.popSettingsData.searchDialogDataTwo.dialogVisible = true
     },
-    handlePsdDialogCloseOk() {
+    handlePsdDialogCloseOk(val) {
+      this.dataJson.tempJson.user.pwd = val
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
     },
     handlePsdDialogCloseCancle() {
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+    },
+    // -------------------验证部分------------------
+    validateLogin_name(rule, value, callback) {
+      if (!this.isAccountLoginType) {
+        return callback()
+      } else {
+        if (this.dataJson.tempJson.user.login_name === '') {
+          return callback(new Error('请输入登录用户名'))
+        }
+      }
     }
+    // -------------------验证部分------------------
   }
 }
 </script>
