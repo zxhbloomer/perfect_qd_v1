@@ -52,7 +52,7 @@ export function realDeleteSelectionApi(data) {
  * 获取数据byid逻辑
  * @param {*} data
  */
-export function getDataByid(data) {
+export function getDataByIdApi(data) {
   return request({
     url: '/api/v1/mst/address/get',
     method: 'post',

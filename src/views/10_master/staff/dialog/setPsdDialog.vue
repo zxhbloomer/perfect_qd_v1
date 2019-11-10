@@ -154,6 +154,7 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
+import { getUsrPsdStringApi } from '@/api/user'
 
 export default {
   name: 'COM000010',
@@ -170,7 +171,8 @@ export default {
     return {
       dataJson: {
         loginForm: {
-          password: ''
+          password: '',
+          encodePsd: ''
         },
         capsTooltip: false,
         passwordType: 'password',
@@ -180,10 +182,6 @@ export default {
           btnDisabledStatus: {
             disabledOk: true
           }
-        },
-        tempJson: {
-          code: '',
-          name: ''
         },
         loginRules: {
           password: [{ required: true, trigger: 'blur', validator: this.validatePassword }]
@@ -253,6 +251,7 @@ export default {
     handleDoOk() {
       this.$refs['refLoginForm'].validate((valid) => {
         if (valid) {
+          this.getUsrPsdString()
           this.$store.dispatch('popUpSearchDialog/selectedDataJson', this.dataJson.loginForm.password)
           this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000010', status: 'closed' })
           this.$emit('closeMeOk', this.$store.getters.selectedDataJson)
@@ -271,6 +270,11 @@ export default {
       } else {
         callback()
       }
+    },
+    getUsrPsdString() {
+      getUsrPsdStringApi({ pwd: this.dataJson.loginForm.password }).then(response => {
+        this.dataJson.loginForm.encodePsd = Object.assign({}, response.data)
+      })
     }
   }
 }

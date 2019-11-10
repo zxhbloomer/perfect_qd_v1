@@ -262,8 +262,8 @@
                 <el-col :span="12">
                   <el-form-item label="设置密码：" prop="">
                     <el-button type="primary" icon="el-icon-unlock" :disabled="!isAccountLoginType" @click="handelSetPassword">设置密码</el-button>
-                    <el-tag v-show="dataJson.tempJson.user.pwd !== ''" type="success" effect="dark">已设置密码</el-tag>
-                    <el-tag v-show="dataJson.tempJson.user.pwd === ''" type="danger" effect="dark">未设置密码</el-tag>
+                    <el-tag v-show="isPsdSetUp" type="success" effect="dark">已设置密码</el-tag>
+                    <el-tag v-show="!isPsdSetUp" type="danger" effect="dark">未设置密码</el-tag>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -414,7 +414,7 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/staff/staff'
-import { getDataByid } from '@/api/10_master/address/address'
+import { getUserBeanByIdApi } from '@/api/user'
 import resizeMixin from './staffResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -628,6 +628,14 @@ export default {
     }
   },
   computed: {
+    // 是否已经设置了密码
+    isPsdSetUp() {
+      if (this.dataJson.tempJson.user.pwd === '' || this.dataJson.tempJson.user.pwd === null) {
+        return false
+      } else {
+        return true
+      }
+    },
     // 是否为更新模式
     isUpdateModel() {
       if (this.popSettingsData.dialogStatus === 'insert' || this.popSettingsData.dialogStatus === 'copyInsert') {
@@ -844,7 +852,7 @@ export default {
     handleUpdate() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
       this.popSettingsData.searchDialogDataOne.selectedDataJson = {}
-      this.getAddressDataByid()
+      this.getUserBeanById()
 
       if (this.dataJson.tempJson.id === undefined) {
         this.showErrorMsg('请选择一条数据')
@@ -1152,9 +1160,9 @@ export default {
       })
     },
     // -------------------不同的页签，标签进行的验证------------------
-    getAddressDataByid() {
-      getDataByid({ id: this.dataJson.tempJson.address_id }).then(response => {
-        this.popSettingsData.searchDialogDataOne.selectedDataJson = Object.assign({}, response.data)
+    getUserBeanById() {
+      getUserBeanByIdApi({ id: this.dataJson.tempJson.user_id }).then(response => {
+        this.dataJson.tempJson.user = Object.assign({}, response.data)
       })
     },
     handleSexDictChange(val) {

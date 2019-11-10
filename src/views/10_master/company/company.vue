@@ -301,7 +301,7 @@
 
 <script>
 import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/company/company'
-import { getDataByid } from '@/api/10_master/address/address'
+import { getDataByIdApi } from '@/api/10_master/address/address'
 import resizeMixin from './companyResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
@@ -1024,7 +1024,7 @@ export default {
       this.$refs.dataSubmitForm.validateField('end_date')
     },
     getAddressDataByid() {
-      getDataByid({ id: this.dataJson.tempJson.address_id }).then(response => {
+      getDataByIdApi({ id: this.dataJson.tempJson.address_id }).then(response => {
         this.popSettingsData.searchDialogDataOne.selectedDataJson = Object.assign({}, response.data)
       })
     }

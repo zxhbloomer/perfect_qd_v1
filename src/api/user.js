@@ -23,3 +23,19 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUserBeanByIdApi(data) {
+  return request({
+    url: '/api/v1/user/list',
+    method: 'post',
+    data
+  })
+}
+
+export function getUsrPsdStringApi(data) {
+  return request({
+    url: '/api/v1/user/getpsd',
+    method: 'post',
+    data
+  })
+}
