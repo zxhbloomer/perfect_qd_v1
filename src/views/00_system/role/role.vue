@@ -648,7 +648,7 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
-            this.dataJson.tempJson.dbversion = _data.data.dbversion
+            this.dataJson.tempJson = Object.assign({}, _data.data)
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
             this.$notify({
               title: '更新成功',

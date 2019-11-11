@@ -93,7 +93,6 @@
         status-icon
         :validate-on-rule-change="false"
       >
-
         <el-tabs style="height: 450px;">
           <br>
           <el-tab-pane>
@@ -255,15 +254,15 @@
             <div>
               <el-row>
                 <el-col :span="12">
-                  <el-form-item label="登录用户名：" prop="login_name">
+                  <el-form-item label="登录用户名：" prop="user.login_name">
                     <el-input v-model.trim="dataJson.tempJson.user.login_name" clearable show-word-limit :maxlength="dataJson.inputSettings.user.maxLength.login_name" placeholder="请输入" :disabled="!isAccountLoginType" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item label="设置密码：" prop="">
                     <el-button type="primary" icon="el-icon-unlock" :disabled="!isAccountLoginType" @click="handelSetPassword">设置密码</el-button>
-                    <el-tag v-show="isPsdSetUp" type="success" effect="dark">已设置密码</el-tag>
-                    <el-tag v-show="!isPsdSetUp" type="danger" effect="dark">未设置密码</el-tag>
+                    <el-tag v-show="!(dataJson.tempJson.user.pwd === '' || dataJson.tempJson.user.pwd === null || dataJson.tempJson.user.pwd === undefined)" type="success" effect="dark">已设置密码</el-tag>
+                    <el-tag v-show="(dataJson.tempJson.user.pwd === '' || dataJson.tempJson.user.pwd === null || dataJson.tempJson.user.pwd === undefined)" type="danger" effect="dark">未设置密码</el-tag>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -482,7 +481,7 @@ export default {
           },
           user: {
             maxLength: {
-              name: 20
+              login_name: 20
             }
           }
         },
@@ -583,7 +582,7 @@ export default {
           name: [{ required: true, message: '请输入员工姓名', trigger: 'change' }]
         },
         rulesTwo: {
-          login_name: [{ required: true, message: '请输入登录用户名', trigger: 'change' }]
+          'user.login_name': [{ required: true, message: '请输入登录用户名', trigger: 'change' }]
         },
         rules_disable: {
           // 默认可用
@@ -630,7 +629,7 @@ export default {
   computed: {
     // 是否已经设置了密码
     isPsdSetUp() {
-      if (this.dataJson.tempJson.user.pwd === '' || this.dataJson.tempJson.user.pwd === null) {
+      if (this.dataJson.tempJson.user.pwd === '' || this.dataJson.tempJson.user.pwd === null || this.dataJson.tempJson.user.pwd === undefined) {
         return false
       } else {
         return true
@@ -649,6 +648,13 @@ export default {
         return false
       } else {
         return this.dataJson.tempJson.user.is_enable
+      }
+    },
+    isLoginEnabled() {
+      if (this.dataJson.tempJson.user.is_enable === true) {
+        return true
+      } else {
+        return false
       }
     }
   },
@@ -992,12 +998,12 @@ export default {
     doUpdate() {
       // 开始综合验证
       this.doValidateByTabs()
-      this.$refs['dataSubmitForm'].validate((valid) => {
+      this.$refs['dataSubmitForm'].validate((valid, items) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           updateApi(tempData).then((_data) => {
-            this.dataJson.tempJson.dbversion = _data.data.dbversion
+            this.dataJson.tempJson = Object.assign({}, _data.data)
             // 设置到table中绑定的json数据源
             this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
             // 设置到currentjson中
@@ -1066,6 +1072,7 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           insertApi(tempData).then((_data) => {
+            debugger
             this.dataJson.listData.push(_data.data)
             this.$notify({
               title: '插入成功',
@@ -1122,14 +1129,21 @@ export default {
     // -------------------不同的页签，标签进行的验证------------------
     // 所有的数据开始validate
     doValidateAllRules() {
-      this.popSettingsData.rules = { ...this.popSettingsData.rulesOne }
-      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      if (this.isLoginEnabled) {
+        this.popSettingsData.rules = { ...this.popSettingsData.rulesOne, ...this.popSettingsData.rulesTwo }
+      } else {
+        this.popSettingsData.rules = { ...this.popSettingsData.rulesOne }
+      }
+
+      // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      this.$refs['dataSubmitForm'].clearValidate
     },
     // 开始综合验证
     doValidateByTabs() {
       // 第一个tabs
       this.popSettingsData.rules = this.popSettingsData.rulesOne
-      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      this.$refs['dataSubmitForm'].clearValidate
       this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
         if (valid === false) {
           this.popSettingsData.badge.countOne = Object.keys(validateItems).length
@@ -1137,14 +1151,17 @@ export default {
       })
 
       // 第二个tabs
-      if (this.isAccountLoginType) {
-        this.popSettingsData.rules = this.popSettingsData.rulesTwo
-        this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-        this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
-          if (valid === false) {
-            this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
-          }
-        })
+      if (this.isLoginEnabled) {
+        if (this.isAccountLoginType) {
+          this.popSettingsData.rules = this.popSettingsData.rulesTwo
+          // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+          this.$refs['dataSubmitForm'].clearValidate
+          this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
+            if (valid === false) {
+              this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
+            }
+          })
+        }
       }
 
       // 所有的数据进行验证
@@ -1155,7 +1172,6 @@ export default {
       this.popSettingsData.badge.countOne = 0
       this.popSettingsData.badge.countTwo = 0
       this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
         this.doValidateAllRules()
       })
     },
@@ -1180,17 +1196,17 @@ export default {
     },
     handlePsdDialogCloseCancle() {
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
-    },
-    // -------------------验证部分------------------
-    validateLogin_name(rule, value, callback) {
-      if (!this.isAccountLoginType) {
-        return callback()
-      } else {
-        if (this.dataJson.tempJson.user.login_name === '') {
-          return callback(new Error('请输入登录用户名'))
-        }
-      }
     }
+    // -------------------验证部分------------------
+    // validateLogin_name(rule, value, callback) {
+    //   if (!this.isAccountLoginType) {
+    //     return callback()
+    //   } else {
+    //     if (this.dataJson.tempJson.user.login_name === '') {
+    //       return callback(new Error('请输入登录用户名'))
+    //     }
+    //   }
+    // }
     // -------------------验证部分------------------
   }
 }

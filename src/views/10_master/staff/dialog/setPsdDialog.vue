@@ -2,12 +2,11 @@
   <el-dialog
     v-el-drag-dialog
     title="设置密码"
-    :visible="visible"
+    :visible.sync="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
     width="600px"
-    destroy-on-close
     top="5vh"
   >
     <div class="login-container">
@@ -35,7 +34,6 @@
               auto-complete="on"
               @keyup.native="checkCapslock"
               @blur="dataJson.capsTooltip = false"
-              @keyup.enter.native="handleLogin"
             />
             <span class="show-pwd" @click="showPwd">
               <svg-icon :icon-class="dataJson.passwordType === 'password' ? 'eye' : 'eye-open'" />
@@ -54,10 +52,6 @@
 </template>
 
 <style lang="scss">
-/* 修复input 背景不协调 和光标变色 */
-/* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
-
-/* reset element-ui css */
 .login-container {
   .el-input {
     display: inline-block;
@@ -211,6 +205,7 @@ export default {
     listenVisible: {
       handler(newVal, oldVal) {
         if (newVal) {
+          this.init()
           // dialog打开后初始化
           this.$store.dispatch('popUpSearchDialog/program', { programId: 'COM000010', status: 'open' })
           this.$store.dispatch('popUpSearchDialog/selectedDataJson', null)
@@ -222,9 +217,13 @@ export default {
   },
   created() {
     // 设置当前打开的页面
-
   },
   methods: {
+    init() {
+      this.dataJson.loginForm.password = ''
+      this.dataJson.loginForm.encodePsd = ''
+      this.dataJson.passwordType = 'password'
+    },
     checkCapslock({ shiftKey, key } = {}) {
       if (key && key.length === 1) {
         if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
@@ -273,7 +272,7 @@ export default {
     },
     getUsrPsdString() {
       getUsrPsdStringApi({ pwd: this.dataJson.loginForm.password }).then(response => {
-        this.dataJson.loginForm.encodePsd = Object.assign({}, response.data)
+        this.dataJson.loginForm.password = response.data
       })
     }
   }
