@@ -53,7 +53,7 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="birthday" label="生日" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="email" label="邮箱地址" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="50" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column min-width="60" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
             <el-switch
@@ -688,7 +688,6 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
           this.$nextTick(() => {
-            this.$refs['dataSubmitForm'].resetFields()
             this.$refs['dataSubmitForm'].clearValidate()
           })
         }
@@ -1137,30 +1136,33 @@ export default {
         this.popSettingsData.rules = { ...this.popSettingsData.rulesOne }
       }
 
-      // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
       this.$refs['dataSubmitForm'].clearValidate()
     },
     // 开始综合验证
     doValidateByTabs() {
       // 第一个tabs
       this.popSettingsData.rules = this.popSettingsData.rulesOne
-      // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
       this.$refs['dataSubmitForm'].clearValidate()
       this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
         if (valid === false) {
           this.popSettingsData.badge.countOne = Object.keys(validateItems).length
+        } else {
+          this.popSettingsData.badge.countOne = 0
         }
       })
-
       // 第二个tabs
       if (this.isLoginEnabled) {
         if (this.isAccountLoginType) {
           this.popSettingsData.rules = this.popSettingsData.rulesTwo
-          // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
+          this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
           this.$refs['dataSubmitForm'].clearValidate()
           this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
             if (valid === false) {
               this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
+            } else {
+              this.popSettingsData.badge.countTwo = 0
             }
           })
         }
