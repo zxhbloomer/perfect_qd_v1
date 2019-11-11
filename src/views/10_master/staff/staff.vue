@@ -24,7 +24,6 @@
     <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
     </el-button-group>
     <el-table
@@ -688,6 +687,10 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledInsert = true
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
+          this.$nextTick(() => {
+            this.$refs['dataSubmitForm'].resetFields()
+            this.$refs['dataSubmitForm'].clearValidate()
+          })
         }
       }
     },
@@ -1135,14 +1138,14 @@ export default {
       }
 
       // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-      this.$refs['dataSubmitForm'].clearValidate
+      this.$refs['dataSubmitForm'].clearValidate()
     },
     // 开始综合验证
     doValidateByTabs() {
       // 第一个tabs
       this.popSettingsData.rules = this.popSettingsData.rulesOne
       // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-      this.$refs['dataSubmitForm'].clearValidate
+      this.$refs['dataSubmitForm'].clearValidate()
       this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
         if (valid === false) {
           this.popSettingsData.badge.countOne = Object.keys(validateItems).length
@@ -1154,7 +1157,7 @@ export default {
         if (this.isAccountLoginType) {
           this.popSettingsData.rules = this.popSettingsData.rulesTwo
           // this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-          this.$refs['dataSubmitForm'].clearValidate
+          this.$refs['dataSubmitForm'].clearValidate()
           this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
             if (valid === false) {
               this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
