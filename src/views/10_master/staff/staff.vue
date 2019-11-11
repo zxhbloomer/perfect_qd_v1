@@ -1072,7 +1072,6 @@ export default {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
           insertApi(tempData).then((_data) => {
-            debugger
             this.dataJson.listData.push(_data.data)
             this.$notify({
               title: '插入成功',
