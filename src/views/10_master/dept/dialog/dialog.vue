@@ -1,17 +1,16 @@
 <template>
   <el-dialog
     v-el-drag-dialog
-    title="员工选择对话框"
+    title="字典类型选择对话框"
     :visible="visible"
-    :modal="false"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
-    width="1100px"
+    width="1000px"
     destroy-on-close
     top="5vh"
   >
-    <my-page ref="dialogRef" @rowDbClick="handleRowDbClick" />
+    <P00000030 ref="dialogRef" @rowDbClick="handleRowDbClick" />
     <div slot="footer" class="dialog-footer">
       <el-divider />
       <el-button plain @click="handleDoCancel()">取 消</el-button>
@@ -22,11 +21,11 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
-import myPage from '@/views/10_master/staff/staff'
+import P00000030 from '@/views/00_system/dicttype/dicttype'
 
 export default {
   name: 'COM000010',
-  components: { myPage },
+  components: { P00000030 },
   directives: { elDragDialog },
   props: {
     // 页面是否显示参数

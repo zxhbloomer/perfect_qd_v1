@@ -220,6 +220,12 @@ export const constantRoutes = [
             component: () => import('@/views/10_master/staff/staff'),
             name: 'P00000140',
             meta: { title: '员工管理' }
+          },
+          {
+            path: 'dept',
+            component: () => import('@/views/10_master/dept/dept'),
+            name: 'P00000150',
+            meta: { title: '部门信息' }
           }
         ]
       }

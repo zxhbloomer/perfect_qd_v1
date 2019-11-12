@@ -8,7 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="员工名称" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="部门编号" />
+      </el-form-item>
+      <el-form-item label="">
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="部门全称" />
       </el-form-item>
       <el-form-item label="">
         <delete-type-normal v-model="dataJson.searchForm.is_del" />
@@ -20,10 +23,10 @@
         <el-button v-popover:popover type="primary" plain icon="perfect-icon-reset" @click="doResetSearch">重 置</el-button>
       </el-form-item>
     </el-form>
-
-    <el-button-group>
+    <el-button-group v-show="!meDialogSetting.dialogStatus">
       <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
+      <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
       <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
     </el-button-group>
     <el-table
@@ -45,15 +48,16 @@
       @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="45" prop="id" />
+      <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="员工姓名" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="simple_name" label="姓名简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sex_text" label="性别" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="birthday" label="生日" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="email" label="邮箱地址" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="部门编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="部门全称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="部门简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="handler_id_name" label="部门负责人" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sub_handler_id_name" label="部门副负责人" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="leader_id_name" label="部门主管领导" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
-      <el-table-column min-width="90" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
+      <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
           <el-tooltip :content="'删除状态: ' + scope.row.is_del" placement="top">
             <el-switch
@@ -63,6 +67,7 @@
               :active-value="true"
               :inactive-value="false"
               :width="30"
+              :disabled="meDialogSetting.dialogStatus"
               @change="handleDel(scope.row)"
             />
           </el-tooltip>
@@ -80,288 +85,87 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
-      width="800px"
+      width="700px"
     >
       <el-form
         ref="dataSubmitForm"
         :rules="popSettingsData.rules"
         :model="dataJson.tempJson"
         label-position="rigth"
-        label-width="155px"
+        label-width="120px"
         status-icon
-        :validate-on-rule-change="false"
       >
-        <el-tabs style="height: 450px;">
-          <br>
-          <el-tab-pane>
-            <template slot="label">基本信息<el-badge v-show="popSettingsData.badge.countOne>0" :value="popSettingsData.badge.countOne" type="danger" /></template>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="员工姓名：" prop="name">
-                  <el-input ref="refFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="员工姓名拼音：" prop="name_py">
-                  <el-input v-model.trim="dataJson.tempJson.name_py" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name_py" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="员工姓名简称：" prop="simple_name">
-                  <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="员工姓名简称拼音：" prop="simple_name_py">
-                  <el-input v-model.trim="dataJson.tempJson.simple_name_py" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name_py" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="身份证号码：" prop="id_card">
-                  <el-input v-model.trim="dataJson.tempJson.id_card" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.id_card" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="护照号码：" prop="passport">
-                  <el-input v-model.trim="dataJson.tempJson.passport" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.passport" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="名族：" prop="nation">
-                  <el-input v-model.trim="dataJson.tempJson.nation" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.nation" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="生日：" prop="birthday">
-                  <el-date-picker v-model="dataJson.tempJson.birthday" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="性别：" prop="sex">
-                  <radio-dict v-model="dataJson.tempJson.sex" :para="CONSTANTS.DICT_SYS_SEX_TYPE" @change="handleSexDictChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="在职情况：" prop="service">
-                  <select-dict v-model="dataJson.tempJson.service" :para="CONSTANTS.DICT_USR_SERVICE_TYPE" init-placeholder="请选择在职情况" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="婚否 ：" prop="is_wed">
-                  <radio-dict v-model="dataJson.tempJson.is_wed" :para="CONSTANTS.DICT_USR_WED_TYPE" @change="handleWedDictChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="学历：" prop="degree">
-                  <select-dict v-model="dataJson.tempJson.degree" :para="CONSTANTS.DICT_USR_DEGREE_TYPE" init-placeholder="请选择学历情况" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-form-item label="描述：" prop="descr">
-              <el-input v-model.trim="dataJson.tempJson.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
+        <el-alert
+          title="基本信息"
+          type="info"
+          :closable="false"
+        />
+        <br>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="部门编号：" prop="code">
+              <el-input ref="refInsertFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" :disabled="isUpdateModel" />
             </el-form-item>
-
-          </el-tab-pane>
-
-          <el-tab-pane label="联系方式">
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="家庭电话：" prop="home_phone">
-                  <el-input v-model.trim="dataJson.tempJson.home_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.home_phone" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="办公室电话：" prop="office_phone">
-                  <el-input v-model.trim="dataJson.tempJson.office_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.office_phone" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="手机号码：" prop="mobile_phone">
-                  <el-input v-model.trim="dataJson.tempJson.mobile_phone" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.mobile_phone" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="手机备用号码：" prop="mobile_phone_backup">
-                  <el-input v-model.trim="dataJson.tempJson.mobile_phone_backup" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.mobile_phone_backup" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="邮箱地址：" prop="email">
-                  <el-input v-model.trim="dataJson.tempJson.email" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.email" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="邮箱备用地址：" prop="email_backup">
-                  <el-input v-model.trim="dataJson.tempJson.email_backup" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.email_backup" placeholder="请输入" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row v-show="popSettingsData.dialogStatus === 'update'">
-              <el-col :span="12">
-                <el-form-item label="更新者：" prop="u_id">
-                  <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="更新时间：" prop="u_time">
-                  <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-          </el-tab-pane>
-
-          <el-tab-pane>
-            <template slot="label">账号信息<el-badge v-show="popSettingsData.badge.countTwo>0" :value="popSettingsData.badge.countTwo" type="danger" /></template>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item label="开启账号登录：" prop="is_enable">
-                  <el-switch
-                    v-model="dataJson.tempJson.user.is_enable"
-                    active-text="开启"
-                    inactive-text="关闭"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12" />
-            </el-row>
-            <div>
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="登录用户名：" prop="user.login_name">
-                    <el-input v-model.trim="dataJson.tempJson.user.login_name" clearable show-word-limit :maxlength="dataJson.inputSettings.user.maxLength.login_name" placeholder="请输入" :disabled="!isAccountLoginType" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="设置密码：" prop="">
-                    <el-button type="primary" icon="el-icon-unlock" :disabled="!isAccountLoginType" @click="handelSetPassword">设置密码</el-button>
-                    <el-tag v-show="!(dataJson.tempJson.user.pwd === '' || dataJson.tempJson.user.pwd === null || dataJson.tempJson.user.pwd === undefined)" type="success" effect="dark">已设置密码</el-tag>
-                    <el-tag v-show="(dataJson.tempJson.user.pwd === '' || dataJson.tempJson.user.pwd === null || dataJson.tempJson.user.pwd === undefined)" type="danger" effect="dark">未设置密码</el-tag>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-              <el-row>
-                <el-form-item label="生效日期区间：" prop="">
-                  <el-date-picker
-                    v-model="dataJson.tempJson.user.datetimerange"
-                    type="datetimerange"
-                    :picker-options="settings.pickerOptions"
-                    range-separator="至"
-                    start-placeholder="生效开始日期"
-                    end-placeholder="生效结束日期"
-                    align="right"
-                    style="width: 100%"
-                    :disabled="!isAccountLoginType"
-                  />
-                </el-form-item>
-              </el-row>
-
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="登录用户类型：" prop="type">
-                    <select-dict v-model="dataJson.tempJson.user.type" :para="CONSTANTS.DICT_USR_LOGIN_TYPE" init-placeholder="请选择登录用户类型" :disabled="!isAccountLoginType" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="是否删除：" prop="is_del">
-                    <el-switch
-                      v-model="dataJson.tempJson.user.is_del"
-                      active-color="#ff4949"
-                      inactive-color="#dcdfe6"
-                      active-text="已删除"
-                      inactive-text="未删除"
-                      :disabled="!isAccountLoginType"
-                    />
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="用户锁定时间：" prop="locked_time">
-                    <el-date-picker v-model="dataJson.tempJson.user.locked_time" value-format="yyyy-MM-dd" type="date" clearable placeholder="选择日期" style="width: 100%" :disabled="!isAccountLoginType" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="是否锁定：" prop="is_lock">
-                    <el-switch
-                      v-model="dataJson.tempJson.user.is_lock"
-                      active-color="#ff4949"
-                      inactive-color="#dcdfe6"
-                      active-text="已锁定"
-                      inactive-text="未锁定"
-                      :disabled="!isAccountLoginType"
-                    />
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="登录错误次数：" prop="err_count">
-                    <el-input v-model.trim="dataJson.tempJson.user.err_count" disabled placeholder="[无]" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="是否修改过密码：" prop="is_changed_pwd">
-                    <el-switch
-                      v-model="dataJson.tempJson.user.is_changed_pwd"
-                      active-color="#ff4949"
-                      inactive-color="#dcdfe6"
-                      active-text="已修改"
-                      inactive-text="未修改"
-                      :disabled="!isAccountLoginType"
-                    />
-                  </el-form-item>
-                </el-col>
-              </el-row>
-
-              <el-row>
-                <el-col :span="12">
-                  <el-form-item label="最后登录时间：" prop="last_login_date">
-                    <el-input v-model.trim="dataJson.tempJson.user.last_login_date" disabled placeholder="[无]" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12" />
-              </el-row>
-            </div>
-
-            <el-form-item label="描述：" prop="descr">
-              <el-input v-model.trim="dataJson.tempJson.user.descr" clearable show-word-limit type="textarea" :maxlength="dataJson.inputSettings.maxLength.descr" placeholder="请输入" />
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门全称：" prop="name">
+              <el-input ref="refUpdateFocus" v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
             </el-form-item>
-          </el-tab-pane>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="部门简称：" prop="simple_name">
+              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门负责人：" prop="handler_id">
+              <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.name" disabled>
+                <el-button slot="append" ref="selectOne" icon="el-icon-search" @click="handleStaffDialogClickOne">
+                  选择
+                </el-button>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-          <el-tab-pane label="权限信息">
-            权限信息
-          </el-tab-pane>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="部门副负责人：" prop="sub_handler_id">
+              <el-input v-model.trim="popSettingsData.searchDialogDataTwo.selectedDataJson.name" disabled>
+                <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleStaffDialogClickTwo">
+                  选择
+                </el-button>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="部门主管领导：" prop="handler_id">
+              <el-input v-model.trim="popSettingsData.searchDialogDataThree.selectedDataJson.name" disabled>
+                <el-button slot="append" ref="selectThree" icon="el-icon-search" @click="handleStaffDialogClickThree">
+                  选择
+                </el-button>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-        </el-tabs>
-
+        <el-form-item label="描述：" prop="descr">
+          <el-input v-model.trim="dataJson.tempJson.descr" clearable type="textarea" show-word-limit :maxlength="dataJson.inputSettings.maxLength.descr" />
+        </el-form-item>
+        <el-row v-show="popSettingsData.dialogStatus === 'update'">
+          <el-col :span="12">
+            <el-form-item label="更新者：" prop="u_id">
+              <el-input v-model.trim="dataJson.tempJson.u_id" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="更新时间：" prop="u_time">
+              <el-input v-model.trim="dataJson.tempJson.u_time" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-divider />
@@ -374,14 +178,26 @@
         <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
       </div>
     </el-dialog>
+    <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
 
-    <psd-dialog
-      :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
-      @closeMeOk="handlePsdDialogCloseOk"
-      @closeMeCancle="handlePsdDialogCloseCancle"
+    <staff-dialog
+      :visible="popSettingsData.searchDialogDataOne.dialogVisible"
+      @closeMeOk="handleStaffCloseOkOne"
+      @closeMeCancle="handleStaffCloseCancleOne"
     />
 
-    <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
+    <staff-dialog
+      :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
+      @closeMeOk="handleStaffCloseOkTwo"
+      @closeMeCancle="handleStaffCloseCancleTwo"
+    />
+
+    <staff-dialog
+      :visible="popSettingsData.searchDialogDataThree.dialogVisible"
+      @closeMeOk="handleStaffCloseOkThree"
+      @closeMeCancle="handleStaffCloseCancleThree"
+    />
+
   </div>
 </template>
 
@@ -396,33 +212,18 @@
     width: 100%;
   }
 </style>
-<style >
-  .el-input-group__append_select{
-    color: #FFFFFF;
-    background-color: #1890ff;
-    border-color: #1890ff;
-  }
-  .el-input-group__append_reset{
-    color: #FFFFFF;
-    background-color: #F56C6C;
-    border-color: #F56C6C;
-  }
-</style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/staff/staff'
-import { getUserBeanByIdApi } from '@/api/user'
-import resizeMixin from './staffResizeHandlerMixin'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/dept/dept'
+import resizeMixin from './deptResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
-import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
-import SelectDict from '@/layout/components/00_common/SelectComponent/SelectDictComponent'
-import psdDialog from '@/views/10_master/staff/dialog/setPsdDialog'
+import staffDialog from '@/views/10_master/staff/dialog/dialog'
 
 export default {
-  name: 'P00000140', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, RadioDict, SelectDict, psdDialog },
+  name: 'P00000150', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination, DeleteTypeNormal, staffDialog },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -463,24 +264,9 @@ export default {
         inputSettings: {
           maxLength: {
             name: 20,
-            name_py: 20,
-            simple_name: 10,
-            simple_name_py: 15,
-            id_card: 25,
-            passport: 20,
-            nation: 20,
-            home_phone: 15,
-            office_phone: 15,
-            mobile_phone: 15,
-            mobile_phone_backup: 15,
-            email: 20,
-            email_backup: 20,
-            descr: 200
-          },
-          user: {
-            maxLength: {
-              login_name: 20
-            }
+            code: 20,
+            descr: 200,
+            simple_name: 20
           }
         },
         // 当前表格中的索引，第几条
@@ -501,52 +287,7 @@ export default {
         // loading 状态
         listLoading: true,
         tableHeight: this.setUIheight(),
-        duration: 4000,
-        // 日期类型下拉选项json
-        pickerOptions: {
-          shortcuts: [{
-            text: '未来一周',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来六个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来一年',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
-              picker.$emit('pick', [start, end])
-            }
-          }
-          ]
-        }
+        duration: 4000
       },
       popSettingsData: {
         // 弹出窗口状态名称
@@ -574,24 +315,10 @@ export default {
         dialogStatus: '',
         dialogFormVisible: false,
         // pop的check内容
-        rules: {},
-        // 基本信息栏目check
-        rulesOne: {
-          name: [{ required: true, message: '请输入员工姓名', trigger: 'change' }]
-        },
-        rulesTwo: {
-          'user.login_name': [{ required: true, message: '请输入登录用户名', trigger: 'change' }]
-        },
-        rules_disable: {
-          // 默认可用
-          end_date: false
-        },
-        // 错误数目
-        badge: {
-          countOne: 0,
-          countTwo: 0,
-          countThree: 0,
-          countFour: 0
+        rules: {
+          name: [{ required: true, message: '请输入部门全称', trigger: 'change' }],
+          code: [{ required: true, message: '请输入部门编号', trigger: 'change' }],
+          simple_name: [{ required: true, message: '请输入部门简称', trigger: 'change' }]
         },
         // 弹出的搜索框参数设置
         searchDialogDataOne: {
@@ -600,13 +327,21 @@ export default {
           // 点击确定以后返回的值
           selectedDataJson: {}
         },
-        // 弹出的框参数设置
+        // 弹出的搜索框参数设置
         searchDialogDataTwo: {
           // 弹出框显示参数
           dialogVisible: false,
           // 点击确定以后返回的值
           selectedDataJson: {}
+        },
+        // 弹出的搜索框参数设置
+        searchDialogDataThree: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: {}
         }
+
       },
       // 导入窗口的状态
       popSettingsImport: {
@@ -625,34 +360,12 @@ export default {
     }
   },
   computed: {
-    // 是否已经设置了密码
-    isPsdSetUp() {
-      if (this.dataJson.tempJson.user.pwd === '' || this.dataJson.tempJson.user.pwd === null || this.dataJson.tempJson.user.pwd === undefined) {
-        return false
-      } else {
-        return true
-      }
-    },
     // 是否为更新模式
     isUpdateModel() {
       if (this.popSettingsData.dialogStatus === 'insert' || this.popSettingsData.dialogStatus === 'copyInsert') {
         return false
       } else {
         return true
-      }
-    },
-    isAccountLoginType() {
-      if (this.dataJson.tempJson.user.is_enable === {}) {
-        return false
-      } else {
-        return this.dataJson.tempJson.user.is_enable
-      }
-    },
-    isLoginEnabled() {
-      if (this.dataJson.tempJson.user.is_enable === true) {
-        return true
-      } else {
-        return false
       }
     }
   },
@@ -686,9 +399,6 @@ export default {
           this.popSettingsData.btnDisabledStatus.disabledInsert = true
           this.popSettingsData.btnDisabledStatus.disabledUpdate = true
           this.popSettingsData.btnDisabledStatus.disabledCopyInsert = true
-          this.$nextTick(() => {
-            this.$refs['dataSubmitForm'].clearValidate()
-          })
         }
       }
     },
@@ -705,7 +415,25 @@ export default {
     'popSettingsData.searchDialogDataOne.selectedDataJson': {
       handler(newVal, oldVal) {
         if (newVal !== {}) {
-          this.dataJson.tempJson.address_id = this.popSettingsData.searchDialogDataOne.selectedDataJson.id
+          this.dataJson.tempJson.handler_id = this.popSettingsData.searchDialogDataOne.selectedDataJson.id
+        } else {
+          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
+        }
+      }
+    },
+    'popSettingsData.searchDialogDataTwo.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal !== {}) {
+          this.dataJson.tempJson.sub_handler_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
+        } else {
+          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
+        }
+      }
+    },
+    'popSettingsData.searchDialogDataThree.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal !== {}) {
+          this.dataJson.tempJson.leader_id = this.popSettingsData.searchDialogDataThree.selectedDataJson.id
         } else {
           this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
         }
@@ -727,20 +455,12 @@ export default {
         name: '',
         code: '',
         descr: '',
-        sex: '',
-        is_wed: '',
-        user: {
-          is_enable: false,
-          pwd: ''
-        }
+        dbversion: 0
       }
     },
     initShow() {
       // 初始化查询
       this.getDataList()
-
-      // 数据初始化
-      this.initTempJsonOriginal()
       // 数据初始化
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
     },
@@ -789,8 +509,9 @@ export default {
       this.dataJson.rowIndex = _rowIndex
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
-      // reset所有验证
-      this.doResetValidate()
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
     },
     // 删除操作
     handleDel(row) {
@@ -841,8 +562,9 @@ export default {
       // 数据初始化
       this.initTempJsonOriginal()
       this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-      // reset所有验证
-      this.doResetValidate()
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = true
       this.popSettingsData.btnShowStatus.showUpdate = false
@@ -850,17 +572,18 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
+      // 初始化员工选择页面
+      this.initStaffSelectButtonOne()
+      this.initStaffSelectButtonTwo()
+      this.initStaffSelectButtonThree()
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refFocus'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     // 点击按钮 更新
     handleUpdate() {
       this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      this.popSettingsData.searchDialogDataOne.selectedDataJson = {}
-      this.getUserBeanById()
-
       if (this.dataJson.tempJson.id === undefined) {
         this.showErrorMsg('请选择一条数据')
         return
@@ -868,15 +591,20 @@ export default {
       // 修改
       this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
-      // reset所有验证
-      this.doResetValidate()
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
+      // 初始化员工选择页面
+      this.initStaffSelectButtonOne()
+      this.initStaffSelectButtonTwo()
+      this.initStaffSelectButtonThree()
       // 控件focus
       this.$nextTick(() => {
-        this.$refs['refFocus'].focus()
+        this.$refs['refUpdateFocus'].focus()
       })
     },
     // 导出按钮
@@ -941,15 +669,16 @@ export default {
       // 修改
       this.popSettingsData.dialogStatus = 'copyInsert'
       this.popSettingsData.dialogFormVisible = true
-      // reset所有验证
-      this.doResetValidate()
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
       // 设置按钮
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = false
       this.popSettingsData.btnShowStatus.showCopyInsert = true
       // 复制新增时focus
       this.$nextTick(() => {
-        this.$refs['refFocus'].focus()
+        this.$refs['refInsertFocus'].focus()
       })
     },
     handleCurrentChange(row) {
@@ -997,9 +726,7 @@ export default {
     },
     // 更新逻辑
     doUpdate() {
-      // 开始综合验证
-      this.doValidateByTabs()
-      this.$refs['dataSubmitForm'].validate((valid, items) => {
+      this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -1053,22 +780,29 @@ export default {
         case 'update':
           // 数据初始化
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refUpdateFocus'].focus()
+          })
           break
         default:
           // 数据初始化
           this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
+          // 设置控件焦点focus
+          this.$nextTick(() => {
+            this.$refs['refInsertFocus'].focus()
+          })
           break
       }
 
       // 去除validate信息
-      // reset所有验证
-      this.doResetValidate()
+      this.$nextTick(() => {
+        this.$refs['dataSubmitForm'].clearValidate()
+      })
     },
     // 插入逻辑
     doInsert() {
-      // 开始综合验证
-      this.doValidateByTabs()
-      this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
+      this.$refs['dataSubmitForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.dataJson.tempJson)
           this.settings.listLoading = true
@@ -1126,91 +860,71 @@ export default {
         </span>
       )
     },
-    // -------------------不同的页签，标签进行的验证------------------
-    // 所有的数据开始validate
-    doValidateAllRules() {
-      if (this.isLoginEnabled) {
-        this.popSettingsData.rules = { ...this.popSettingsData.rulesOne, ...this.popSettingsData.rulesTwo }
-      } else {
-        this.popSettingsData.rules = { ...this.popSettingsData.rulesOne }
-      }
-
-      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-      this.$refs['dataSubmitForm'].clearValidate()
-    },
-    // 开始综合验证
-    doValidateByTabs() {
-      // 第一个tabs
-      this.popSettingsData.rules = this.popSettingsData.rulesOne
-      this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-      this.$refs['dataSubmitForm'].clearValidate()
-      this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
-        if (valid === false) {
-          this.popSettingsData.badge.countOne = Object.keys(validateItems).length
-        } else {
-          this.popSettingsData.badge.countOne = 0
-        }
-      })
-      // 第二个tabs
-      if (this.isLoginEnabled) {
-        if (this.isAccountLoginType) {
-          this.popSettingsData.rules = this.popSettingsData.rulesTwo
-          this.$refs['dataSubmitForm'].rules = this.popSettingsData.rules
-          this.$refs['dataSubmitForm'].clearValidate()
-          this.$refs['dataSubmitForm'].validate((valid, validateItems) => {
-            if (valid === false) {
-              this.popSettingsData.badge.countTwo = Object.keys(validateItems).length
-            } else {
-              this.popSettingsData.badge.countTwo = 0
-            }
-          })
-        }
-      }
-
-      // 所有的数据进行验证
-      this.doValidateAllRules()
-    },
-    // reset所有验证
-    doResetValidate() {
-      this.popSettingsData.badge.countOne = 0
-      this.popSettingsData.badge.countTwo = 0
+    // --------------弹出查询框：地址簿页面--------------
+    // 1
+    // 选择or重置按钮的初始化
+    initStaffSelectButtonOne() {
       this.$nextTick(() => {
-        this.doValidateAllRules()
+        this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
       })
     },
-    // -------------------不同的页签，标签进行的验证------------------
-    getUserBeanById() {
-      getUserBeanByIdApi({ id: this.dataJson.tempJson.user_id }).then(response => {
-        this.dataJson.tempJson.user = Object.assign({}, response.data)
+    handleStaffDialogClickOne() {
+      // 选择按钮
+      this.popSettingsData.searchDialogDataOne.dialogVisible = true
+    },
+    // 关闭对话框：确定
+    handleStaffCloseOkOne(val) {
+      this.popSettingsData.searchDialogDataOne.selectedDataJson = val
+      this.popSettingsData.searchDialogDataOne.dialogVisible = false
+      this.initStaffSelectButtonOne()
+    },
+    // 关闭对话框：取消
+    handleStaffCloseCancleOne() {
+      this.popSettingsData.searchDialogDataOne.dialogVisible = false
+    },
+    // 2
+    // 选择or重置按钮的初始化
+    initStaffSelectButtonTwo() {
+      this.$nextTick(() => {
+        this.$refs.selectTwo.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
       })
     },
-    handleSexDictChange(val) {
-      this.dataJson.tempJson.sex = val
-    },
-    handleWedDictChange(val) {
-      this.dataJson.tempJson.is_wed = val
-    },
-    handelSetPassword() {
+    handleStaffDialogClickTwo() {
+      // 选择按钮
       this.popSettingsData.searchDialogDataTwo.dialogVisible = true
     },
-    handlePsdDialogCloseOk(val) {
-      this.dataJson.tempJson.user.pwd = val
+    // 关闭对话框：确定
+    handleStaffCloseOkTwo(val) {
+      this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
+      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+      this.initStaffSelectButtonTwo()
+    },
+    // 关闭对话框：取消
+    handleStaffCloseCancleTwo() {
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
     },
-    handlePsdDialogCloseCancle() {
-      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+    // 3
+    // 选择or重置按钮的初始化
+    initStaffSelectButtonThree() {
+      this.$nextTick(() => {
+        this.$refs.selectThree.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+      })
+    },
+    handleStaffDialogClickThree() {
+      // 选择按钮
+      this.popSettingsData.searchDialogDataThree.dialogVisible = true
+    },
+    // 关闭对话框：确定
+    handleStaffCloseOkThree(val) {
+      this.popSettingsData.searchDialogDataThree.selectedDataJson = val
+      this.popSettingsData.searchDialogDataThree.dialogVisible = false
+      this.initStaffSelectButtonThree()
+    },
+    // 关闭对话框：取消
+    handleStaffCloseCancleThree() {
+      this.popSettingsData.searchDialogDataThree.dialogVisible = false
     }
-    // -------------------验证部分------------------
-    // validateLogin_name(rule, value, callback) {
-    //   if (!this.isAccountLoginType) {
-    //     return callback()
-    //   } else {
-    //     if (this.dataJson.tempJson.user.login_name === '') {
-    //       return callback(new Error('请输入登录用户名'))
-    //     }
-    //   }
-    // }
-    // -------------------验证部分------------------
+    // -------------------不同的页签，标签进行的验证------------------
   }
 }
 </script>
