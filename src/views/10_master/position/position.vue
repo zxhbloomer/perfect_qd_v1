@@ -8,10 +8,10 @@
       class="floatRight"
     >
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="部门编号" />
+        <el-input v-model.trim="dataJson.searchForm.code" clearable placeholder="岗位编号" />
       </el-form-item>
       <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="部门全称" />
+        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="岗位全称" />
       </el-form-item>
       <el-form-item label="">
         <delete-type-normal v-model="dataJson.searchForm.is_del" />
@@ -50,12 +50,10 @@
     >
       <el-table-column v-if="!meDialogSetting.dialogStatus" type="selection" width="45" prop="id" />
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="部门编号" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="部门全称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="部门简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="handler_id_name" label="部门负责人" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sub_handler_id_name" label="部门副负责人" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="leader_id_name" label="部门主管领导" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="岗位编号" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="name" label="岗位全称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="simple_name" label="岗位简称" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="descr" label="岗位描述" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
@@ -103,50 +101,21 @@
         <br>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="部门编号：" prop="code">
+            <el-form-item label="岗位编号：" prop="code">
               <el-input ref="refFocus" v-model.trim="dataJson.tempJson.code" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="部门全称：" prop="name">
+            <el-form-item label="岗位全称：" prop="name">
               <el-input v-model.trim="dataJson.tempJson.name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.name" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="部门简称：" prop="simple_name">
-              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.simple_name" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门负责人：" prop="handler_id">
-              <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.name" disabled>
-                <el-button slot="append" ref="selectOne" icon="el-icon-search" @click="handleStaffDialogClickOne">
-                  选择
-                </el-button>
-              </el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row>
           <el-col :span="12">
-            <el-form-item label="部门副负责人：" prop="sub_handler_id">
-              <el-input v-model.trim="popSettingsData.searchDialogDataTwo.selectedDataJson.name" disabled>
-                <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleStaffDialogClickTwo">
-                  选择
-                </el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="部门主管领导：" prop="handler_id">
-              <el-input v-model.trim="popSettingsData.searchDialogDataThree.selectedDataJson.name" disabled>
-                <el-button slot="append" ref="selectThree" icon="el-icon-search" @click="handleStaffDialogClickThree">
-                  选择
-                </el-button>
-              </el-input>
+            <el-form-item label="岗位简称：" prop="simple_name">
+              <el-input v-model.trim="dataJson.tempJson.simple_name" clearable show-word-limit :maxlength="dataJson.inputSettings.maxLength.code" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -180,24 +149,6 @@
     </el-dialog>
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
 
-    <staff-dialog
-      :visible="popSettingsData.searchDialogDataOne.dialogVisible"
-      @closeMeOk="handleStaffCloseOkOne"
-      @closeMeCancle="handleStaffCloseCancleOne"
-    />
-
-    <staff-dialog
-      :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
-      @closeMeOk="handleStaffCloseOkTwo"
-      @closeMeCancle="handleStaffCloseCancleTwo"
-    />
-
-    <staff-dialog
-      :visible="popSettingsData.searchDialogDataThree.dialogVisible"
-      @closeMeOk="handleStaffCloseOkThree"
-      @closeMeCancle="handleStaffCloseCancleThree"
-    />
-
   </div>
 </template>
 
@@ -214,16 +165,15 @@
 </style>
 
 <script>
-import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/dept/dept'
-import resizeMixin from './deptResizeHandlerMixin'
+import { getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/10_master/position/position'
+import resizeMixin from './positionResizeHandlerMixin'
 import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import DeleteTypeNormal from '@/layout/components/00_common/SelectComponent/SelectComponentDeleteTypeNormal'
-import staffDialog from '@/views/10_master/staff/dialog/dialog'
 
 export default {
-  name: 'P00000150', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination, DeleteTypeNormal, staffDialog },
+  name: 'P00000160', // 页面id，和router中的name需要一致，作为缓存
+  components: { Pagination, DeleteTypeNormal },
   directives: { elDragDialog },
   mixins: [resizeMixin],
   data() {
@@ -316,32 +266,10 @@ export default {
         dialogFormVisible: false,
         // pop的check内容
         rules: {
-          name: [{ required: true, message: '请输入部门全称', trigger: 'change' }],
-          code: [{ required: true, message: '请输入部门编号', trigger: 'change' }],
-          simple_name: [{ required: true, message: '请输入部门简称', trigger: 'change' }]
-        },
-        // 弹出的搜索框参数设置
-        searchDialogDataOne: {
-          // 弹出框显示参数
-          dialogVisible: false,
-          // 点击确定以后返回的值
-          selectedDataJson: {}
-        },
-        // 弹出的搜索框参数设置
-        searchDialogDataTwo: {
-          // 弹出框显示参数
-          dialogVisible: false,
-          // 点击确定以后返回的值
-          selectedDataJson: {}
-        },
-        // 弹出的搜索框参数设置
-        searchDialogDataThree: {
-          // 弹出框显示参数
-          dialogVisible: false,
-          // 点击确定以后返回的值
-          selectedDataJson: {}
+          name: [{ required: true, message: '请输入岗位全称', trigger: 'change' }],
+          code: [{ required: true, message: '请输入岗位编号', trigger: 'change' }],
+          simple_name: [{ required: true, message: '请输入岗位简称', trigger: 'change' }]
         }
-
       },
       // 导入窗口的状态
       popSettingsImport: {
@@ -409,33 +337,6 @@ export default {
           this.settings.btnShowStatus.showExport = true
         } else {
           this.settings.btnShowStatus.showExport = false
-        }
-      }
-    },
-    'popSettingsData.searchDialogDataOne.selectedDataJson': {
-      handler(newVal, oldVal) {
-        if (newVal !== {}) {
-          this.dataJson.tempJson.handler_id = this.popSettingsData.searchDialogDataOne.selectedDataJson.id
-        } else {
-          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
-        }
-      }
-    },
-    'popSettingsData.searchDialogDataTwo.selectedDataJson': {
-      handler(newVal, oldVal) {
-        if (newVal !== {}) {
-          this.dataJson.tempJson.sub_handler_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
-        } else {
-          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
-        }
-      }
-    },
-    'popSettingsData.searchDialogDataThree.selectedDataJson': {
-      handler(newVal, oldVal) {
-        if (newVal !== {}) {
-          this.dataJson.tempJson.leader_id = this.popSettingsData.searchDialogDataThree.selectedDataJson.id
-        } else {
-          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
         }
       }
     }
@@ -572,10 +473,6 @@ export default {
       // 初始化弹出页面
       this.doReset()
       this.popSettingsData.dialogFormVisible = true
-      // 初始化员工选择页面
-      this.initStaffSelectButtonOne()
-      this.initStaffSelectButtonTwo()
-      this.initStaffSelectButtonThree()
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refFocus'].focus()
@@ -598,10 +495,6 @@ export default {
       this.popSettingsData.btnShowStatus.showInsert = false
       this.popSettingsData.btnShowStatus.showUpdate = true
       this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 初始化员工选择页面
-      this.initStaffSelectButtonOne()
-      this.initStaffSelectButtonTwo()
-      this.initStaffSelectButtonThree()
       // 控件focus
       this.$nextTick(() => {
         this.$refs['refFocus'].focus()
@@ -859,71 +752,9 @@ export default {
           </el-tooltip>
         </span>
       )
-    },
-    // --------------弹出查询框：--------------
-    // 1
-    // 选择or重置按钮的初始化
-    initStaffSelectButtonOne() {
-      this.$nextTick(() => {
-        this.$refs.selectOne.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-      })
-    },
-    handleStaffDialogClickOne() {
-      // 选择按钮
-      this.popSettingsData.searchDialogDataOne.dialogVisible = true
-    },
-    // 关闭对话框：确定
-    handleStaffCloseOkOne(val) {
-      this.popSettingsData.searchDialogDataOne.selectedDataJson = val
-      this.popSettingsData.searchDialogDataOne.dialogVisible = false
-      this.initStaffSelectButtonOne()
-    },
-    // 关闭对话框：取消
-    handleStaffCloseCancleOne() {
-      this.popSettingsData.searchDialogDataOne.dialogVisible = false
-    },
-    // 2
-    // 选择or重置按钮的初始化
-    initStaffSelectButtonTwo() {
-      this.$nextTick(() => {
-        this.$refs.selectTwo.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-      })
-    },
-    handleStaffDialogClickTwo() {
-      // 选择按钮
-      this.popSettingsData.searchDialogDataTwo.dialogVisible = true
-    },
-    // 关闭对话框：确定
-    handleStaffCloseOkTwo(val) {
-      this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
-      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
-      this.initStaffSelectButtonTwo()
-    },
-    // 关闭对话框：取消
-    handleStaffCloseCancleTwo() {
-      this.popSettingsData.searchDialogDataTwo.dialogVisible = false
-    },
-    // 3
-    // 选择or重置按钮的初始化
-    initStaffSelectButtonThree() {
-      this.$nextTick(() => {
-        this.$refs.selectThree.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
-      })
-    },
-    handleStaffDialogClickThree() {
-      // 选择按钮
-      this.popSettingsData.searchDialogDataThree.dialogVisible = true
-    },
-    // 关闭对话框：确定
-    handleStaffCloseOkThree(val) {
-      this.popSettingsData.searchDialogDataThree.selectedDataJson = val
-      this.popSettingsData.searchDialogDataThree.dialogVisible = false
-      this.initStaffSelectButtonThree()
-    },
-    // 关闭对话框：取消
-    handleStaffCloseCancleThree() {
-      this.popSettingsData.searchDialogDataThree.dialogVisible = false
     }
+    // --------------弹出查询框：--------------
+
     // -------------------不同的页签，标签进行的验证------------------
   }
 }
