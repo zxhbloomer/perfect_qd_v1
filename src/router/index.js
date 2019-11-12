@@ -232,6 +232,11 @@ export const constantRoutes = [
             component: () => import('@/views/10_master/position/position'),
             name: 'P00000160',
             meta: { title: '岗位信息' }
+          },
+          { path: 'orginfo',
+            component: () => import('@/views/10_master/org/org'),
+            name: 'P00000170',
+            meta: { title: '租户管理' }
           }
         ]
       }
