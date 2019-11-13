@@ -53,9 +53,10 @@
       <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="code" label="部门编号" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="name" label="部门全称" />
       <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="simple_name" label="部门简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="handler_id_name" label="部门负责人" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sub_handler_id_name" label="部门副负责人" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="leader_id_name" label="部门主管领导" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="handler_id_name" label="部门主管" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="sub_handler_id_name" label="部门副主管" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="leader_id_name" label="上级主管领导" />
+      <el-table-column show-overflow-tooltip sortable="custom" min-width="80" :sort-orders="settings.sortOrders" prop="leader_id_name" label="上级分管领导" />
       <el-table-column show-overflow-tooltip min-width="150" prop="descr" label="描述" />
       <el-table-column min-width="45" :sort-orders="settings.sortOrders" label="删除" :render-header="renderHeaderIsDel">
         <template slot-scope="scope">
@@ -120,7 +121,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="部门负责人：" prop="handler_id">
+            <el-form-item label="部门主管：" prop="handler_id">
               <el-input v-model.trim="popSettingsData.searchDialogDataOne.selectedDataJson.name" disabled>
                 <el-button slot="append" ref="selectOne" icon="el-icon-search" @click="handleStaffDialogClickOne">
                   选择
@@ -132,7 +133,7 @@
 
         <el-row>
           <el-col :span="12">
-            <el-form-item label="部门副负责人：" prop="sub_handler_id">
+            <el-form-item label="部门副主管：" prop="sub_handler_id">
               <el-input v-model.trim="popSettingsData.searchDialogDataTwo.selectedDataJson.name" disabled>
                 <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleStaffDialogClickTwo">
                   选择
@@ -141,9 +142,21 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="部门主管领导：" prop="handler_id">
+            <el-form-item label="上级主管领导：" prop="handler_id">
               <el-input v-model.trim="popSettingsData.searchDialogDataThree.selectedDataJson.name" disabled>
                 <el-button slot="append" ref="selectThree" icon="el-icon-search" @click="handleStaffDialogClickThree">
+                  选择
+                </el-button>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="上级分管领导：" prop="response_leader_id">
+              <el-input v-model.trim="popSettingsData.searchDialogDataFour.selectedDataJson.name" disabled>
+                <el-button slot="append" ref="selectTwo" icon="el-icon-search" @click="handleStaffDialogClickFour">
                   选择
                 </el-button>
               </el-input>
@@ -196,6 +209,12 @@
       :visible="popSettingsData.searchDialogDataThree.dialogVisible"
       @closeMeOk="handleStaffCloseOkThree"
       @closeMeCancle="handleStaffCloseCancleThree"
+    />
+
+    <staff-dialog
+      :visible="popSettingsData.searchDialogDataFour.dialogVisible"
+      @closeMeOk="handleStaffCloseOkFour"
+      @closeMeCancle="handleStaffCloseCancleFour"
     />
 
   </div>
@@ -340,6 +359,13 @@ export default {
           dialogVisible: false,
           // 点击确定以后返回的值
           selectedDataJson: {}
+        },
+        // 弹出的搜索框参数设置
+        searchDialogDataFour: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: {}
         }
 
       },
@@ -426,7 +452,7 @@ export default {
         if (newVal !== {}) {
           this.dataJson.tempJson.sub_handler_id = this.popSettingsData.searchDialogDataTwo.selectedDataJson.id
         } else {
-          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
+          this.popSettingsData.searchDialogDataTwo.selectedDataJson.id = undefined
         }
       }
     },
@@ -435,7 +461,16 @@ export default {
         if (newVal !== {}) {
           this.dataJson.tempJson.leader_id = this.popSettingsData.searchDialogDataThree.selectedDataJson.id
         } else {
-          this.popSettingsData.searchDialogDataOne.selectedDataJson.id = undefined
+          this.popSettingsData.searchDialogDataThree.selectedDataJson.id = undefined
+        }
+      }
+    },
+    'popSettingsData.searchDialogDataFour.selectedDataJson': {
+      handler(newVal, oldVal) {
+        if (newVal !== {}) {
+          this.dataJson.tempJson.leader_id = this.popSettingsData.searchDialogDataFour.selectedDataJson.id
+        } else {
+          this.popSettingsData.searchDialogDataFour.selectedDataJson.id = undefined
         }
       }
     }
@@ -923,6 +958,27 @@ export default {
     // 关闭对话框：取消
     handleStaffCloseCancleThree() {
       this.popSettingsData.searchDialogDataThree.dialogVisible = false
+    },
+    // 4
+    // 选择or重置按钮的初始化
+    initStaffSelectButtonFour() {
+      this.$nextTick(() => {
+        this.$refs.selectFour.$el.parentElement.className = 'el-input-group__append el-input-group__append_select'
+      })
+    },
+    handleStaffDialogClickFour() {
+      // 选择按钮
+      this.popSettingsData.searchDialogDataFour.dialogVisible = true
+    },
+    // 关闭对话框：确定
+    handleStaffCloseOkFour(val) {
+      this.popSettingsData.searchDialogDataFour.selectedDataJson = val
+      this.popSettingsData.searchDialogDataFour.dialogVisible = false
+      this.initStaffSelectButtonFour()
+    },
+    // 关闭对话框：取消
+    handleStaffCloseCancleFour() {
+      this.popSettingsData.searchDialogDataFour.dialogVisible = false
     }
     // -------------------不同的页签，标签进行的验证------------------
   }

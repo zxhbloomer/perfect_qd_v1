@@ -236,7 +236,7 @@ export const constantRoutes = [
           { path: 'orginfo',
             component: () => import('@/views/10_master/org/org'),
             name: 'P00000170',
-            meta: { title: '租户管理' }
+            meta: { title: '组织机构管理' }
           }
         ]
       }
