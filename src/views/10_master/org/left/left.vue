@@ -5,9 +5,15 @@
       v-model="dataJson.filterText"
       class="filterInput"
       placeholder="输入关键字进行过滤"
+      style="width:68%"
     >
       <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" @click="handleButtonSearch" />
     </el-input>
+    <el-button-group>
+      <el-button type="primary" icon="el-icon-plus" style="padding:7px 7px" />
+      <el-button type="primary" icon="el-icon-edit" style="padding:7px 7px" />
+      <el-button type="danger" icon="el-icon-delete" style="padding:7px 7px" />
+    </el-button-group>
     <div :style="{height: height + 'px'}" class="mytree">
       <el-tree
         ref="treeObject"
@@ -67,6 +73,15 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  .floatRight {
+    float: right;
+  }
+  .floatLeft {
+    float: left;
+  }
+</style>
 
 <style scoped>
 .treeStyle {
