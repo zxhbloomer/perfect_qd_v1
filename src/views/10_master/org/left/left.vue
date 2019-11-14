@@ -199,11 +199,11 @@
 </style>
 
 <script>
-import { getTreeListApi } from '@/api/00_system/tentant/tentant'
+import { getTreeListApi } from '@/api/10_master/org/org'
 import event from '@/utils/event'
 
 export default {
-  name: 'P00000081', // 页面id，和router中的name需要一致，作为缓存
+  name: 'P00000171', // 页面id，和router中的name需要一致，作为缓存
   components: {},
   props: {
     height: {
