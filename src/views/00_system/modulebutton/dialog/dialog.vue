@@ -1,11 +1,12 @@
 <template>
   <el-dialog
     v-el-drag-dialog
-    title="模块选择对话框"
+    title="模块选择页面"
     :visible="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
+    :modal="false"
     width="1100px"
     destroy-on-close
     top="5vh"

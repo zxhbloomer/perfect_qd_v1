@@ -1,16 +1,17 @@
 <template>
   <el-dialog
     v-el-drag-dialog
-    title="资源选择对话框"
+    title="资源选择页面"
     :visible="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
+    :modal="false"
     width="1000px"
     destroy-on-close
     top="5vh"
   >
-    <P00000020 ref="dialogRef" @rowDbClick="handleRowDbClick" />
+    <current-dialog ref="dialogRef" @rowDbClick="handleRowDbClick" />
     <div slot="footer" class="dialog-footer">
       <el-divider />
       <el-button plain @click="handleDoCancel()">取 消</el-button>
@@ -21,11 +22,11 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
-import P00000020 from '@/views/00_system/resource/resource'
+import currentDialog from '@/views/00_system/resource/resource'
 
 export default {
   name: 'COM000000',
-  components: { P00000020 },
+  components: { currentDialog },
   directives: { elDragDialog },
   props: {
     // 页面是否显示参数
