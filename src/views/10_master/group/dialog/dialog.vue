@@ -1,13 +1,13 @@
 <template>
   <el-dialog
     v-el-drag-dialog
-    title="字典类型选择页面"
+    title="集团选择页面"
     :visible="visible"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     :show-close="false"
     :modal="false"
-    width="1000px"
+    width="1200px"
     destroy-on-close
     top="5vh"
   >
@@ -22,7 +22,7 @@
 
 <script>
 import elDragDialog from '@/directive/el-drag-dialog'
-import currentDialog from '@/views/00_system/dicttype/dicttype'
+import currentDialog from '@/views/10_master/group/group'
 
 export default {
   name: 'COM000010',

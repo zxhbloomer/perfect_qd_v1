@@ -7,7 +7,7 @@
     :close-on-press-escape="false"
     :show-close="false"
     :modal="false"
-    width="1000px"
+    width="1200px"
     destroy-on-close
     top="5vh"
   >

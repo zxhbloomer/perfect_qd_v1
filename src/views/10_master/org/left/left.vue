@@ -97,7 +97,7 @@
       <div slot="footer" class="dialog-footer">
         <el-divider />
         <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledOK " @click="doOk()">确 定</el-button>
+        <!-- <el-button plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledOK " @click="doOk()">确 定</el-button> -->
       </div>
     </el-dialog>
 
@@ -454,6 +454,7 @@ export default {
     },
     handleRadioDictChange(val) {
       this.dataJson.tempJson.org_type = val
+      this.doOk()
     },
     doOk() {
       this.popSettingsData.dialogFormVisible = false
@@ -478,6 +479,7 @@ export default {
     // --------------弹出查询框：开始--------------
     // 集团：关闭对话框：确定
     handleGroupCloseOk(val) {
+      debugger
       this.popSettingsData.searchDialogDataOne.selectedDataJson = val
       this.popSettingsData.searchDialogDataOne.dialogVisible = false
     },
