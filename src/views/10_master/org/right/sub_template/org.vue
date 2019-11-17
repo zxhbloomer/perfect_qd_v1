@@ -1,10 +1,5 @@
 <template>
   <div class="app-container">
-    <el-button-group v-show="!meDialogSetting.dialogStatus">
-      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新增子组织机构</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-circle-close" :loading="settings.listLoading" @click="handleRealyDelete">删 除</el-button>
-    </el-button-group>
     <el-table
       ref="dataSubmitForm"
       v-loading="settings.listLoading"
