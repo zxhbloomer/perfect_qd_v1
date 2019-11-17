@@ -34,17 +34,17 @@ const DICT_USR_WED_TYPE = 'usr_wed_type'
 /** 登录用户类型  */
 const DICT_USR_LOGIN_TYPE = 'usr_login_type'
 
-/** 组织架构类型  */
+/** 组织机构类型  */
 const DICT_ORG_SETTING_TYPE = 'org_setting_type'
-/** 组织架构类型：集团  */
+/** 组织机构类型：集团  */
 const DICT_ORG_SETTING_TYPE_GROUP = '20'
-/** 组织架构类型：企业  */
+/** 组织机构类型：企业  */
 const DICT_ORG_SETTING_TYPE_COMPANY = '30'
-/** 组织架构类型：部门  */
+/** 组织机构类型：部门  */
 const DICT_ORG_SETTING_TYPE_DEPT = '40'
-/** 组织架构类型：岗位  */
+/** 组织机构类型：岗位  */
 const DICT_ORG_SETTING_TYPE_POSITION = '50'
-/** 组织架构类型：人员  */
+/** 组织机构类型：人员  */
 const DICT_ORG_SETTING_TYPE_STAFF = '60'
 
 export default {
@@ -74,16 +74,16 @@ export default {
   DICT_USR_WED_TYPE,
   /** 登录用户类型  */
   DICT_USR_LOGIN_TYPE,
-  /** 组织架构类型  */
+  /** 组织机构类型  */
   DICT_ORG_SETTING_TYPE,
-  /** 组织架构类型：集团  */
+  /** 组织机构类型：集团  */
   DICT_ORG_SETTING_TYPE_GROUP,
-  /** 组织架构类型：企业  */
+  /** 组织机构类型：企业  */
   DICT_ORG_SETTING_TYPE_COMPANY,
-  /** 组织架构类型：部门  */
+  /** 组织机构类型：部门  */
   DICT_ORG_SETTING_TYPE_DEPT,
-  /** 组织架构类型：岗位  */
+  /** 组织机构类型：岗位  */
   DICT_ORG_SETTING_TYPE_POSITION,
-  /** 组织架构类型：人员  */
+  /** 组织机构类型：人员  */
   DICT_ORG_SETTING_TYPE_STAFF
 }

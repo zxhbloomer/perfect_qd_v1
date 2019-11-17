@@ -113,7 +113,7 @@ export const constantRoutes = [
       // { path: 'org',
       //   component: () => import('@/views/00_system/organize/organize'),
       //   name: 'P00000010',
-      //   meta: { title: '组织架构', icon: '角色' }
+      //   meta: { title: '组织机构', icon: '角色' }
       // },
       { path: 'resource',
         component: () => import('@/views/00_system/resource/resource'),
@@ -193,8 +193,8 @@ export const constantRoutes = [
         name: 'M00000030', // 设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
         alwaysShow: true,
         meta: {
-          title: '组织架构',
-          icon: '组织架构'
+          title: '组织机构',
+          icon: '组织机构'
         },
         children: [
           {

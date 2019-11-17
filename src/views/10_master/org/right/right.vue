@@ -1,253 +1,26 @@
 <template>
   <div>
-    <el-form
-      ref="minusForm"
-      :inline="true"
-      :model="dataJson.searchForm"
-      label-position="getLabelPosition()"
-      class="floatRight"
-    >
-      <el-form-item label="">
-        <el-input v-model.trim="dataJson.searchForm.name" clearable placeholder="租户名称" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" plain icon="el-icon-search" @click="handleSearch">搜 索</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button v-popover:popover type="primary" plain icon="el-icon-s-promotion">高级搜索</el-button>
-      </el-form-item>
-    </el-form>
+    <el-tabs v-model="activeName" :style="{height: height + 'px'}" @tab-click="handleClick">
+      <el-tab-pane>
+        <template slot="label">组织机构<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+      <el-tab-pane>
+        <template slot="label">集团信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+      <el-tab-pane>
+        <template slot="label">企业信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+      <el-tab-pane>
+        <template slot="label">部门信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+      <el-tab-pane>
+        <template slot="label">岗位信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+      <el-tab-pane>
+        <template slot="label">员工信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+      </el-tab-pane>
+    </el-tabs>
 
-    <el-popover
-      ref="popover"
-      placement="top"
-      width="520"
-      title="高级查询"
-    >
-      <el-form
-        :inline="true"
-        :model="dataJson.searchForm"
-        label-position="getLabelPosition()"
-        class="floatRight"
-      >
-        <el-form-item v-show="false" label="">
-          <el-input v-show="false" v-model.trim="dataJson.searchForm.name" clearable placeholder="名称" />
-        </el-form-item>
-        <el-form-item label="">
-          <el-date-picker
-            v-model="dataJson.searchForm.datetimerange"
-            type="datetimerange"
-            :picker-options="settings.pickerOptions"
-            range-separator="至"
-            start-placeholder="生效开始日期"
-            end-placeholder="生效结束日期"
-            align="right"
-            style="width: 100%"
-          />
-        </el-form-item>
-        <div style="text-align: right; margin: 0">
-          <el-button type="text" @click="doResetSearch()">重置</el-button>
-          <el-button type="primary" @click="handleSearch">提交</el-button>
-        </div>
-      </el-form>
-    </el-popover>
-
-    <el-button-group>
-      <el-button type="primary" icon="el-icon-circle-plus-outline" :loading="settings.listLoading" @click="handleInsert">新 增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showUpdate" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleUpdate">修 改</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showCopyInsert" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleCopyInsert">复制新增</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showExport" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleExport">导 出</el-button>
-      <el-button :disabled="!settings.btnShowStatus.showAdmin" type="primary" icon="el-icon-edit-outline" :loading="settings.listLoading" @click="handleAdmin">管理员维护</el-button>
-    </el-button-group>
-
-    <el-table
-      ref="multipleTable"
-      v-loading="settings.listLoading"
-      :data="dataJson.listData"
-      :element-loading-text="'正在拼命加载中...'"
-      element-loading-background="rgba(255, 255, 255, 0.5)"
-      :height="height"
-      stripe
-      border
-      fit
-      highlight-current-row
-      :default-sort="{prop: 'u_time', order: 'descending'}"
-      style="width: 100%"
-      @row-click="handleRowClick"
-      @current-change="handleCurrentChange"
-      @sort-change="handleSortChange"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="45" prop="id" />
-      <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="parent_name" label="父节点名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="120" :sort-orders="settings.sortOrders" prop="code" label="租户编码" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="200" :sort-orders="settings.sortOrders" prop="name" label="租户名称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="simple_name" label="租户简称" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="is_enable" label="启用" :render-header="renderHeaderIsEnabled">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.isdel"
-            active-color="#ff4949"
-            inactive-color="#13ce66"
-            :active-value="true"
-            :inactive-value="false"
-            :width="30"
-            @change="handleDel(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="enable_time" label="生效日期" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="disable_time" label="失效日期" />
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="100" :sort-orders="settings.sortOrders" prop="is_freeze" label="冻结" :render-header="renderHeaderIsFreeze">
-        <template slot-scope="scope">
-          <el-switch
-            v-model="scope.row.isdel"
-            active-color="#ff4949"
-            inactive-color="#13ce66"
-            :active-value="true"
-            :inactive-value="false"
-            :width="30"
-            @change="handleDel(scope.row)"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column show-overflow-tooltip sortable="custom" min-width="150" :sort-orders="settings.sortOrders" prop="u_time" label="更新时间" />
-    </el-table>
-    <pagination ref="minusPaging" :total="dataJson.paging.total" :page.sync="dataJson.paging.current" :limit.sync="dataJson.paging.size" @pagination="getDataList" />
-    <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
-    <el-dialog
-      v-el-drag-dialog
-      :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
-      :visible="popSettingsData.dialogFormVisible"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-      width="1000px"
-      top="5vh"
-    >
-      <el-form
-        ref="dataForm"
-        :rules="popSettingsData.rules"
-        :model="dataJson.tempJson"
-        label-position="rigth"
-        label-width="120px"
-        status-icon
-      >
-        <el-alert
-          title="上级租户信息：非必须选择，若没有选择，代表是根节点"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-form-item label="上级租户名称：" prop="parent_name">
-            <el-cascader
-              ref="refInsertFocus"
-              v-model="dataJson.tempJson.parent_name"
-              placeholder="请选择"
-              :options="dataJson.cascader.data"
-              filterable
-              clearable
-              :props="{ checkStrictly: true, expandTrigger: 'hover'}"
-              @change="handleCascaderChange"
-            />
-          </el-form-item>
-        </el-row>
-        <el-alert
-          title="本租户信息"
-          type="info"
-          :closable="false"
-        />
-        <br>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="租户编码：" prop="code">
-              <el-input v-model="dataJson.tempJson.code" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="系统编码：" prop="serial_no">
-              <el-input v-model="dataJson.tempJson.serial_no" placeholder="系统自动指定" disabled="" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="租户名称：" prop="name">
-              <el-input ref="refUpdateFocus" v-model="dataJson.tempJson.name" placeholder="请输入" />
-            </el-form-item>
-
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="租户简称：" prop="simple_name">
-              <el-input v-model="dataJson.tempJson.simple_name" placeholder="请输入" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="生效日期区间：" prop="enable_time_range">
-              <!-- <el-input v-model="enable_time" placeholder="请选择" /> -->
-              <el-date-picker
-                v-model="dataJson.tempJson.enable_time_range"
-                type="datetimerange"
-                :picker-options="settings.pickerOptions"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                align="right"
-                style="width: 100%"
-                clearable
-                @change="dataPickChange"
-              />
-
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否冻结：" prop="isfreeze">
-              <el-switch
-                v-model="dataJson.tempJson.isfreeze"
-                style="display: block"
-                active-color="#ff4949"
-                inactive-color="#13ce66"
-                active-text="冻结"
-                inactive-text="正常"
-              />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="级次：" prop="level">
-              <el-input v-model="dataJson.tempJson.level" placeholder="系统自动指定" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="排序：" prop="sort">
-              <el-input v-model="dataJson.tempJson.sort" placeholder="系统自动指定" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="描述：" prop="templateDescr">
-          <el-input v-model.trim="dataJson.tempJson.descr" type="textarea" placeholder="请输入" />
-        </el-form-item>
-
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-divider />
-        <div class="floatLeft">
-          <el-button type="danger" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledReset " @click="doReset()">重置</el-button>
-        </div>
-        <el-button plain :disabled="settings.listLoading" @click="popSettingsData.dialogFormVisible = false">取 消</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledInsert " @click="doInsert()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showUpdate" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledUpdate " @click="doUpdate()">确 定</el-button>
-        <el-button v-show="popSettingsData.btnShowStatus.showCopyInsert" plain type="primary" :disabled="settings.listLoading || popSettingsData.btnDisabledStatus.disabledCopyInsert " @click="doCopyInsert()">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -287,14 +60,13 @@
 </style>
 <script>
 import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
-import Pagination from '@/components/Pagination'
 import elDragDialog from '@/directive/el-drag-dialog'
 import event from '@/utils/event'
 // import { parseTime } from '@/utils'
 
 export default {
-  name: 'P00000082', // 页面id，和router中的name需要一致，作为缓存
-  components: { Pagination },
+  name: 'P00000172', // 页面id，和router中的name需要一致，作为缓存
+  components: { },
   directives: { elDragDialog },
   props: {
     height: {
@@ -403,6 +175,13 @@ export default {
             }
           }
           ]
+        },
+        // 错误数目
+        badge: {
+          countOne: 0,
+          countTwo: 0,
+          countThree: 0,
+          countFour: 0
         },
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],

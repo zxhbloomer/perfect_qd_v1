@@ -54,7 +54,7 @@ export function updateApi(data) {
  */
 export function insertApi(data) {
   return request({
-    url: '/api/v1/tentant/insert',
+    url: '/api/v1/org/insert',
     method: 'post',
     data
   })

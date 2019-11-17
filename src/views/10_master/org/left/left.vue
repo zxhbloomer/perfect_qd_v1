@@ -90,7 +90,7 @@
         label-width="120px"
         status-icon
       >
-        <el-form-item label="组织架构类型：" prop="org_type">
+        <el-form-item label="组织机构类型：" prop="org_type">
           <radio-dict v-model="dataJson.tempJson.org_type" :para="CONSTANTS.DICT_ORG_SETTING_TYPE" @change="handleRadioDictChange" />
         </el-form-item>
       </el-form>
@@ -274,7 +274,7 @@
 </style>
 
 <script>
-import { getTreeListApi } from '@/api/10_master/org/org'
+import { getTreeListApi, insertApi } from '@/api/10_master/org/org'
 import event from '@/utils/event'
 import elDragDialog from '@/directive/el-drag-dialog'
 import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
@@ -390,6 +390,13 @@ export default {
           this.settings.btnDisabledStatus.disabledDelete = true
         }
       }
+    },
+    'popSettingsData.dialogFormVisible': {
+      handler(newVal, oldVal) {
+        if (newVal === true) {
+          this.dataJson.tempJson.org_type = ''
+        }
+      }
     }
   },
   created() {
@@ -424,12 +431,26 @@ export default {
         this.dataJson.treeData = response.data
         this.getListAfterProcess()
         this.settings.listLoading = false
+        this.$nextTick(() => {
+          let current_node = null
+          if (this.dataJson.currentJson === null) {
+            current_node = this.dataJson.treeData[0]
+            this.$refs.treeObject.setCurrentKey(this.dataJson.treeData[0].id)
+            this.$refs.treeObject.getCurrentNode(current_node)
+          } else {
+            current_node = this.dataJson.currentJson
+            this.$refs.treeObject.setCurrentKey(this.dataJson.currentJson.currentkey)
+            this.$refs.treeObject.getCurrentNode(current_node)
+          }
+          this.handleCurrentChange(current_node)
+        })
       })
     },
     handleCurrentChange(row) {
       this.dataJson.currentJson = Object.assign({}, row) // copy obj
       this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
-      this.dataJson.currentJson.index = this.getRowIndex(row)
+      this.dataJson.currentJson = this.$refs.treeObject.getCurrentNode()
+      this.dataJson.currentJson.currentkey = this.$refs.treeObject.getCurrentKey()
     },
     // 兄弟组件发过来的调用请求
     handleDataChange() {
@@ -479,9 +500,35 @@ export default {
     // --------------弹出查询框：开始--------------
     // 集团：关闭对话框：确定
     handleGroupCloseOk(val) {
-      debugger
       this.popSettingsData.searchDialogDataOne.selectedDataJson = val
       this.popSettingsData.searchDialogDataOne.dialogVisible = false
+      this.settings.listLoading = true
+      insertApi({
+        serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
+        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
+        parent_id: this.dataJson.currentJson.id
+      }).then((_data) => {
+        this.dataJson.listData.push(_data.data)
+        this.$notify({
+          title: '插入成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        // 查询
+        this.getDataList()
+        this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '插入错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        // this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      })
     },
     // 集团：关闭对话框：取消
     handleGroupCloseCancle() {
@@ -491,6 +538,33 @@ export default {
     handleCompanyCloseOk(val) {
       this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
+      this.settings.listLoading = true
+      insertApi({
+        serial_id: this.popSettingsData.searchDialogDataTwo.selectedDataJson.id,
+        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
+        parent_id: this.dataJson.currentJson.id
+      }).then((_data) => {
+        this.dataJson.listData.push(_data.data)
+        this.$notify({
+          title: '插入成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        // 查询
+        this.getDataList()
+        this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '插入错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        // this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      })
     },
     // 企业：关闭对话框：取消
     handleCompanyCloseCancle() {
@@ -500,6 +574,33 @@ export default {
     handleDeptCloseOk(val) {
       this.popSettingsData.searchDialogDataThree.selectedDataJson = val
       this.popSettingsData.searchDialogDataThree.dialogVisible = false
+      this.settings.listLoading = true
+      insertApi({
+        serial_id: this.popSettingsData.searchDialogDataThree.selectedDataJson.id,
+        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
+        parent_id: this.dataJson.currentJson.id
+      }).then((_data) => {
+        this.dataJson.listData.push(_data.data)
+        this.$notify({
+          title: '插入成功',
+          message: _data.message,
+          type: 'success',
+          duration: this.settings.duration
+        })
+        // 查询
+        this.getDataList()
+        this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      }, (_error) => {
+        this.$notify({
+          title: '插入错误',
+          message: _error.message,
+          type: 'error',
+          duration: this.settings.duration
+        })
+        // this.popSettingsData.dialogFormVisible = false
+        this.settings.listLoading = false
+      })
     },
     // 部门：关闭对话框：取消
     handleDeptCloseCancle() {
