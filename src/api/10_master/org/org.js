@@ -30,7 +30,7 @@ export function getTreeListApi(query) {
  */
 export function getListApi(query) {
   return request({
-    url: '/api/v1/tentant/list',
+    url: '/api/v1/org/list',
     method: 'post',
     data: query
   })
@@ -42,7 +42,7 @@ export function getListApi(query) {
  */
 export function updateApi(data) {
   return request({
-    url: '/api/v1/tentant/save',
+    url: '/api/v1/org/save',
     method: 'post',
     data
   })
@@ -61,38 +61,12 @@ export function insertApi(data) {
 }
 
 /**
- * 导出逻辑，全部导出
- * @param {*} data
- */
-export function exportAllApi(data) {
-  return request({
-    url: '/api/v1/tentant/export_all',
-    method: 'post',
-    data,
-    responseType: 'arraybuffer'
-  })
-}
-
-/**
- * 导出逻辑，部分导出
- * @param {*} data
- */
-export function exportSelectionApi(data) {
-  return request({
-    url: '/api/v1/tentant/export_selection',
-    method: 'post',
-    data,
-    responseType: 'arraybuffer'
-  })
-}
-
-/**
  * 启用逻辑
  * @param {*} data
  */
 export function enableApi(data) {
   return request({
-    url: '/api/v1/tentant/enable',
+    url: '/api/v1/org/enable',
     method: 'post',
     data
   })

@@ -29,6 +29,7 @@ export function getTreeListApi(query) {
  * @param {*} data
  */
 export function getListApi(query) {
+  debugger
   return request({
     url: '/api/v1/tentant/list',
     method: 'post',

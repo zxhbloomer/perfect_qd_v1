@@ -1,8 +1,9 @@
 <template>
   <div>
-    <el-tabs v-model="activeName" :style="{height: height + 'px'}" @tab-click="handleClick">
-      <el-tab-pane>
+    <el-tabs v-model="settings.tabs.activeName" :style="{height: height + 'px'}" @tab-click="handleTabsClick">
+      <el-tab-pane name="org">
         <template slot="label">组织机构<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <org-template />
       </el-tab-pane>
       <el-tab-pane>
         <template slot="label">集团信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
@@ -59,14 +60,14 @@
   }
 </style>
 <script>
-import { getCascaderListApi, getListApi, updateApi, insertApi, exportAllApi, exportSelectionApi, deleteApi } from '@/api/00_system/tentant/tentant'
 import elDragDialog from '@/directive/el-drag-dialog'
 import event from '@/utils/event'
+import orgTemplate from '@/views/10_master/org/right/sub_template/org'
 // import { parseTime } from '@/utils'
 
 export default {
   name: 'P00000172', // 页面id，和router中的name需要一致，作为缓存
-  components: { },
+  components: { orgTemplate },
   directives: { elDragDialog },
   props: {
     height: {
@@ -79,22 +80,11 @@ export default {
       dataJson: {
         // 查询使用的json
         searchForm: {
-          // 翻页条件
-          pageCondition: {
-            current: 1,
-            size: 20,
-            sort: '-u_time' // 排序
-          },
           // 查询条件
           name: '',
           datetimerange: ''
         },
-        // 分页控件的json
-        paging: {
-          current: 1,
-          size: 20,
-          total: 0
-        },
+
         // 级联选择器数据
         cascader: {
           data: null,
@@ -131,50 +121,8 @@ export default {
       },
       // 页面设置json
       settings: {
-        // 日期类型下拉选项json
-        pickerOptions: {
-          shortcuts: [{
-            text: '未来一周',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 90)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来六个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 180)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '未来一年',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              end.setTime(start.getTime() + 3600 * 1000 * 24 * 365)
-              picker.$emit('pick', [start, end])
-            }
-          }
-          ]
+        tabs: {
+          activeName: 'org'
         },
         // 错误数目
         badge: {
@@ -202,6 +150,13 @@ export default {
           update: '修改',
           insert: '新增',
           copyInsert: '复制新增'
+        },
+        // 弹出的搜索框参数设置
+        searchDialogDataOne: {
+          // 弹出框显示参数
+          dialogVisible: false,
+          // 点击确定以后返回的值
+          selectedDataJson: {}
         },
         // 按钮状态：是否显示
         btnShowStatus: {
@@ -322,9 +277,7 @@ export default {
     }
   },
   created() {
-    // 初始化查询
-    this.getDataList()
-    this.getCascaderDataList()
+    this.popSettingsData.searchDialogDataOne.dialogVisible = true
     // 数据初始化
     this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
   },
@@ -341,270 +294,10 @@ export default {
     },
     handleSearch() {
       // 查询
-      this.dataJson.searchForm.pageCondition.current = 1
       this.getDataList()
       // 清空选择
       this.dataJson.multipleSelection = []
       this.$refs.multipleTable.clearSelection()
-    },
-    // handleRowUpdate(row, _rowIndex) {
-    //   // 修改
-    //   this.dataJson.tempJson = Object.assign({}, row) // copy obj
-    //   this.dataJson.rowIndex = _rowIndex
-    //   this.popSettingsData.dialogStatus = 'update'
-    //   this.popSettingsData.dialogFormVisible = true
-    //   this.$nextTick(() => {
-    //     this.$refs['dataForm'].clearValidate()
-    //   })
-    // },
-    // 删除操作
-    handleDel(row) {
-      let _message = ''
-      const _value = row.isdel
-      const selectionJson = []
-      selectionJson.push({ 'id': row.id })
-      if (_value === true) {
-        _message = '是否要删除该条数据？'
-      } else {
-        _message = '是否要复原该条数据？'
-      }
-      // 选择全部的时候
-      this.$confirm(_message, '确认信息', {
-        distinguishCancelAndClose: true,
-        confirmButtonText: '确认',
-        cancelButtonText: '取消'
-      }).then(() => {
-        // loading
-        this.settings.listLoading = true
-        deleteApi(selectionJson).then((_data) => {
-          this.$notify({
-            title: '更新成功',
-            message: _data.message,
-            type: 'success',
-            duration: this.settings.duration
-          })
-          this.handleEmit()
-          this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        }, (_error) => {
-          this.$notify({
-            title: '更新错误',
-            message: _error.message,
-            type: 'error',
-            duration: this.settings.duration
-          })
-          // this.popSettingsData.dialogFormVisible = false
-          this.settings.listLoading = false
-        })
-      }).catch(action => {
-        row.isdel = !row.isdel
-      })
-    },
-    // 点击按钮 新增
-    handleInsert() {
-      // 新增
-      this.popSettingsData.dialogStatus = 'insert'
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = true
-      this.popSettingsData.btnShowStatus.showUpdate = false
-      this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 初始化弹出页面
-      this.doReset()
-      this.popSettingsData.dialogFormVisible = true
-    },
-    // 点击按钮 更新
-    handleUpdate() {
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      if (this.dataJson.tempJson.id === undefined) {
-        this.showErrorMsg('请选择一条数据')
-        return
-      }
-      // 修改
-      this.popSettingsData.dialogStatus = 'update'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = false
-      this.popSettingsData.btnShowStatus.showUpdate = true
-      this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 修改时控件focus
-      this.$nextTick(() => {
-        this.$refs['refUpdateFocus'].focus()
-      })
-    },
-    // 导出按钮
-    handleExport() {
-      // 没有选择任何数据的情况
-      if (this.dataJson.multipleSelection.length <= 0) {
-        this.$alert('请在表格中选择数据进行导出', '空数据错误', {
-          confirmButtonText: '关闭',
-          type: 'error'
-        }).then(() => {
-          this.settings.btnShowStatus.showExport = false
-        })
-      } else if (this.dataJson.multipleSelection.length === this.dataJson.listData.length) {
-        // 选择全部的时候
-        this.$confirm('请选择：当前页数据导出，全数据导出？', '确认信息', {
-          distinguishCancelAndClose: true,
-          confirmButtonText: '全数据导出',
-          cancelButtonText: '当前页数据导出'
-        }).then(() => {
-          this.handleExportAllData()
-        }).catch(action => {
-          // 右上角X
-          if (action !== 'close') {
-            // 当前页所选择的数据导出
-            this.handleExportSelectionData()
-          }
-        })
-      } else {
-        // 部分数据导出
-        this.handleExportSelectionData()
-      }
-    },
-    // 全部数据导出
-    handleExportAllData() {
-      // loading
-      this.settings.listLoading = true
-      // 开始导出
-      exportAllApi(this.dataJson.searchForm).then(response => {
-        this.settings.listLoading = false
-      })
-    },
-    // 部分数据导出
-    handleExportSelectionData() {
-      // loading
-      this.settings.listLoading = true
-      const selectionJson = []
-      this.dataJson.multipleSelection.forEach(function(value, index, array) {
-        selectionJson.push({ 'id': value.id })
-      })
-      // 开始导出
-      exportSelectionApi(selectionJson).then(response => {
-        this.settings.listLoading = false
-      })
-    },
-    // 点击按钮 复制新增
-    handleCopyInsert() {
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      this.dataJson.tempJson.id = undefined
-      this.dataJson.tempJson.template_id = undefined
-      this.dataJson.tempJson.u_id = ''
-      this.dataJson.tempJson.u_time = ''
-      // 修改
-      this.popSettingsData.dialogStatus = 'copyInsert'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = false
-      this.popSettingsData.btnShowStatus.showUpdate = false
-      this.popSettingsData.btnShowStatus.showCopyInsert = true
-      // 修改时控件focus
-      this.$nextTick(() => {
-        this.$refs['refInsertFocus'].$el.focus()
-      })
-    },
-    handleCurrentChange(row) {
-      this.dataJson.currentJson = Object.assign({}, row) // copy obj
-      this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
-      this.dataJson.currentJson.index = this.getRowIndex(row)
-      if (this.dataJson.currentJson.id !== undefined) {
-        // this.settings.btnShowStatus.doInsert = true
-        this.settings.btnShowStatus.showUpdate = true
-        this.settings.btnShowStatus.showCopyInsert = true
-        this.settings.btnShowStatus.showAdmin = true
-      } else {
-        // this.settings.btnShowStatus.doInsert = false
-        this.settings.btnShowStatus.showUpdate = false
-        this.settings.btnShowStatus.showCopyInsert = false
-        this.settings.btnShowStatus.showAdmin = false
-      }
-    },
-    handleSortChange(column) {
-      // 服务器端排序
-      if (column.order === 'ascending') {
-        this.dataJson.searchForm.pageCondition.sort = column.prop
-      } else if (column.order === 'descending') {
-        this.dataJson.searchForm.pageCondition.sort = '-' + column.prop
-      }
-      this.getDataList()
-    },
-    getCascaderDataList() {
-      // 级联查询逻辑
-      this.settings.listLoading = true
-      getCascaderListApi().then(response => {
-        this.dataJson.cascader.data = response.data
-        this.settings.listLoading = false
-      })
-    },
-    getDataList() {
-      this.dataJson.searchForm.pageCondition.current = this.dataJson.paging.current
-      this.dataJson.searchForm.pageCondition.size = this.dataJson.paging.size
-      // 查询逻辑
-      this.settings.listLoading = true
-      getListApi(this.dataJson.searchForm).then(response => {
-        this.dataJson.listData = response.data.records
-        this.dataJson.paging = response.data
-        this.dataJson.paging.records = {}
-        this.settings.listLoading = false
-      })
-    },
-    // 更新逻辑
-    doUpdate() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.dataJson.tempJson)
-          this.settings.listLoading = true
-          updateApi(tempData).then((_data) => {
-            this.dataJson.tempJson = Object.assign({}, _data.data)
-            // 设置到table中绑定的json数据源
-            this.dataJson.listData.splice(this.dataJson.rowIndex, 1, this.dataJson.tempJson)
-            // 设置到currentjson中
-            this.dataJson.currentJson = Object.assign({}, this.dataJson.tempJson)
-            this.$notify({
-              title: '更新成功',
-              message: _data.message,
-              type: 'success',
-              duration: this.settings.duration
-            })
-            this.handleEmit()
-            this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          }, (_error) => {
-            this.$notify({
-              title: '更新错误',
-              message: _error.message,
-              type: 'error',
-              duration: this.settings.duration
-            })
-            // this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          })
-        }
-      })
-    },
-    // 重置查询区域
-    doResetSearch() {
-      this.dataJson.searchForm = {
-        // 翻页条件
-        pageCondition: {
-          current: 1,
-          size: 20,
-          sort: '-u_time' // 排序
-        },
-        // 查询条件
-        name: '',
-        simpleName: '',
-        isdel: 'null',
-        isenable: ''
-      }
     },
     // 重置按钮
     doReset() {
@@ -653,66 +346,6 @@ export default {
       // 去除validate信息
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
-      })
-    },
-    // 插入逻辑
-    doInsert() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.dataJson.tempJson)
-          this.settings.listLoading = true
-          insertApi(tempData).then((_data) => {
-            this.dataJson.listData.push(_data.data)
-            this.$notify({
-              title: '插入成功',
-              message: _data.message,
-              type: 'success',
-              duration: this.settings.duration
-            })
-            this.handleEmit()
-            this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          }, (_error) => {
-            this.$notify({
-              title: '插入错误',
-              message: _error.message,
-              type: 'error',
-              duration: this.settings.duration
-            })
-            // this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          })
-        }
-      })
-    },
-    // 复制新增逻辑
-    doCopyInsert() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          const tempData = Object.assign({}, this.dataJson.tempJson)
-          this.settings.listLoading = true
-          insertApi(tempData).then((_data) => {
-            this.dataJson.listData.push(_data.data)
-            this.$notify({
-              title: '更新成功',
-              message: _data.message,
-              type: 'success',
-              duration: this.settings.duration
-            })
-            this.handleEmit()
-            this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          }, (_error) => {
-            this.$notify({
-              title: '更新错误',
-              message: _error.message,
-              type: 'error',
-              duration: this.settings.duration
-            })
-            // this.popSettingsData.dialogFormVisible = false
-            this.settings.listLoading = false
-          })
-        }
       })
     },
     // 关闭弹出窗口
@@ -791,6 +424,9 @@ export default {
     // 管理员维护点击事件
     handleAdmin() {
       alert('TODO:xxx')
+    },
+    handleTabsClick(tab, event) {
+      console.log(tab, event)
     }
   }
 }
