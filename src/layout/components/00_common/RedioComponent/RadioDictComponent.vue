@@ -26,6 +26,10 @@ export default {
       type: String,
       default: ''
     },
+    filterPara: {
+      type: Array,
+      default: null
+    },
     // 查询的参数
     disabled: {
       type: Boolean,
@@ -70,6 +74,7 @@ export default {
     },
     getRemoteData() {
       this.dataJson.searchForm.para = this.para
+      this.dataJson.searchForm.filter_para = this.filterPara
       getDictDataApi(this.dataJson.searchForm).then((_data) => {
         this.dataJson.selectOptions = _data.data
         this.dataJson.settings.listLoading = false

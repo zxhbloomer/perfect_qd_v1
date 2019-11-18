@@ -25,7 +25,16 @@
       <el-table-column show-overflow-tooltip min-width="150" prop="code" label="组织机构编码" />
       <el-table-column show-overflow-tooltip min-width="150" prop="name" label="组织机构名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="simple_name" label="组织机构简称" />
-      <el-table-column show-overflow-tooltip min-width="80" prop="label" label="分类" />
+      <el-table-column show-overflow-tooltip min-width="80" prop="type_text" label="分类" />
+      <el-table-column show-overflow-tooltip min-width="150" prop="son_count" label="企业数量">
+        <template slot-scope="scope">
+          <span>企业数（</span>
+          <el-link type="primary" :href="'#/sys/module/button?module_code=' + scope.row.code">{{ scope.row.son_count }}
+            <svg-icon v-show="scope.row.columnTypeShowIcon" icon-class="perfect-icon-eye-open1" class="el-icon--right" />
+          </el-link>
+          <span>）</span>
+        </template>
+      </el-table-column>
       <el-table-column min-width="150" prop="u_time" label="更新时间" />
     </el-table>
 
@@ -359,6 +368,9 @@ export default {
   },
   mounted() {
     // 描绘完成
+    this.$on('global:getDataList', _data => {
+      this.getDataList(_data)
+    })
   },
   methods: {
     initTempJsonOriginal() {
@@ -418,94 +430,6 @@ export default {
         this.$refs['dataSubmitForm'].clearValidate()
       })
     },
-    // 点击按钮 新增
-    handleInsert() {
-      // 新增
-      this.popSettingsData.dialogStatus = 'insert'
-      // 数据初始化
-      this.initTempJsonOriginal()
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.tempJsonOriginal)
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = true
-      this.popSettingsData.btnShowStatus.showUpdate = false
-      this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 初始化弹出页面
-      this.doReset()
-      this.popSettingsData.dialogFormVisible = true
-      // 初始化模块选择
-      this.initModuleSelectButton()
-
-      // 控件focus
-      this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
-      })
-    },
-    // 点击按钮 更新
-    handleUpdate() {
-      // 初始化级联数据
-      this.getCascaderDataList()
-
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      if (this.dataJson.tempJson.id === undefined) {
-        this.showErrorMsg('请选择一条数据')
-        return
-      }
-      // 修改
-      this.popSettingsData.dialogStatus = 'update'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = false
-      this.popSettingsData.btnShowStatus.showUpdate = true
-      this.popSettingsData.btnShowStatus.showCopyInsert = false
-      // 初始化模块选择
-      this.initModuleSelectButton()
-
-      // 控件focus
-      this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
-      })
-    },
-    // 点击按钮 复制新增
-    handleCopyInsert() {
-      // 初始化级联数据
-      this.getCascaderDataList()
-
-      this.dataJson.tempJson = Object.assign({}, this.dataJson.currentJson)
-      this.dataJson.tempJson.parent_id = this.dataJson.tempJson.id
-      this.dataJson.tempJson.id = undefined
-      this.dataJson.tempJson.template_id = undefined
-      this.dataJson.tempJson.u_id = ''
-      this.dataJson.tempJson.u_time = ''
-      this.dataJson.tempJson.code = ''
-      this.dataJson.tempJson.son_count = this.dataJson.tempJson.son_count + 1
-
-      // 儿子个数增加
-      this.dataJson.tempJson.name = ''
-
-      // 修改
-      this.popSettingsData.dialogStatus = 'copyInsert'
-      this.popSettingsData.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataSubmitForm'].clearValidate()
-      })
-      // 设置按钮
-      this.popSettingsData.btnShowStatus.showInsert = false
-      this.popSettingsData.btnShowStatus.showUpdate = false
-      this.popSettingsData.btnShowStatus.showCopyInsert = true
-      // 初始化模块选择
-      this.initModuleSelectButton()
-
-      // 复制新增时focus
-      this.$nextTick(() => {
-        // this.$refs['selectOne'].focus()
-      })
-    },
     handleCurrentChange(row) {
       this.dataJson.currentJson = Object.assign({}, row) // copy obj
       this.dataJson.currentJson.index = this.getRowIndex(row)
@@ -523,9 +447,13 @@ export default {
       }
       this.getDataList()
     },
-    getDataList() {
+    getDataList(val) {
+      // 通知兄弟组件
+      this.$off('global:getDataList_loading')
+      this.$emit('global:getDataList_loading')
       // 查询逻辑
       this.settings.listLoading = true
+      this.dataJson.searchForm = Object.assign({}, val)
       getListApi(this.dataJson.searchForm).then(response => {
         const recorders = response.data
         const newRecorders = recorders.map(v => {
@@ -533,6 +461,9 @@ export default {
         })
         this.dataJson.listData = newRecorders
         this.settings.listLoading = false
+        // 通知兄弟组件
+        this.$off('global:getDataList_loading_ok')
+        this.$emit('global:getDataList_loading_ok')
       })
     },
     // 重置查询区域

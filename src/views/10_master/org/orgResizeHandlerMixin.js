@@ -30,7 +30,7 @@ export default {
         const rtnVal = elementHeight - val - 20 - 145
         // 此处使用的是页面上的值
         this.settings.leftHeight = rtnVal
-        this.settings.rightHeight = rtnVal + 38
+        this.settings.rightHeight = rtnVal - 15
         return rtnVal
       } catch (error) {
         console.log('mixin error')

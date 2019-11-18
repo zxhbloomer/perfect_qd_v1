@@ -5,15 +5,17 @@
       v-model="dataJson.filterText"
       class="filterInput"
       placeholder="输入关键字进行过滤"
-      style="width:68%"
+      style="width:calc(100% - 90px)"
     >
       <el-button slot="append" ref="buttonSearch" icon="el-icon-search" class="buttonSearch" @click="handleButtonSearch" />
     </el-input>
-    <el-button-group>
-      <el-button type="primary" icon="el-icon-plus" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledInsert" @click="handleInsert" />
-      <el-button type="primary" icon="el-icon-edit" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledUpdate" />
-      <el-button type="danger" icon="el-icon-delete" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledDelete" />
-    </el-button-group>
+    <div class="floatRight">
+      <el-button-group>
+        <el-button type="primary" icon="el-icon-plus" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledInsert" @click="handleInsert" />
+        <el-button type="primary" icon="el-icon-edit" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledUpdate" />
+        <el-button type="danger" icon="el-icon-delete" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledDelete" />
+      </el-button-group>
+    </div>
     <div :style="{height: height + 'px'}" class="mytree">
       <el-tree
         ref="treeObject"
@@ -30,57 +32,21 @@
       >
         <span slot-scope="{ node, data }" class="custom-tree-node">
           <span>{{ node.label }}</span>
-          <span>
-            <el-dropdown
-              :show-timeout="100"
-              :szie="getSize()"
-            >
-              <span class="el-dropdown-link el-button--text">
-                操作<i class="el-icon-arrow-down el-icon--right" />
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>
-                  <el-button
-                    :szie="getSize()"
-                    type="text"
-                    @click="() => append(data)"
-                  >
-                    新增
-                  </el-button>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <el-button
-                    :szie="getSize()"
-                    type="text"
-                    @click="() => edit(data)"
-                  >
-                    编辑
-                  </el-button>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <el-button
-                    :szie="getSize()"
-                    type="text"
-                    @click="() => remove(data)"
-                  >
-                    删除
-                  </el-button>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </span>
+          <span>[{{ data.type_text }}]</span>
         </span>
       </el-tree>
     </div>
 
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
+      v-if="popSettingsData.dialogFormVisible"
       v-el-drag-dialog
       title="请选择添加下级节点类型"
       :visible="popSettingsData.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
+      destroy-on-close
       width="500px"
       top="5vh"
     >
@@ -91,7 +57,12 @@
         status-icon
       >
         <el-form-item label="组织机构类型：" prop="org_type">
-          <radio-dict v-model="dataJson.tempJson.org_type" :para="CONSTANTS.DICT_ORG_SETTING_TYPE" @change="handleRadioDictChange" />
+          <radio-dict
+            v-model="dataJson.tempJson.org_type"
+            :para="settings.para"
+            :filter-para="settings.filterPara"
+            @change="handleRadioDictChange"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -308,6 +279,8 @@ export default {
       },
       // 页面设置json
       settings: {
+        para: this.CONSTANTS.DICT_ORG_SETTING_TYPE,
+        filterPara: [],
         listLoading: true,
         // 按钮状态：是否可用
         btnDisabledStatus: {
@@ -394,7 +367,52 @@ export default {
     'popSettingsData.dialogFormVisible': {
       handler(newVal, oldVal) {
         if (newVal === true) {
-          this.dataJson.tempJson.org_type = ''
+          const arr = []
+          arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_STAFF)
+          arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_POSITION)
+          switch (this.dataJson.currentJson.type) {
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              break
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              break
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP)
+              break
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY)
+              break
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_POSITION:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_POSITION)
+              break
+            case this.CONSTANTS.DICT_ORG_SETTING_TYPE_STAFF:
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_TENTANT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_POSITION)
+              arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_STAFF)
+              break
+          }
+          this.settings.filterPara = arr
+        }
+      }
+    },
+    'settings.listLoading': {
+      handler(newVal, oldVal) {
+        switch (newVal) {
+          case true:
+            this.showLoading('正在查询，请稍后...')
+            break
+          case false:
+            this.closeLoading()
+            break
         }
       }
     }
@@ -407,6 +425,9 @@ export default {
     this.initSearchButton()
     // 和right开始绑定事件
     event.$on('handleDataChange', this.handleDataChange)
+    // 描绘完成
+    this.$on('global:getDataList_loading', _data => { this.settings.listLoading = true })
+    this.$on('global:getDataList_loading_ok', _data => { this.settings.listLoading = false })
   },
   methods: {
     // 选择or重置按钮的初始化
@@ -451,6 +472,9 @@ export default {
       this.dataJson.tempJsonOriginal = Object.assign({}, row) // copy obj
       this.dataJson.currentJson = this.$refs.treeObject.getCurrentNode()
       this.dataJson.currentJson.currentkey = this.$refs.treeObject.getCurrentKey()
+      // 通知兄弟组件
+      this.$off('global:getDataList')
+      this.$emit('global:getDataList', row)
     },
     // 兄弟组件发过来的调用请求
     handleDataChange() {
@@ -508,7 +532,6 @@ export default {
         type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
         parent_id: this.dataJson.currentJson.id
       }).then((_data) => {
-        this.dataJson.listData.push(_data.data)
         this.$notify({
           title: '插入成功',
           message: _data.message,
@@ -544,7 +567,6 @@ export default {
         type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
         parent_id: this.dataJson.currentJson.id
       }).then((_data) => {
-        this.dataJson.listData.push(_data.data)
         this.$notify({
           title: '插入成功',
           message: _data.message,
@@ -580,7 +602,6 @@ export default {
         type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
         parent_id: this.dataJson.currentJson.id
       }).then((_data) => {
-        this.dataJson.listData.push(_data.data)
         this.$notify({
           title: '插入成功',
           message: _data.message,

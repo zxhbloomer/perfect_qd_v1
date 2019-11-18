@@ -35,9 +35,11 @@ if (process.env.NODE_ENV === 'production') {
 // add by zxh
 import commonFunction from './common/commonFunction'
 import constants from './common/constants/constants'
+import EventProxy from 'vue-event-proxy'
 
 Vue.use(commonFunction)
 Vue.prototype.CONSTANTS = constants
+Vue.use(EventProxy)
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'mini' // set element-ui default size
