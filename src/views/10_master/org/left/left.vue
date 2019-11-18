@@ -16,7 +16,7 @@
         <el-button type="danger" icon="el-icon-delete" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledDelete" />
       </el-button-group>
     </div>
-    <div :style="{height: height + 'px'}" class="mytree">
+    <div :style="{height: height + 'px'}" style="overflow-y:auto;overflow-x:hidden;" class="mytree">
       <el-tree
         ref="treeObject"
         :data="dataJson.treeData"
@@ -31,7 +31,14 @@
         @current-change="handleCurrentChange"
       >
         <span slot-scope="{ node, data }" class="custom-tree-node">
-          <span>{{ node.label }}</span>
+          <span>
+            <svg-icon v-if="data.type === '10'" icon-class="perfect-icon-tentant" class="el-icon--right" />
+            <svg-icon v-else-if="data.type === '20'" icon-class="perfect-icon-group" class="el-icon--right" />
+            <svg-icon v-else-if="data.type === '30'" icon-class="perfect-icon-company" class="el-icon--right" />
+            <svg-icon v-else-if="data.type === '40'" icon-class="perfect-icon-dept" class="el-icon--right" />
+            <svg-icon v-else-if="data.type === '50'" icon-class="perfect-icon-position" class="el-icon--right" />
+            {{ node.label }}
+          </span>
           <span>[{{ data.type_text }}]</span>
         </span>
       </el-tree>

@@ -1,12 +1,12 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-table
       ref="dataSubmitForm"
       v-loading="settings.listLoading"
       :data="dataJson.listData"
       :element-loading-text="'正在拼命加载中...'"
       element-loading-background="rgba(255, 255, 255, 0.5)"
-      :height="settings.tableHeight"
+      :height="height"
       stripe
       border
       fit
@@ -22,10 +22,10 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="index" width="45" />
-      <el-table-column show-overflow-tooltip min-width="150" prop="code" label="组织机构编码" />
-      <el-table-column show-overflow-tooltip min-width="150" prop="name" label="组织机构名称" />
+      <el-table-column show-overflow-tooltip min-width="250" prop="code" label="组织机构编码" />
+      <el-table-column show-overflow-tooltip min-width="250" prop="name" label="组织机构名称" />
       <el-table-column show-overflow-tooltip min-width="150" prop="simple_name" label="组织机构简称" />
-      <el-table-column show-overflow-tooltip min-width="80" prop="type_text" label="分类" />
+      <el-table-column show-overflow-tooltip min-width="60" prop="type_text" label="分类" />
       <el-table-column show-overflow-tooltip min-width="150" prop="son_count" label="企业数量">
         <template slot-scope="scope">
           <span>企业数（</span>
@@ -35,7 +35,7 @@
           <span>）</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="150" prop="u_time" label="更新时间" />
+      <el-table-column min-width="170" prop="u_time" label="更新时间" />
     </el-table>
 
     <iframe id="refIframe" ref="refIframe" scrolling="no" frameborder="0" style="display:none" name="refIframe">x</iframe>
@@ -83,6 +83,12 @@ export default {
   components: { },
   directives: { elDragDialog },
   mixins: [],
+  props: {
+    height: {
+      type: Number,
+      default: 200
+    }
+  },
   data() {
     return {
       dataJson: {
@@ -149,7 +155,6 @@ export default {
         },
         // loading 状态
         listLoading: true,
-        // tableHeight: this.setUIheight(),
         duration: 4000
       },
       popSettingsData: {

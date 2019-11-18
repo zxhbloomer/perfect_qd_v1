@@ -3,7 +3,7 @@
     <el-tabs v-model="settings.tabs.activeName" @tab-click="handleTabsClick">
       <el-tab-pane name="org" :style="{height: height + 'px'}" style="overflow-y:auto;overflow-x:hidden;">
         <template slot="label">组织机构<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
-        <org-template />
+        <org-template :height="height" />
       </el-tab-pane>
       <el-tab-pane name="group" :style="{height: height + 'px'}" style="overflow-y:auto;overflow-x:hidden;">
         <template slot="label">集团信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
