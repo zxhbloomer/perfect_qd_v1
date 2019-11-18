@@ -4,18 +4,6 @@ import request from '@/utils/request'
  * 查询逻辑
  * @param {*} data
  */
-export function getCascaderListApi(query) {
-  return request({
-    url: '/api/v1/tentant/cascader/list',
-    method: 'post',
-    data: query
-  })
-}
-
-/**
- * 查询逻辑
- * @param {*} data
- */
 export function getTreeListApi(query) {
   return request({
     url: '/api/v1/org/tree/list',
@@ -61,12 +49,12 @@ export function insertApi(data) {
 }
 
 /**
- * 启用逻辑
+ * 新增模式下，可新增子节点得类型
  * @param {*} data
  */
-export function enableApi(data) {
+export function getCorrectTypeByInsertStatus(data) {
   return request({
-    url: '/api/v1/org/enable',
+    url: '/api/v1/org/get_type',
     method: 'post',
     data
   })

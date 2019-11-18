@@ -12,7 +12,7 @@
     <div class="floatRight">
       <el-button-group>
         <el-button type="primary" icon="el-icon-plus" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledInsert" @click="handleInsert" />
-        <el-button type="primary" icon="el-icon-edit" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledUpdate" />
+        <el-button type="primary" icon="el-icon-edit" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledUpdate" @click="handleUpdate" />
         <el-button type="danger" icon="el-icon-delete" style="padding:7px 7px" :disabled="settings.btnDisabledStatus.disabledDelete" />
       </el-button-group>
     </div>
@@ -73,30 +73,35 @@
     </el-dialog>
 
     <group-dialog
+      v-if="popSettingsData.searchDialogDataOne.dialogVisible"
       :visible="popSettingsData.searchDialogDataOne.dialogVisible"
       @closeMeOk="handleGroupCloseOk"
       @closeMeCancle="handleGroupCloseCancle"
     />
 
     <company-dialog
+      v-if="popSettingsData.searchDialogDataTwo.dialogVisible"
       :visible="popSettingsData.searchDialogDataTwo.dialogVisible"
       @closeMeOk="handleCompanyCloseOk"
       @closeMeCancle="handleCompanyCloseCancle"
     />
 
     <dept-dialog
+      v-if="popSettingsData.searchDialogDataThree.dialogVisible"
       :visible="popSettingsData.searchDialogDataThree.dialogVisible"
       @closeMeOk="handleDeptCloseOk"
       @closeMeCancle="handleDeptCloseCancle"
     />
 
     <position-dialog
+      v-if="popSettingsData.searchDialogDataFour.dialogVisible"
       :visible="popSettingsData.searchDialogDataFour.dialogVisible"
       @closeMeOk="handlePositionCloseOk"
       @closeMeCancle="handlePositionCloseCancle"
     />
 
     <staff-dialog
+      v-if="popSettingsData.searchDialogDataFive.dialogVisible"
       :visible="popSettingsData.searchDialogDataFive.dialogVisible"
       @closeMeOk="handleStaffCloseOk"
       @closeMeCancle="handleStaffCloseCancle"
@@ -245,7 +250,8 @@
 </style>
 
 <script>
-import { getTreeListApi, insertApi } from '@/api/10_master/org/org'
+// getCorrectTypeByInsertStatus
+import { getTreeListApi, insertApi, updateApi } from '@/api/10_master/org/org'
 import event from '@/utils/event'
 import elDragDialog from '@/directive/el-drag-dialog'
 import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
@@ -279,6 +285,7 @@ export default {
       },
       // 页面设置json
       settings: {
+        insertOrUpdate: '',
         para: this.CONSTANTS.DICT_ORG_SETTING_TYPE,
         filterPara: [],
         listLoading: true,
@@ -496,6 +503,12 @@ export default {
     // 点击新增子结构按钮
     handleInsert() {
       this.popSettingsData.dialogFormVisible = true
+      this.settings.insertOrUpdate = 'insert'
+    },
+    // 修改当前节点按钮
+    handleUpdate() {
+      this.popSettingsData.dialogFormVisible = true
+      this.settings.insertOrUpdate = 'update'
     },
     handleRadioDictChange(val) {
       this.dataJson.tempJson.org_type = val
@@ -527,31 +540,59 @@ export default {
       this.popSettingsData.searchDialogDataOne.selectedDataJson = val
       this.popSettingsData.searchDialogDataOne.dialogVisible = false
       this.settings.listLoading = true
-      insertApi({
-        serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
-        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
-        parent_id: this.dataJson.currentJson.id
-      }).then((_data) => {
-        this.$notify({
-          title: '插入成功',
-          message: _data.message,
-          type: 'success',
-          duration: this.settings.duration
+      if (this.settings.insertOrUpdate === 'insert') {
+        insertApi({
+          serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
+          parent_id: this.dataJson.currentJson.id
+        }).then((_data) => {
+          this.$notify({
+            title: '插入成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '插入错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
         })
-        // 查询
-        this.getDataList()
-        this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      }, (_error) => {
-        this.$notify({
-          title: '插入错误',
-          message: _error.message,
-          type: 'error',
-          duration: this.settings.duration
+      } else {
+        updateApi({
+          serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
+          parent_id: this.dataJson.currentJson.id
+        }).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
         })
-        // this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      })
+      }
     },
     // 集团：关闭对话框：取消
     handleGroupCloseCancle() {
@@ -562,31 +603,35 @@ export default {
       this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
       this.settings.listLoading = true
-      insertApi({
-        serial_id: this.popSettingsData.searchDialogDataTwo.selectedDataJson.id,
-        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
-        parent_id: this.dataJson.currentJson.id
-      }).then((_data) => {
-        this.$notify({
-          title: '插入成功',
-          message: _data.message,
-          type: 'success',
-          duration: this.settings.duration
+      if (this.settings.insertOrUpdate === 'insert') {
+        insertApi({
+          serial_id: this.popSettingsData.searchDialogDataTwo.selectedDataJson.id,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
+          parent_id: this.dataJson.currentJson.id
+        }).then((_data) => {
+          this.$notify({
+            title: '插入成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '插入错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
         })
-        // 查询
-        this.getDataList()
-        this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      }, (_error) => {
-        this.$notify({
-          title: '插入错误',
-          message: _error.message,
-          type: 'error',
-          duration: this.settings.duration
-        })
-        // this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      })
+      } else {
+        console.log('')
+      }
     },
     // 企业：关闭对话框：取消
     handleCompanyCloseCancle() {
@@ -597,31 +642,35 @@ export default {
       this.popSettingsData.searchDialogDataThree.selectedDataJson = val
       this.popSettingsData.searchDialogDataThree.dialogVisible = false
       this.settings.listLoading = true
-      insertApi({
-        serial_id: this.popSettingsData.searchDialogDataThree.selectedDataJson.id,
-        type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
-        parent_id: this.dataJson.currentJson.id
-      }).then((_data) => {
-        this.$notify({
-          title: '插入成功',
-          message: _data.message,
-          type: 'success',
-          duration: this.settings.duration
+      if (this.settings.insertOrUpdate === 'insert') {
+        insertApi({
+          serial_id: this.popSettingsData.searchDialogDataThree.selectedDataJson.id,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
+          parent_id: this.dataJson.currentJson.id
+        }).then((_data) => {
+          this.$notify({
+            title: '插入成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '插入错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
         })
-        // 查询
-        this.getDataList()
-        this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      }, (_error) => {
-        this.$notify({
-          title: '插入错误',
-          message: _error.message,
-          type: 'error',
-          duration: this.settings.duration
-        })
-        // this.popSettingsData.dialogFormVisible = false
-        this.settings.listLoading = false
-      })
+      } else {
+        console.log('')
+      }
     },
     // 部门：关闭对话框：取消
     handleDeptCloseCancle() {
