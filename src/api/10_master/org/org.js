@@ -52,7 +52,7 @@ export function insertApi(data) {
  * 新增模式下，可新增子节点得类型
  * @param {*} data
  */
-export function getCorrectTypeByInsertStatus(data) {
+export function getCorrectTypeByInsertStatusApi(data) {
   return request({
     url: '/api/v1/org/get_type',
     method: 'post',

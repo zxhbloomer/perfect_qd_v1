@@ -40,7 +40,7 @@ export default {
     return {
       modelValue: '',
       dataJson: {
-        // 资源类型下拉选项json
+        // 下拉选项json
         selectOptions: [{}],
         searchForm: {
           para: ''

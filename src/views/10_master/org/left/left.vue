@@ -48,7 +48,7 @@
     <el-dialog
       v-if="popSettingsData.dialogFormVisible"
       v-el-drag-dialog
-      title="请选择添加下级节点类型"
+      :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
       :visible="popSettingsData.dialogFormVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
@@ -64,12 +64,17 @@
         status-icon
       >
         <el-form-item label="组织机构类型：" prop="org_type">
-          <radio-dict
-            v-model="dataJson.tempJson.org_type"
-            :para="settings.para"
-            :filter-para="settings.filterPara"
-            @change="handleRadioDictChange"
-          />
+
+          <el-radio-group v-model="dataJson.tempJson.org_type" @input="handleRadioDictChange">
+            <el-radio-button
+              v-for="item in dataJson.selectOptions"
+              :key="item.value"
+              :value="item.value"
+              :label="item.value"
+            >{{ item.name }}
+            </el-radio-button>
+          </el-radio-group>
+
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -257,11 +262,9 @@
 </style>
 
 <script>
-// getCorrectTypeByInsertStatus
-import { getTreeListApi, insertApi, updateApi } from '@/api/10_master/org/org'
+import { getCorrectTypeByInsertStatusApi, getTreeListApi, insertApi, updateApi } from '@/api/10_master/org/org'
 import event from '@/utils/event'
 import elDragDialog from '@/directive/el-drag-dialog'
-import RadioDict from '@/layout/components/00_common/RedioComponent/RadioDictComponent'
 import groupDialog from '@/views/10_master/group/dialog/dialog'
 import companyDialog from '@/views/10_master/company/dialog/dialog'
 import deptDialog from '@/views/10_master/dept/dialog/dialog'
@@ -270,7 +273,7 @@ import staffDialog from '@/views/10_master/staff/dialog/dialog'
 
 export default {
   name: 'P00000171', // 页面id，和router中的name需要一致，作为缓存
-  components: { RadioDict, groupDialog, companyDialog, deptDialog, positionDialog, staffDialog },
+  components: { groupDialog, companyDialog, deptDialog, positionDialog, staffDialog },
   directives: { elDragDialog },
   props: {
     height: {
@@ -281,6 +284,8 @@ export default {
   data() {
     return {
       dataJson: {
+        // 下拉选项json
+        selectOptions: [{}],
         filterText: '',
         treeData: [{}],
         // 单条数据 json
@@ -292,7 +297,6 @@ export default {
       },
       // 页面设置json
       settings: {
-        insertOrUpdate: '',
         para: this.CONSTANTS.DICT_ORG_SETTING_TYPE,
         filterPara: [],
         listLoading: true,
@@ -308,6 +312,12 @@ export default {
         }
       },
       popSettingsData: {
+        // 弹出窗口状态名称
+        dialogStatus: '',
+        textMap: {
+          update: '请选择要修改节点的类型',
+          insert: '请选择添加下级节点类型'
+        },
         dialogFormVisible: false,
         btnDisabledStatus: {
           disabledOK: false
@@ -362,7 +372,7 @@ export default {
       handler(newVal, oldVal) {
         if (newVal !== null) {
           // 判断是否是第一个节点：第一个节点是租户，所以不能删除，修改，只能新增
-          if (this.dataJson.currentJson.index === 0) {
+          if (this.dataJson.currentJson.parent_id === null) {
             this.settings.btnDisabledStatus.disabledInsert = false
             this.settings.btnDisabledStatus.disabledUpdate = true
             this.settings.btnDisabledStatus.disabledDelete = true
@@ -414,7 +424,10 @@ export default {
               arr.push(this.CONSTANTS.DICT_ORG_SETTING_TYPE_STAFF)
               break
           }
+          this.dataJson.tempJson.org_type = ''
           this.settings.filterPara = arr
+          // 查询数据库，获取下拉选项
+          this.getCorrectTypeByInsertStatus(this.dataJson.currentJson.code, this.dataJson.currentJson.type, arr)
         }
       }
     },
@@ -449,11 +462,6 @@ export default {
       this.$nextTick(() => {
         this.$refs.buttonSearch.$el.parentElement.className = ' buttonSearch ' + this.$refs.buttonSearch.$el.parentElement.className
       })
-    },
-    // 获取行索引
-    getRowIndex(row) {
-      const _index = this.dataJson.treeData.lastIndexOf(row)
-      return _index
     },
     filterNode(value, data) {
       if (!value) return true
@@ -509,13 +517,15 @@ export default {
     },
     // 点击新增子结构按钮
     handleInsert() {
+      // 新增
+      this.popSettingsData.dialogStatus = 'insert'
       this.popSettingsData.dialogFormVisible = true
-      this.settings.insertOrUpdate = 'insert'
     },
     // 修改当前节点按钮
     handleUpdate() {
+      // 修改
+      this.popSettingsData.dialogStatus = 'update'
       this.popSettingsData.dialogFormVisible = true
-      this.settings.insertOrUpdate = 'update'
     },
     handleRadioDictChange(val) {
       this.dataJson.tempJson.org_type = val
@@ -547,7 +557,7 @@ export default {
       this.popSettingsData.searchDialogDataOne.selectedDataJson = val
       this.popSettingsData.searchDialogDataOne.dialogVisible = false
       this.settings.listLoading = true
-      if (this.settings.insertOrUpdate === 'insert') {
+      if (this.popSettingsData.dialogStatus === 'insert') {
         insertApi({
           serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
           type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
@@ -575,9 +585,13 @@ export default {
         })
       } else {
         updateApi({
+          id: this.dataJson.currentJson.id,
           serial_id: this.popSettingsData.searchDialogDataOne.selectedDataJson.id,
+          code: this.dataJson.currentJson.code,
           type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_GROUP,
-          parent_id: this.dataJson.currentJson.id
+          parent_id: this.dataJson.currentJson.parent_id,
+          dbversion: this.dataJson.currentJson.dbversion,
+          son_count: this.dataJson.currentJson.son_count
         }).then((_data) => {
           this.$notify({
             title: '更新成功',
@@ -610,7 +624,7 @@ export default {
       this.popSettingsData.searchDialogDataTwo.selectedDataJson = val
       this.popSettingsData.searchDialogDataTwo.dialogVisible = false
       this.settings.listLoading = true
-      if (this.settings.insertOrUpdate === 'insert') {
+      if (this.popSettingsData.dialogStatus === 'insert') {
         insertApi({
           serial_id: this.popSettingsData.searchDialogDataTwo.selectedDataJson.id,
           type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
@@ -637,7 +651,35 @@ export default {
           this.settings.listLoading = false
         })
       } else {
-        console.log('')
+        updateApi({
+          id: this.dataJson.currentJson.id,
+          serial_id: this.popSettingsData.searchDialogDataTwo.selectedDataJson.id,
+          code: this.dataJson.currentJson.code,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_COMPANY,
+          parent_id: this.dataJson.currentJson.parent_id,
+          dbversion: this.dataJson.currentJson.dbversion,
+          son_count: this.dataJson.currentJson.son_count
+        }).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
       }
     },
     // 企业：关闭对话框：取消
@@ -649,7 +691,7 @@ export default {
       this.popSettingsData.searchDialogDataThree.selectedDataJson = val
       this.popSettingsData.searchDialogDataThree.dialogVisible = false
       this.settings.listLoading = true
-      if (this.settings.insertOrUpdate === 'insert') {
+      if (this.popSettingsData.dialogStatus === 'insert') {
         insertApi({
           serial_id: this.popSettingsData.searchDialogDataThree.selectedDataJson.id,
           type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
@@ -676,7 +718,35 @@ export default {
           this.settings.listLoading = false
         })
       } else {
-        console.log('')
+        updateApi({
+          id: this.dataJson.currentJson.id,
+          serial_id: this.popSettingsData.searchDialogDataThree.selectedDataJson.id,
+          code: this.dataJson.currentJson.code,
+          type: this.CONSTANTS.DICT_ORG_SETTING_TYPE_DEPT,
+          parent_id: this.dataJson.currentJson.parent_id,
+          dbversion: this.dataJson.currentJson.dbversion,
+          son_count: this.dataJson.currentJson.son_count
+        }).then((_data) => {
+          this.$notify({
+            title: '更新成功',
+            message: _data.message,
+            type: 'success',
+            duration: this.settings.duration
+          })
+          // 查询
+          this.getDataList()
+          this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        }, (_error) => {
+          this.$notify({
+            title: '更新错误',
+            message: _error.message,
+            type: 'error',
+            duration: this.settings.duration
+          })
+          // this.popSettingsData.dialogFormVisible = false
+          this.settings.listLoading = false
+        })
       }
     },
     // 部门：关闭对话框：取消
@@ -700,8 +770,15 @@ export default {
     // 员工：关闭对话框：取消
     handleStaffCloseCancle() {
       this.popSettingsData.searchDialogDataFive.dialogVisible = false
-    }
+    },
     // --------------弹出查询框：结束--------------
+    getCorrectTypeByInsertStatus(_code, _type, _filter_para) {
+      getCorrectTypeByInsertStatusApi({ code: _code, type: _type, filter_para: _filter_para }).then((_data) => {
+        this.dataJson.selectOptions = _data.data
+        this.settings.listLoading = false
+      }, (_error) => {
+      })
+    }
   }
 }
 </script>

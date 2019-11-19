@@ -6,19 +6,19 @@
         <org-template :height="height" />
       </el-tab-pane>
       <el-tab-pane name="group" :style="{height: height + 'px'}" style="overflow-y:auto;overflow-x:hidden;">
-        <template slot="label">集团信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <template slot="label">集团信息<el-badge v-show="settings.badge.countTwo>0" :value="settings.badge.countTwo" type="danger" /></template>
       </el-tab-pane>
       <el-tab-pane>
-        <template slot="label">企业信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <template slot="label">企业信息<el-badge v-show="settings.badge.countThree>0" :value="settings.badge.countThree" type="danger" /></template>
       </el-tab-pane>
       <el-tab-pane>
-        <template slot="label">部门信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <template slot="label">部门信息<el-badge v-show="settings.badge.countFour>0" :value="settings.badge.countFour" type="danger" /></template>
       </el-tab-pane>
       <el-tab-pane>
-        <template slot="label">岗位信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <template slot="label">岗位信息<el-badge v-show="settings.badge.countFive>0" :value="settings.badge.countFive" type="danger" /></template>
       </el-tab-pane>
       <el-tab-pane>
-        <template slot="label">员工信息<el-badge v-show="settings.badge.countOne>0" :value="settings.badge.countOne" type="danger" /></template>
+        <template slot="label">员工信息<el-badge v-show="settings.badge.countSix>0" :value="settings.badge.countSix" type="danger" /></template>
       </el-tab-pane>
     </el-tabs>
 
@@ -129,7 +129,9 @@ export default {
           countOne: 0,
           countTwo: 0,
           countThree: 0,
-          countFour: 0
+          countFour: 0,
+          countFive: 0,
+          countSix: 0
         },
         // 表格排序规则
         sortOrders: ['ascending', 'descending'],
@@ -275,6 +277,12 @@ export default {
         }
       }
     }
+  },
+  mounted() {
+    // 描绘完成
+    this.$on('global:getDataList', _data => {
+      alert(1111)
+    })
   },
   created() {
     this.popSettingsData.searchDialogDataOne.dialogVisible = true

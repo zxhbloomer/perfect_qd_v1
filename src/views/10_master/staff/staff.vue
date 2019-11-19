@@ -74,6 +74,7 @@
 
     <!-- pop窗口 数据编辑:新增、修改、步骤窗体-->
     <el-dialog
+      v-if="popSettingsData.dialogFormVisible"
       v-el-drag-dialog
       :title="popSettingsData.textMap[popSettingsData.dialogStatus]"
       :visible="popSettingsData.dialogFormVisible"
