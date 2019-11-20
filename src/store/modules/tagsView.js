@@ -1,38 +1,37 @@
 const state = {
   visitedViews: [],
   cachedViews: [
-    'M00000010',
-    'M00000020', // 字典管理
-    'M00000021', // 模块管理
-    'M00000030', // 组织机构
+    // 'M00000010',
+    // 'M00000020', // 字典管理
+    // 'M00000021', // 模块管理
+    // 'M00000030', // 组织机构
 
-    'P00000000',
-    'P00000010',
-    'P00000020', // 字典管理--节点
-    'P00000030', // 字典类型
-    'P00000040', // 模块管理
-    'P00000041', // 模块管理 按钮管理
-    'P00000050', // 字典数据
-    'P00000060',
-    'P00000070',
-    'P00000080', // 租户管理
-    'P00000081', // 租户管理 左侧树
-    'P00000082', // 租户管理 右侧grid
-    'P00000090', // 组织机构--节点
-    'P00000100', // 集团信息
-    'P00000110', // 公司信息 企业信息
-    'P00000120', // 系统菜单
-    'P00000130', // 地址簿
-    'P00000140', // 员工管理
-    'P00000150', // 部门管理
-    'P00000160', // 岗位管理
-    'P00000170', // 组织机构管理
-    'P00000171', // 组织机构管理  左侧树
-    'P00000172', // 组织机构管理  右侧1
-    'P00000173' // 组织机构管理  右侧2
+    // 'P00000000',
+    // 'P00000010',
+    // 'P00000020', // 字典管理--节点
+    // 'P00000030', // 字典类型
+    // 'P00000040', // 模块管理
+    // 'P00000041', // 模块管理 按钮管理
+    // 'P00000050', // 字典数据
+    // 'P00000060',
+    // 'P00000070',
+    // 'P00000080', // 租户管理
+    // 'P00000081', // 租户管理 左侧树
+    // 'P00000082', // 租户管理 右侧grid
+    // 'P00000090', // 组织机构--节点
+    // 'P00000100', // 集团信息
+    // 'P00000110', // 公司信息 企业信息
+    // 'P00000120', // 系统菜单
+    // 'P00000130', // 地址簿
+    // 'P00000140', // 员工管理
+    // 'P00000150', // 部门管理
+    // 'P00000160', // 岗位管理
+    // 'P00000170', // 组织机构管理
+    // 'P00000171', // 组织机构管理  左侧树
+    // 'P00000172', // 组织机构管理  右侧1
+    // 'P00000173' // 组织机构管理  右侧2
   ]
 }
-
 const mutations = {
   ADD_VISITED_VIEW: (state, view) => {
     if (state.visitedViews.some(v => v.path === view.path)) return
@@ -43,9 +42,15 @@ const mutations = {
     )
   },
   ADD_CACHED_VIEW: (state, view) => {
+    if (view.name === 'M00000020') return
     if (state.cachedViews.includes(view.name)) return
     if (!view.meta.noCache) {
-      state.cachedViews.push(view.name)
+      for (const matchedView of view.matched) {
+        const { name } = matchedView.components.default
+        if (name && state.cachedViews.indexOf(name) === -1) {
+          state.cachedViews.push(name)
+        }
+      }
     }
   },
 
@@ -58,13 +63,8 @@ const mutations = {
     }
   },
   DEL_CACHED_VIEW: (state, view) => {
-    for (const i of state.cachedViews) {
-      if (i === view.name) {
-        const index = state.cachedViews.indexOf(i)
-        state.cachedViews.splice(index, 1)
-        break
-      }
-    }
+    const index = state.cachedViews.indexOf(view.matched[view.matched.length - 1].name)
+    index > -1 && state.cachedViews.splice(index, 1)
   },
 
   DEL_OTHERS_VISITED_VIEWS: (state, view) => {
@@ -73,12 +73,12 @@ const mutations = {
     })
   },
   DEL_OTHERS_CACHED_VIEWS: (state, view) => {
-    for (const i of state.cachedViews) {
-      if (i === view.name) {
-        const index = state.cachedViews.indexOf(i)
-        state.cachedViews = state.cachedViews.slice(index, index + 1)
-        break
-      }
+    const index = state.cachedViews.indexOf(view.name)
+    if (index > -1) {
+      state.cachedViews = state.cachedViews.slice(index, index + 1)
+    } else {
+      // if index = -1, there is no cached tags
+      state.cachedViews = []
     }
   },
 
