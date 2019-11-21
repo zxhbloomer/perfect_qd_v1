@@ -52,7 +52,6 @@ const mutations = {
           state.cachedViews.push(name)
           // add by zxh start
           state.cachedKeys.push(view.path)
-          debugger
           // add by zxh end
         }
       }

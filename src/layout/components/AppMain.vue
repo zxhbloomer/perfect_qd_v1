@@ -4,7 +4,7 @@
     <!-- <transition name="fade-transform" mode="out-in"> -->
     <transition>
       <keep-alive :include="cachedViews">
-        <router-view :key="$route.fullPath" />
+        <router-view :key="key" />
       </keep-alive>
     </transition>
   </section>
@@ -15,12 +15,11 @@ export default {
   name: 'AppMain',
   computed: {
     cachedViews() {
-      console.log('appmain cacheviews:')
-      console.log(this.$store.state.tagsView.cachedViews)
+      this.$destroyKeepAlive(this.$store.state.tagsView.cachedViews, this.$store.state.tagsView.cachedKeys)
       return this.$store.state.tagsView.cachedViews
     },
     key() {
-      return this.$route.fullPath
+      return this.$route.name
     }
   }
 }

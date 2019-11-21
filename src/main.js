@@ -63,22 +63,49 @@ new Vue({
    * 手动清空缓存，把不用的缓存删除
    */
 Vue.prototype.$destroyKeepAlive = function(cachedViews, cachedKeys) {
+  if (this.$vnode.parent === undefined) {
+    return
+  }
   const cache = this.$vnode.parent.componentInstance.cache
+  const keys = this.$vnode.parent.componentInstance.keys
   // const keys = this.$vnode.parent.componentInstance.keys
   // 忽略掉组件为null的key值
   // const cacheLen = 0
-  debugger
+  let count = 0
+  for (const item in keys) {
+    if (keys[item] === null) {
+      continue
+    }
+    const key = keys[item].split('-')[2]
+    if (!cachedViews.includes(key)) {
+      console.log('删除keys开始：')
+      console.log(keys)
+      keys.splice(count, 1)
+      console.log('删除keys结束：')
+      console.log(keys)
+    }
+    count++
+  }
   for (const item in cache) {
-    const tag = cache[item].tag
+    if (cache[item] === null) {
+      continue
+    }
+    const key = cache[item].data.key
     let deleteFlg = true
-    for (const cachedItem in cachedViews) {
-      if (tag.includes(cachedViews[cachedItem])) {
-        deleteFlg = false
-      }
+    // for (const cachedItem in cachedViews) {
+    //   if (key === cachedViews[cachedItem]) {
+    //     deleteFlg = false
+    //   }
+    // }
+    if (cachedViews.includes(key)) {
+      deleteFlg = false
     }
     if (deleteFlg) {
+      console.log('清空keepalive开始：')
+      console.log(cache[item].componentInstance)
       cache[item].componentInstance.$destroy()
       cache[item] = null
+      console.log('清空keepalive结束')
     }
     // cache[item].data.key
   }
