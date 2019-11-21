@@ -58,3 +58,28 @@ new Vue({
   store,
   render: h => h(App)
 })
+
+/**
+   * 手动清空缓存，把不用的缓存删除
+   */
+Vue.prototype.$destroyKeepAlive = function(cachedViews, cachedKeys) {
+  const cache = this.$vnode.parent.componentInstance.cache
+  // const keys = this.$vnode.parent.componentInstance.keys
+  // 忽略掉组件为null的key值
+  // const cacheLen = 0
+  debugger
+  for (const item in cache) {
+    const tag = cache[item].tag
+    let deleteFlg = true
+    for (const cachedItem in cachedViews) {
+      if (tag.includes(cachedViews[cachedItem])) {
+        deleteFlg = false
+      }
+    }
+    if (deleteFlg) {
+      cache[item].componentInstance.$destroy()
+      cache[item] = null
+    }
+    // cache[item].data.key
+  }
+}

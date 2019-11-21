@@ -30,7 +30,8 @@ const state = {
     // 'P00000171', // 组织机构管理  左侧树
     // 'P00000172', // 组织机构管理  右侧1
     // 'P00000173' // 组织机构管理  右侧2
-  ]
+  ],
+  cachedKeys: []
 }
 const mutations = {
   ADD_VISITED_VIEW: (state, view) => {
@@ -49,6 +50,10 @@ const mutations = {
         const { name } = matchedView.components.default
         if (name && state.cachedViews.indexOf(name) === -1) {
           state.cachedViews.push(name)
+          // add by zxh start
+          state.cachedKeys.push(view.path)
+          debugger
+          // add by zxh end
         }
       }
     }
@@ -64,6 +69,11 @@ const mutations = {
   },
   DEL_CACHED_VIEW: (state, view) => {
     const index = state.cachedViews.indexOf(view.matched[view.matched.length - 1].name)
+    // add by zxh start
+    if (index > -1) {
+      state.cachedKeys.splice(index, 1)
+    }
+    // add by zxh end
     index > -1 && state.cachedViews.splice(index, 1)
   },
 
@@ -76,9 +86,15 @@ const mutations = {
     const index = state.cachedViews.indexOf(view.name)
     if (index > -1) {
       state.cachedViews = state.cachedViews.slice(index, index + 1)
+      // add by zxh start
+      state.cachedKeys = state.cachedKeys.slice(index, index + 1)
+      // add by zxh end
     } else {
       // if index = -1, there is no cached tags
       state.cachedViews = []
+      // add by zxh start
+      state.cachedKeys = []
+      // add by zxh end
     }
   },
 
@@ -89,6 +105,9 @@ const mutations = {
   },
   DEL_ALL_CACHED_VIEWS: state => {
     state.cachedViews = []
+    // add by zxh start
+    state.cachedKeys = []
+    // add by zxh end
   },
 
   UPDATE_VISITED_VIEW: (state, view) => {
@@ -119,7 +138,10 @@ const actions = {
       dispatch('delCachedView', view)
       resolve({
         visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
+        cachedViews: [...state.cachedViews],
+        // add by zxh start
+        cachedKeys: [...state.cachedKeys]
+        // add by zxh end
       })
     })
   },
@@ -133,6 +155,9 @@ const actions = {
     return new Promise(resolve => {
       commit('DEL_CACHED_VIEW', view)
       resolve([...state.cachedViews])
+      // add by zxh start
+      resolve([...state.cachedKeys])
+      // add by zxh end
     })
   },
 
@@ -142,7 +167,10 @@ const actions = {
       dispatch('delOthersCachedViews', view)
       resolve({
         visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
+        cachedViews: [...state.cachedViews],
+        // add by zxh start
+        cachedKeys: [...state.cachedKeys]
+      // add by zxh end
       })
     })
   },
@@ -156,6 +184,9 @@ const actions = {
     return new Promise(resolve => {
       commit('DEL_OTHERS_CACHED_VIEWS', view)
       resolve([...state.cachedViews])
+      // add by zxh start
+      resolve([...state.cachedKeys])
+      // add by zxh end
     })
   },
 
@@ -165,7 +196,10 @@ const actions = {
       dispatch('delAllCachedViews', view)
       resolve({
         visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
+        cachedViews: [...state.cachedViews],
+        // add by zxh start
+        cachedKeys: [...state.cachedKeys]
+      // add by zxh end
       })
     })
   },
@@ -179,6 +213,9 @@ const actions = {
     return new Promise(resolve => {
       commit('DEL_ALL_CACHED_VIEWS')
       resolve([...state.cachedViews])
+      // add by zxh start
+      resolve([...state.cachedKeys])
+      // add by zxh end
     })
   },
 
