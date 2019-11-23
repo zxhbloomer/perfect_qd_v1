@@ -15,11 +15,10 @@ export default {
   name: 'AppMain',
   computed: {
     cachedViews() {
-      this.$destroyKeepAlive(this.$store.state.tagsView.cachedViews, this.$store.state.tagsView.cachedKeys)
       return this.$store.state.tagsView.cachedViews
     },
     key() {
-      return this.$route.name
+      return this.$route.fullpath
     }
   }
 }

@@ -13,7 +13,6 @@ export default {
   name: 'M00000020',
   computed: {
     cachedViews() {
-      this.$destroyKeepAlive(this.$store.state.tagsView.cachedViews, this.$store.state.tagsView.cachedKeys)
       return this.$store.state.tagsView.cachedViews
     },
     key() {
