@@ -3,8 +3,8 @@
     <!-- 过渡动画注释 by zxh -->
     <!-- <transition name="fade-transform" mode="out-in"> -->
     <transition>
-      <keep-alive :include="cachedViews">
-        <router-view :key="key" />
+      <keep-alive>
+        <router-view />
       </keep-alive>
     </transition>
   </section>

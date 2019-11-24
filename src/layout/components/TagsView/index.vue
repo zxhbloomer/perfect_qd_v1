@@ -137,6 +137,7 @@ export default {
           this.toLastView(visitedViews, view)
         }
       })
+      this.$deleteKeepAliveNode(view)
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag)

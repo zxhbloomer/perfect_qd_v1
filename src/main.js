@@ -62,21 +62,62 @@ new Vue({
 /**
    * 手动清空缓存，把不用的缓存删除
    */
-Vue.prototype.$deleteKeepAliveNode = function() {
-  this.$destroyKeepAlive(this.$parent)
-  // const _nodes = this.$root.$children
-  // const _data = this.$loopChild(_nodes)
-  // debugger
+Vue.prototype.$deleteKeepAliveNode = function(view) {
+  debugger
+  // this.$destroyKeepAlive(this.$parent)
+  const _nodes = this.$root.$children
+  const _data = this.$loopChild(_nodes, view)
+  console.log(_data)
 }
-Vue.prototype.$loopChild = function(_nodes) {
+Vue.prototype.$loopChild = function(_nodes, view) {
+  if (_nodes.length <= 0) {
+    return
+  }
   for (const _node in _nodes) {
-    if (!_nodes[_node].$vnode.tag.includes(this.$vnode.data.key)) {
-      this.$loopChild(_nodes[_node].$children)
+    if (!_nodes[_node].$vnode.tag.includes(view.name)) {
+      return this.$loopChild(_nodes[_node].$children, view)
     } else {
       return _nodes[_node]
     }
   }
 }
+
+/**
+ * 手动清空缓存，把不用的缓存删除
+ */
+Vue.prototype.$clearKeepAliveCache = function(that, view) {
+  let vnode = null
+  for (let i = 0; i < that.$parent.$children.length; i++) {
+    if (that.$parent.$children[i].$vnode.tag.indexOf('-AppMain') > -1) {
+      let isSet = false
+      if (that.$parent.$children[i].$vnode.componentInstance) {
+        for (let j = 0; j < that.$parent.$children[i].$vnode.componentInstance.$children.length; j++) {
+          if (that.$parent.$children[i].$vnode.componentInstance.$children[ j ].$vnode.tag.indexOf('-breadcrumb') < 0) {
+            vnode = that.$parent.$children[i].$vnode.componentInstance.$children[ j ].$vnode.componentInstance.$vnode.parent
+            isSet = true
+            break
+          }
+        }
+      }
+      if (isSet) {
+        break
+      }
+    }
+  }
+  if (vnode) {
+    for (let i = 0; i < vnode.componentInstance.keys.length; i++) {
+      const arr = vnode.componentInstance.keys[i].split('-')
+      const path = arr[arr.length - 1]
+      // if (path === view.path) {
+      if (path === view.name) {
+        delete vnode.componentInstance.cache[vnode.componentInstance.keys[i]]
+        vnode.componentInstance.keys.splice(i, 1)
+        break
+      }
+    }
+  }
+}
+
 /**
    * 手动清空缓存，把不用的缓存删除
    */
