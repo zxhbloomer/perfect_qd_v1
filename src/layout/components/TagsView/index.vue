@@ -137,6 +137,7 @@ export default {
           this.toLastView(visitedViews, view)
         }
       })
+      // this.$clearKeepAliveCache(this, view)
       this.$deleteKeepAliveNode(view)
     },
     closeOthersTags() {
