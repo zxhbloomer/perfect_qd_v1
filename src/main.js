@@ -64,29 +64,30 @@ new Vue({
 /**
    * 手动清空缓存，把不用的缓存删除
    */
-Vue.prototype.$deleteKeepAliveNode = function(view) {
+Vue.prototype.$deleteKeepAliveNode = function(name) {
   // this.$destroyKeepAlive(this.$parent)
   const _nodes = this.$root.$children
   this.GLOBAL.tmpNode = null
-  this.$loopChild(_nodes, view)
+  this.$loopChild(_nodes, name)
   const vnode = this.GLOBAL.tmpNode
   if (vnode) {
     for (let i = 0; i < vnode.$vnode.parent.componentInstance.keys.length; i++) {
       const arr = vnode.$vnode.parent.componentInstance.keys[i].split('-')
       const path = arr[arr.length - 1]
       // if (path === view.path) {
-      if (path === view.name || path === vnode.$vnode.tag.split('-')[2]) {
+      if (path === name || path === vnode.$vnode.tag.split('-')[2]) {
+        console.log('delete keep-alive :' + vnode.$vnode.parent.componentInstance.keys[i])
         delete vnode.$vnode.parent.componentInstance.cache[vnode.$vnode.parent.componentInstance.keys[i]]
         vnode.$vnode.parent.componentInstance.keys.splice(i, 1)
-        break
+        // break
       }
     }
   }
 }
-Vue.prototype.$loopChild = function(_nodes, view, _val) {
+Vue.prototype.$loopChild = function(_nodes, name, _val) {
   for (const _node in _nodes) {
-    if (!_nodes[_node].$vnode.tag.includes(view.name)) {
-      this.$loopChild(_nodes[_node].$children, view)
+    if (!_nodes[_node].$vnode.tag.includes(name)) {
+      this.$loopChild(_nodes[_node].$children, name)
     } else {
       this.GLOBAL.tmpNode = _nodes[_node]
       return _nodes[_node]
@@ -98,7 +99,6 @@ Vue.prototype.$loopChild = function(_nodes, view, _val) {
  * 手动清空缓存，把不用的缓存删除
  */
 Vue.prototype.$clearKeepAliveCache = function(that, view) {
-  debugger
   let vnode = null
   for (let i = 0; i < that.$parent.$children.length; i++) {
     if (that.$parent.$children[i].$vnode.tag.indexOf('-AppMain') > -1) {

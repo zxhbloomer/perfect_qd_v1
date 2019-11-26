@@ -40,6 +40,7 @@ export const constantRoutes = [
     path: '/redirect',
     component: Layout,
     hidden: true,
+    meta: { noCache: true },
     children: [
       {
         path: '/redirect/:path*',

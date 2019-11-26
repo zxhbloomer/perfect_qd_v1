@@ -3,7 +3,7 @@
     <!-- 过渡动画注释 by zxh -->
     <!-- <transition name="fade-transform" mode="out-in"> -->
     <transition>
-      <keep-alive>
+      <keep-alive exclude="Redirect,Dashboard,Layout">
         <router-view />
       </keep-alive>
     </transition>

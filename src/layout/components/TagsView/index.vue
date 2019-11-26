@@ -124,6 +124,7 @@ export default {
     refreshSelectedTag(view) {
       this.$store.dispatch('tagsView/delCachedView', view).then(() => {
         const { fullPath } = view
+        this.$deleteKeepAliveNode(view.name)
         this.$nextTick(() => {
           this.$router.replace({
             path: '/redirect' + fullPath
@@ -132,16 +133,20 @@ export default {
       })
     },
     closeSelectedTag(view) {
+      this.$deleteKeepAliveNode(view.name)
       this.$store.dispatch('tagsView/delView', view).then(({ visitedViews }) => {
         if (this.isActive(view)) {
           this.toLastView(visitedViews, view)
         }
       })
-      // this.$clearKeepAliveCache(this, view)
-      this.$deleteKeepAliveNode(view)
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag)
+      this.$store.state.tagsView.cachedViews.forEach((item, index) => {
+        if (item !== this.selectedTag.name && item !== 'Layout') {
+          this.$deleteKeepAliveNode(item)
+        }
+      })
       this.$store.dispatch('tagsView/delOthersViews', this.selectedTag).then(() => {
         this.moveToCurrentTag()
       })
