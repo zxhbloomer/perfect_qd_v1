@@ -127,7 +127,8 @@ export default {
         this.$deleteKeepAliveNode(view.name)
         this.$nextTick(() => {
           this.$router.replace({
-            path: '/redirect' + fullPath
+            path: '/redirect' + fullPath,
+            query: Object.assign({}, this.$route.query, { _forceReload: +new Date() })
           })
         })
       })
@@ -142,6 +143,8 @@ export default {
     },
     closeOthersTags() {
       this.$router.push(this.selectedTag)
+
+      // 删除缓存
       this.$store.state.tagsView.cachedViews.forEach((item, index) => {
         if (item !== this.selectedTag.name && item !== 'Layout') {
           this.$deleteKeepAliveNode(item)
@@ -152,6 +155,13 @@ export default {
       })
     },
     closeAllTags(view) {
+      // 删除缓存
+      this.$store.state.tagsView.cachedViews.forEach((item, index) => {
+        if (item !== 'Layout') {
+          this.$deleteKeepAliveNode(item)
+        }
+      })
+
       this.$store.dispatch('tagsView/delAllViews').then(({ visitedViews }) => {
         if (this.affixTags.some(tag => tag.path === view.path)) {
           return

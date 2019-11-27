@@ -41,6 +41,7 @@ const state = {
 
 const mutations = {
   SET_ROUTES: (state, routes) => {
+    debugger
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
   }

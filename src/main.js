@@ -27,10 +27,6 @@ import * as filters from './filters' // global filters
  * Currently MockJs will be used in the production environment,
  * please remove it before going online! ! !
  */
-import { mockXHR } from '../mock'
-if (process.env.NODE_ENV === 'production') {
-  mockXHR()
-}
 
 // add by zxh
 import commonFunction from './common/commonFunction'
@@ -67,14 +63,16 @@ new Vue({
 Vue.prototype.$deleteKeepAliveNode = function(name) {
   // this.$destroyKeepAlive(this.$parent)
   const _nodes = this.$root.$children
-  this.GLOBAL.tmpNode = null
+  this.GLOBAL.tmpNode = []
   this.$loopChild(_nodes, name)
-  const vnode = this.GLOBAL.tmpNode
+  console.log('查到的节点数：' + this.GLOBAL.tmpNode.length)
+  const vnode = this.GLOBAL.tmpNode[0]
   if (vnode) {
     for (let i = 0; i < vnode.$vnode.parent.componentInstance.keys.length; i++) {
       const arr = vnode.$vnode.parent.componentInstance.keys[i].split('-')
       const path = arr[arr.length - 1]
       // if (path === view.path) {
+      // 删除缓存
       if (path === name || path === vnode.$vnode.tag.split('-')[2]) {
         console.log('delete keep-alive :' + vnode.$vnode.parent.componentInstance.keys[i])
         delete vnode.$vnode.parent.componentInstance.cache[vnode.$vnode.parent.componentInstance.keys[i]]
@@ -82,15 +80,23 @@ Vue.prototype.$deleteKeepAliveNode = function(name) {
         // break
       }
     }
+    // 删除vnode
+    vnode.$parent.$children.forEach((item, index) => {
+      if (vnode.$vnode.tag.includes(name)) {
+        console.log('delete keep-alive node :')
+        vnode.$parent.$children.splice(index, 1)
+      }
+    })
   }
+  this.$loopChild(_nodes, name)
 }
 Vue.prototype.$loopChild = function(_nodes, name, _val) {
   for (const _node in _nodes) {
     if (!_nodes[_node].$vnode.tag.includes(name)) {
       this.$loopChild(_nodes[_node].$children, name)
     } else {
-      this.GLOBAL.tmpNode = _nodes[_node]
-      return _nodes[_node]
+      this.GLOBAL.tmpNode.push(_nodes[_node])
+      // return _nodes[_node]
     }
   }
 }

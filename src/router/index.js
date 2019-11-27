@@ -1,13 +1,21 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-Vue.use(Router)
-
 /* Layout */
 import Layout from '@/layout'
 
 /* Router Modules */
 import subMenu from '@/views/00_system/submenu'
+
+Vue.use(Router)
+
+/**
+ * 解决：vue报错 ：NavigationDuplicated {_name: "NavigationDuplicated", name: "NavigationDuplicated"}
+ */
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
